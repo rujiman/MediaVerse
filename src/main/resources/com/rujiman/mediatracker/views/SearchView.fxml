@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
@@ -11,14 +13,21 @@
 
     <top>
         <VBox style="-fx-background-color: #1a1a2e; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
-            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+            <padding><Insets top="16" right="20" bottom="12" left="20"/></padding>
             <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="🎌 MediaTracker"
-                       style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <ImageView fitWidth="26" fitHeight="26" preserveRatio="true">
+                        <image>
+                            <Image url="@icons/mediaverse_logo.png"/>
+                        </image>
+                    </ImageView>
+                    <Label text="Mediaverse"
+                           style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </HBox>
                 <HBox HBox.hgrow="ALWAYS"/>
                 <TextField fx:id="searchField"
-                           promptText="Buscar anime..."
-                           prefWidth="320"
+                           promptText="Buscar anime, series, pelis o música..."
+                           prefWidth="340"
                            style="-fx-background-color: #16213e;
                                   -fx-text-fill: #eaeaea;
                                   -fx-prompt-text-fill: #555577;
@@ -37,6 +46,25 @@
                                -fx-padding: 8 20 8 20;
                                -fx-cursor: hand;"/>
             </HBox>
+
+            <!-- Filtros por tipo -->
+            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 12 0 0 0;">
+                <ToggleButton fx:id="filterAll" text="Todo" selected="true"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #e94560; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterAnime" text="🎌 Anime"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterSeries" text="📺 Series"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterMovie" text="🎬 Películas"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterMusic" text="🎵 Música"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+            </HBox>
         </VBox>
     </top>
 
@@ -47,7 +75,7 @@
             <!-- Estado vacío / loading -->
             <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
                 <Label fx:id="statusLabel"
-                       text="Busca tu anime favorito ✨"
+                       text="Busca tu próxima obsesión: anime, series, pelis o música ✨"
                        style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
                 <ProgressIndicator fx:id="loadingSpinner"
                                    visible="false"
