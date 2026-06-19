@@ -135,6 +135,84 @@ public class AuthService {
     }
 
     // ============================
+    // CAMBIAR NOMBRE DE USUARIO
+    // ============================
+    /**
+     * Cambia el username de login del usuario actualmente logueado.
+     * @return true si se actualizó correctamente, false si el nuevo nombre
+     *         ya existe o no hay sesión activa.
+     */
+    public static boolean updateUsername(String newUsername) {
+        if (currentUser == null) {
+            System.err.println("❌ No hay sesión activa");
+            return false;
+        }
+
+        if (newUsername == null || newUsername.trim().length() < 3) {
+            System.err.println("❌ Usuario debe tener al menos 3 caracteres");
+            return false;
+        }
+
+        String trimmed = newUsername.trim();
+
+        List<User> users = loadUsers();
+
+        for (User user : users) {
+            if (user.getUsername().equalsIgnoreCase(trimmed) && !user.getUsername().equals(currentUser)) {
+                System.err.println("❌ Ese nombre de usuario ya existe");
+                return false;
+            }
+        }
+
+        for (User user : users) {
+            if (user.getUsername().equals(currentUser)) {
+                user.setUsername(trimmed);
+                break;
+            }
+        }
+
+        saveUsers(users);
+
+        String oldUser = currentUser;
+        currentUser = trimmed;
+
+        // Migrar también el perfil (foto, nombre visible) a la nueva clave
+        ProfileService.renameProfileKey(oldUser, trimmed);
+
+        System.out.println("✅ Username actualizado: " + oldUser + " -> " + trimmed);
+        return true;
+    }
+
+    // ============================
+    // CAMBIAR CONTRASEÑA
+    // ============================
+    public static boolean updatePassword(String newPassword) {
+        if (currentUser == null) {
+            System.err.println("❌ No hay sesión activa");
+            return false;
+        }
+
+        if (newPassword == null || newPassword.length() < 4) {
+            System.err.println("❌ Contraseña debe tener al menos 4 caracteres");
+            return false;
+        }
+
+        List<User> users = loadUsers();
+
+        for (User user : users) {
+            if (user.getUsername().equals(currentUser)) {
+                user.setPassword(newPassword);
+                saveUsers(users);
+                System.out.println("✅ Contraseña actualizada para: " + currentUser);
+                return true;
+            }
+        }
+
+        System.err.println("❌ Usuario actual no encontrado en users.json");
+        return false;
+    }
+
+    // ============================
     // GUARDAR USUARIOS EN JSON
     // ============================
     private static void saveUsers(List<User> users) {

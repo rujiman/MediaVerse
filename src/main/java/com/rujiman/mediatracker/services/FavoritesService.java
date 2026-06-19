@@ -11,17 +11,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Servicio para guardar y cargar favoritos en JSON
+ * Servicio para guardar y cargar favoritos en JSON, separados por usuario
+ * logueado (cada cuenta tiene su propio archivo favorites_<usuario>.json).
  */
 public class FavoritesService {
 
-    private static final String FAVORITES_FILE = "favorites.json";
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
 
     private static List<FavoriteItem> favoritesList = new ArrayList<>();
     private static boolean loaded = false;
+    private static String loadedForUser = null; // qué usuario tiene cargado el caché actual
+
+    /**
+     * Devuelve el nombre del archivo de favoritos del usuario actualmente
+     * logueado (AuthService.getCurrentUser()). Si no hay sesión, usa un
+     * archivo genérico de respaldo.
+     */
+    private static String getFavoritesFile() {
+        String user = AuthService.getCurrentUser();
+        if (user == null || user.isBlank()) {
+            return "favorites.json";
+        }
+        return "favorites_" + user + ".json";
+    }
+
+    /**
+     * Si el usuario logueado ha cambiado desde la última carga
+     * (por ejemplo, tras un logout/login con otra cuenta), invalida
+     * el caché en memoria para no mezclar favoritos entre cuentas.
+     */
+    private static void ensureCorrectUserLoaded() {
+        String currentUser = AuthService.getCurrentUser();
+        if (loaded && java.util.Objects.equals(loadedForUser, currentUser)) {
+            return; // ya está cargado el usuario correcto
+        }
+        favoritesList.clear();
+        loaded = false;
+        loadFavorites();
+    }
 
     // ============================
     // CARGAR FAVORITOS
@@ -29,19 +58,21 @@ public class FavoritesService {
     public static void loadFavorites() {
         if (loaded) return;
 
-        System.out.println("📖 Cargando favoritos...");
+        String file = getFavoritesFile();
+        System.out.println("📖 Cargando favoritos de: " + file);
 
         try {
-            if (!Files.exists(Paths.get(FAVORITES_FILE))) {
-                System.out.println("✅ No hay favoritos previos");
+            if (!Files.exists(Paths.get(file))) {
+                System.out.println("✅ No hay favoritos previos para este usuario");
                 loaded = true;
+                loadedForUser = AuthService.getCurrentUser();
                 return;
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(FAVORITES_FILE)));
+            String json = new String(Files.readAllBytes(Paths.get(file)));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
-            if (root.has("favorites")) {
+            if (root != null && root.has("favorites")) {
                 JsonArray favArray = root.getAsJsonArray("favorites");
 
                 for (JsonElement el : favArray) {
@@ -54,10 +85,12 @@ public class FavoritesService {
             }
 
             loaded = true;
+            loadedForUser = AuthService.getCurrentUser();
 
         } catch (IOException e) {
             System.err.println("❌ Error al cargar favoritos: " + e.getMessage());
             loaded = true;
+            loadedForUser = AuthService.getCurrentUser();
         }
     }
 
@@ -65,6 +98,7 @@ public class FavoritesService {
     // AGREGAR FAVORITO
     // ============================
     public static void addFavorite(FavoriteItem item) {
+        ensureCorrectUserLoaded();
         if (!favoritesList.contains(item)) {
             favoritesList.add(item);
             saveFavorites();
@@ -76,6 +110,7 @@ public class FavoritesService {
     // ELIMINAR FAVORITO
     // ============================
     public static void removeFavorite(String itemId) {
+        ensureCorrectUserLoaded();
         favoritesList.removeIf(fav -> fav.getId().equals(itemId));
         saveFavorites();
         System.out.println("❌ Eliminado de favoritos");
@@ -85,7 +120,7 @@ public class FavoritesService {
     // OBTENER TODOS LOS FAVORITOS
     // ============================
     public static List<FavoriteItem> getFavorites() {
-        if (!loaded) loadFavorites();
+        ensureCorrectUserLoaded();
         return new ArrayList<>(favoritesList);
     }
 
@@ -93,16 +128,17 @@ public class FavoritesService {
     // OBTENER FAVORITOS POR TIPO
     // ============================
     public static List<FavoriteItem> getFavoritesByType(MediaType type) {
-        if (!loaded) loadFavorites();
+        ensureCorrectUserLoaded();
         return favoritesList.stream()
                 .filter(fav -> fav.getType() == type)
                 .toList();
     }
 
     // ============================
-    // ACTUALIZAR ESTADO (VISTO/JUGADO)
+    // ACTUALIZAR ESTADO (VISTO/JUGADO) - item completo, sin episodios
     // ============================
     public static void toggleViewed(String itemId) {
+        ensureCorrectUserLoaded();
         for (FavoriteItem fav : favoritesList) {
             if (fav.getId().equals(itemId)) {
                 fav.setViewed(!fav.isViewed());
@@ -114,9 +150,33 @@ public class FavoritesService {
     }
 
     // ============================
+    // MARCAR/DESMARCAR UN EPISODIO CONCRETO COMO VISTO
+    // ============================
+    public static void toggleEpisodeWatched(String itemId, int episodeNumber) {
+        ensureCorrectUserLoaded();
+        for (FavoriteItem fav : favoritesList) {
+            if (fav.getId().equals(itemId)) {
+                boolean currentlyWatched = fav.isEpisodeWatched(episodeNumber);
+                fav.setEpisodeWatched(episodeNumber, !currentlyWatched);
+
+                // Si se han visto todos los episodios, marcar el item completo como visto
+                Integer total = fav.getTotalEpisodes();
+                if (total != null && total > 0) {
+                    fav.setViewed(fav.getWatchedEpisodes().size() >= total);
+                }
+
+                saveFavorites();
+                System.out.println("✏️ Episodio " + episodeNumber + " actualizado en: " + fav.getTitle());
+                return;
+            }
+        }
+    }
+
+    // ============================
     // VERIFICAR SI ESTÁ EN FAVORITOS
     // ============================
     public static boolean isFavorite(String title) {
+        ensureCorrectUserLoaded();
         return favoritesList.stream()
                 .anyMatch(fav -> fav.getTitle().equalsIgnoreCase(title));
     }
@@ -125,6 +185,7 @@ public class FavoritesService {
     // GUARDAR FAVORITOS EN JSON
     // ============================
     private static void saveFavorites() {
+        String file = getFavoritesFile();
         try {
             JsonObject root = new JsonObject();
             JsonArray favArray = new JsonArray();
@@ -142,14 +203,24 @@ public class FavoritesService {
                 obj.addProperty("viewed", fav.isViewed());
                 obj.addProperty("addedDate", fav.getAddedDate());
 
+                if (fav.getTotalEpisodes() != null) {
+                    obj.addProperty("totalEpisodes", fav.getTotalEpisodes());
+                }
+
+                JsonArray watchedArray = new JsonArray();
+                for (Integer ep : fav.getWatchedEpisodes()) {
+                    watchedArray.add(ep);
+                }
+                obj.add("watchedEpisodes", watchedArray);
+
                 favArray.add(obj);
             }
 
             root.add("favorites", favArray);
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(FAVORITES_FILE), json.getBytes());
-            System.out.println("💾 Favoritos guardados");
+            Files.write(Paths.get(file), json.getBytes());
+            System.out.println("💾 Favoritos guardados en " + file);
 
         } catch (IOException e) {
             System.err.println("❌ Error al guardar favoritos: " + e.getMessage());
@@ -175,6 +246,19 @@ public class FavoritesService {
         item.setExternalUrl(obj.get("externalUrl").getAsString());
         item.setViewed(obj.get("viewed").getAsBoolean());
         item.setAddedDate(obj.get("addedDate").getAsLong());
+
+        if (obj.has("totalEpisodes") && !obj.get("totalEpisodes").isJsonNull()) {
+            item.setTotalEpisodes(obj.get("totalEpisodes").getAsInt());
+        }
+
+        if (obj.has("watchedEpisodes") && obj.get("watchedEpisodes").isJsonArray()) {
+            java.util.Set<Integer> watched = new java.util.HashSet<>();
+            for (JsonElement el : obj.getAsJsonArray("watchedEpisodes")) {
+                watched.add(el.getAsInt());
+            }
+            item.setWatchedEpisodes(watched);
+        }
+
         return item;
     }
 }

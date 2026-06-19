@@ -1,5 +1,8 @@
 package com.rujiman.mediatracker.models;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Modelo para representar un item guardado en favoritos
  */
@@ -12,8 +15,12 @@ public class FavoriteItem {
     private Integer year;
     private Integer score;
     private String externalUrl;
-    private boolean viewed; // visto/jugado
+    private boolean viewed; // visto/jugado (para items sin episodios: película, juego, canción)
     private long addedDate; // timestamp cuando se agregó
+
+    // Episodios (solo aplica a ANIME / SERIES)
+    private Integer totalEpisodes;
+    private Set<Integer> watchedEpisodes = new HashSet<>(); // números de episodio (1-based) marcados como vistos
 
     public FavoriteItem() {}
 
@@ -28,6 +35,8 @@ public class FavoriteItem {
         this.externalUrl = item.getExternalUrl();
         this.viewed = false;
         this.addedDate = System.currentTimeMillis();
+        this.totalEpisodes = item.getEpisodes();
+        this.watchedEpisodes = new HashSet<>();
     }
 
     private String generateId() {
@@ -65,4 +74,22 @@ public class FavoriteItem {
 
     public long getAddedDate() { return addedDate; }
     public void setAddedDate(long addedDate) { this.addedDate = addedDate; }
+
+    public Integer getTotalEpisodes() { return totalEpisodes; }
+    public void setTotalEpisodes(Integer totalEpisodes) { this.totalEpisodes = totalEpisodes; }
+
+    public Set<Integer> getWatchedEpisodes() { return watchedEpisodes; }
+    public void setWatchedEpisodes(Set<Integer> watchedEpisodes) { this.watchedEpisodes = watchedEpisodes; }
+
+    public boolean isEpisodeWatched(int episodeNumber) {
+        return watchedEpisodes.contains(episodeNumber);
+    }
+
+    public void setEpisodeWatched(int episodeNumber, boolean watched) {
+        if (watched) {
+            watchedEpisodes.add(episodeNumber);
+        } else {
+            watchedEpisodes.remove(episodeNumber);
+        }
+    }
 }

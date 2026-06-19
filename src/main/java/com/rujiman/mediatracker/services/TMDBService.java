@@ -110,8 +110,10 @@ public class TMDBService {
             // URL externa
             item.setExternalUrl("https://www.themoviedb.org/tv/" + obj.get("id").getAsInt());
 
-            // Plataformas disponibles
-            item.setPlatforms(getWatchProviders(obj.get("id").getAsInt(), false));
+            // Plataformas disponibles y número de episodios (requieren el endpoint de detalle)
+            int seriesId = obj.get("id").getAsInt();
+            item.setPlatforms(getWatchProviders(seriesId, false));
+            item.setEpisodes(getEpisodeCount(seriesId));
 
             results.add(item);
         }
@@ -122,51 +124,82 @@ public class TMDBService {
     // ============================
     // PARSEAR PELÍCULAS
     // ============================
-        private List<MediaItem> parseMovies(String json) {
+    private List<MediaItem> parseMovies(String json) {
 
-            List<MediaItem> results = new ArrayList<>();
+        List<MediaItem> results = new ArrayList<>();
 
-            JsonObject root = gson.fromJson(json, JsonObject.class);
-            JsonArray items = root.getAsJsonArray("results");
+        JsonObject root = gson.fromJson(json, JsonObject.class);
+        JsonArray items = root.getAsJsonArray("results");
 
-            for (JsonElement el : items) {
-                JsonObject obj = el.getAsJsonObject();
+        for (JsonElement el : items) {
+            JsonObject obj = el.getAsJsonObject();
 
-                MediaItem item = new MediaItem();
-                item.setType(MediaType.MOVIE);
+            MediaItem item = new MediaItem();
+            item.setType(MediaType.MOVIE);
 
-                item.setTitle(obj.get("title").getAsString());
-                item.setDescription(obj.get("overview").getAsString());
+            item.setTitle(obj.get("title").getAsString());
+            item.setDescription(obj.get("overview").getAsString());
 
-                // Imagen
-                if (!obj.get("poster_path").isJsonNull()) {
-                    item.setImageUrl(IMAGE_BASE + obj.get("poster_path").getAsString());
-                }
-
-                // Año
-                if (!obj.get("release_date").isJsonNull()) {
-                    String date = obj.get("release_date").getAsString();
-                    if (!date.isEmpty()) {
-                        item.setYear(Integer.parseInt(date.substring(0, 4)));
-                    }
-                }
-
-                // Puntuación (0–100)
-                if (!obj.get("vote_average").isJsonNull()) {
-                    item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
-                }
-
-                // URL externa
-                item.setExternalUrl("https://www.themoviedb.org/movie/" + obj.get("id").getAsInt());
-
-                // Plataformas disponibles
-                item.setPlatforms(getWatchProviders(obj.get("id").getAsInt(), true));
-
-                results.add(item);
+            // Imagen
+            if (!obj.get("poster_path").isJsonNull()) {
+                item.setImageUrl(IMAGE_BASE + obj.get("poster_path").getAsString());
             }
 
-            return results;
+            // Año
+            if (!obj.get("release_date").isJsonNull()) {
+                String date = obj.get("release_date").getAsString();
+                if (!date.isEmpty()) {
+                    item.setYear(Integer.parseInt(date.substring(0, 4)));
+                }
+            }
+
+            // Puntuación (0–100)
+            if (!obj.get("vote_average").isJsonNull()) {
+                item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
+            }
+
+            // URL externa
+            item.setExternalUrl("https://www.themoviedb.org/movie/" + obj.get("id").getAsInt());
+
+            // Plataformas disponibles
+            item.setPlatforms(getWatchProviders(obj.get("id").getAsInt(), true));
+
+            results.add(item);
         }
+
+        return results;
+    }
+    /**
+     * Obtiene el número total de episodios de una serie consultando
+     * el endpoint de detalle de TMDB (/tv/{id}), ya que /search/tv
+     * no incluye ese dato.
+     */
+    public Integer getEpisodeCount(int tmdbId) {
+        String url = API_URL + "/tv/" + tmdbId + "?api_key=" + getKey();
+
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) {
+                throw new IOException("Error TMDB detalle: " + response);
+            }
+
+            String json = response.body().string();
+            JsonObject obj = gson.fromJson(json, JsonObject.class);
+
+            if (obj.has("number_of_episodes") && !obj.get("number_of_episodes").isJsonNull()) {
+                return obj.get("number_of_episodes").getAsInt();
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<String> getWatchProviders(int tmdbId, boolean isMovie) {
 
         String url = API_URL + (isMovie ?
@@ -209,4 +242,3 @@ public class TMDBService {
         }
     }
 }
-

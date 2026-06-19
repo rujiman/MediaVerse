@@ -209,4 +209,10 @@
 
     </StackPane>
 
+    <!-- OVERLAY DE DETALLE (tercera capa, flota sobre todo, incluido el menú lateral) -->
+    <StackPane fx:id="detailOverlayContainer" visible="false"
+               style="-fx-background-color: #0f0f1a;">
+        <!-- El contenido de DetailView.fxml se inyecta aquí dinámicamente -->
+    </StackPane>
+
 </StackPane>

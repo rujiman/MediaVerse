@@ -10,6 +10,21 @@
             fx:controller="com.rujiman.mediatracker.controllers.DetailViewController"
             style="-fx-background-color: #0f0f1a;">
 
+    <top>
+        <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 20 0 20;">
+            <Button fx:id="backButton"
+                    text="← Volver"
+                    onAction="#onBack"
+                    style="-fx-background-color: #16213e;
+                           -fx-text-fill: #eaeaea;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;
+                           -fx-padding: 8 18 8 18;
+                           -fx-background-radius: 8;
+                           -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
     <center>
         <ScrollPane fx:id="detailScroll"
                     fitToWidth="true"
@@ -49,12 +64,14 @@
                         </HBox>
 
                         <!-- Botones -->
-                        <HBox spacing="10">
+                        <FlowPane hgap="10" vgap="10">
                             <Button fx:id="favoriteButton"
                                     text="⭐ Agregar a favoritos"
+                                    minWidth="190"
                                     style="-fx-background-color: #e94560;
                                            -fx-text-fill: white;
                                            -fx-font-weight: bold;
+                                           -fx-font-size: 12px;
                                            -fx-padding: 10 16 10 16;
                                            -fx-background-radius: 8;
                                            -fx-cursor: hand;"
@@ -62,9 +79,11 @@
                             
                             <Button fx:id="viewedButton"
                                     text="Marcar como visto"
+                                    minWidth="170"
                                     style="-fx-background-color: #16213e;
                                            -fx-text-fill: #eaeaea;
                                            -fx-font-weight: bold;
+                                           -fx-font-size: 12px;
                                            -fx-padding: 10 16 10 16;
                                            -fx-background-radius: 8;
                                            -fx-cursor: hand;"
@@ -72,14 +91,16 @@
                             
                             <Button fx:id="openExternalButton"
                                     text="Abrir en navegador"
+                                    minWidth="170"
                                     style="-fx-background-color: #0078d4;
                                            -fx-text-fill: white;
                                            -fx-font-weight: bold;
+                                           -fx-font-size: 12px;
                                            -fx-padding: 10 16 10 16;
                                            -fx-background-radius: 8;
                                            -fx-cursor: hand;"
                                     onAction="#onOpenExternal"/>
-                        </HBox>
+                        </FlowPane>
 
                         <!-- Géneros -->
                         <Label fx:id="detailGenres"
@@ -110,6 +131,26 @@
                            style="-fx-text-fill: #eaeaea;
                                   -fx-font-size: 12px;
                                   -fx-line-spacing: 4;"/>
+                </VBox>
+
+                <!-- Separador antes de episodios -->
+                <Separator fx:id="episodesSeparator" style="-fx-text-fill: #16213e;" visible="false" managed="false"/>
+
+                <!-- Episodios (solo ANIME / SERIES) -->
+                <VBox fx:id="episodesSection" spacing="8" visible="false" managed="false">
+                    <Label fx:id="episodesHeaderLabel"
+                           text="Episodios"
+                           style="-fx-text-fill: #e94560;
+                                  -fx-font-size: 14px;
+                                  -fx-font-weight: bold;"/>
+                    <VBox fx:id="episodesList" spacing="6"/>
+                </VBox>
+
+                <!-- Canciones del álbum (solo MUSIC tipo álbum, solo total por ahora) -->
+                <VBox fx:id="trackCountSection" spacing="4" visible="false" managed="false">
+                    <Label fx:id="trackCountLabel"
+                           text="🎵 0 canciones"
+                           style="-fx-text-fill: #555577; -fx-font-size: 12px;"/>
                 </VBox>
 
             </VBox>
