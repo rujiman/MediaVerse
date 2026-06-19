@@ -11,6 +11,7 @@ public class RegisterWindowController {
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmField;
     @FXML private Label messageLabel;
+    @FXML private Button switchToLoginButton;
 
     @FXML
     private void onCreateAccount() {
@@ -32,7 +33,6 @@ public class RegisterWindowController {
             messageLabel.setStyle("-fx-text-fill: #2ecc71;");
             messageLabel.setText("Cuenta creada correctamente");
 
-            // Cerrar ventana después de 1 segundo
             new java.util.Timer().schedule(new java.util.TimerTask() {
                 @Override
                 public void run() {
@@ -47,11 +47,10 @@ public class RegisterWindowController {
             messageLabel.setText("El usuario ya existe");
         }
     }
+
     @FXML
-    private void onBackToLogin() {
+    private void switchToLogin() {
         Stage stage = (Stage) usernameField.getScene().getWindow();
         stage.close();
     }
-
 }
-

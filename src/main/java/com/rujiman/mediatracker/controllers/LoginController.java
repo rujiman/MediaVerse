@@ -44,16 +44,19 @@ public class LoginController {
         showLoginPanel();
     }
 
+    // CAMBIAR A REGISTRO
     @FXML
     private void switchToRegister() {
         showRegisterPanel();
     }
 
+    // VOLVER A LOGIN
     @FXML
     private void switchToLogin() {
         showLoginPanel();
     }
 
+    // MOSTRAR LOGIN
     private void showLoginPanel() {
         fadeOut(RegisterPanel, () -> {
             RegisterPanel.setVisible(false);
@@ -62,14 +65,23 @@ public class LoginController {
         });
     }
 
+    // MOSTRAR REGISTRO
     private void showRegisterPanel() {
         fadeOut(LoginPanel, () -> {
             LoginPanel.setVisible(false);
             RegisterPanel.setVisible(true);
+
+            // ⭐ HACER LA VENTANA UN POCO MÁS GRANDE ⭐
+            Stage stage = (Stage) mainStack.getScene().getWindow();
+            stage.setHeight(670);
+            stage.setWidth(1000);
+            stage.centerOnScreen();
             fadeIn(RegisterPanel, null);
         });
     }
 
+
+    // LOGIN
     @FXML
     private void onLogin() {
         String username = usernameLoginField.getText().trim();
@@ -94,6 +106,7 @@ public class LoginController {
         loginErrorLabel.setVisible(true);
     }
 
+    // REGISTRO
     @FXML
     private void onRegister() {
         String username = usernameRegisterField.getText().trim();
@@ -158,6 +171,7 @@ public class LoginController {
         registerErrorLabel.setVisible(true);
     }
 
+    // ABRIR SEARCHVIEW
     private void openSearchView() {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -176,6 +190,7 @@ public class LoginController {
         }
     }
 
+    // ANIMACIONES
     private void fadeOut(VBox vbox, Runnable onFinish) {
         FadeTransition fade = new FadeTransition(Duration.millis(200), vbox);
         fade.setFromValue(1);
@@ -192,6 +207,7 @@ public class LoginController {
         fade.play();
     }
 
+    // HOVERS
     private void setupButtonHovers() {
         if (loginButton != null) setupButtonHover(loginButton);
         if (registerButton != null) setupButtonHover(registerButton);

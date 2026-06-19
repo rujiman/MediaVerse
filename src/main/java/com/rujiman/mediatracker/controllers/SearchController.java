@@ -2,36 +2,39 @@ package com.rujiman.mediatracker.controllers;
 
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
-import com.rujiman.mediatracker.services.AnilistService;
-import com.rujiman.mediatracker.services.TMDBService;
-import com.rujiman.mediatracker.services.MusicService;
-import com.rujiman.mediatracker.services.GameService;
-
-import javafx.animation.*;
-import javafx.application.Platform;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchController {
 
-    // ===== FXML =====
+    // -------------------------
+    // ELEMENTOS YA EXISTENTES
+    // -------------------------
     @FXML private TextField searchField;
     @FXML private Button searchButton;
-    @FXML private FlowPane resultsGrid;
-    @FXML private ScrollPane scrollPane;
-    @FXML private StackPane statusPane;
     @FXML private Label statusLabel;
+    @FXML private StackPane statusPane;
+
+    // -------------------------
+    // RESULTADOS / FILTROS
+    // -------------------------
+    @FXML private ScrollPane scrollPane;
+    @FXML private FlowPane resultsGrid;
     @FXML private ProgressIndicator loadingSpinner;
+
     @FXML private ToggleButton filterAll;
     @FXML private ToggleButton filterAnime;
     @FXML private ToggleButton filterSeries;
@@ -39,48 +42,51 @@ public class SearchController {
     @FXML private ToggleButton filterMusic;
     @FXML private ToggleButton filterGame;
 
-    // ===== Servicios =====
-    private final AnilistService anilist = new AnilistService();
-    private final TMDBService tmdb = new TMDBService();
-    private final MusicService music = new MusicService();
-    private final GameService games = new GameService();
+    private final ToggleGroup filterGroup = new ToggleGroup();
 
-    // ===== Estado =====
-    private List<MediaItem> allResults = new ArrayList<>();
-    private ToggleGroup filterGroup;
-    private MediaType activeFilter = null;
+    // Resultados de la última búsqueda (sin filtrar), para poder re-filtrar sin re-buscar
+    private final List<MediaItem> lastResults = new ArrayList<>();
 
-    // ===== Colores =====
-    private static final String COLOR_PRIMARY   = "#e94560";
-    private static final String COLOR_BG_CARD   = "#1a1a2e";
-    private static final String COLOR_BG_DARK   = "#16213e";
-    private static final String COLOR_TEXT       = "#eaeaea";
-    private static final String COLOR_TEXT_DIM   = "#555577";
-    private static final String COLOR_GREEN      = "#2ecc71";
-    private static final String COLOR_YELLOW     = "#f39c12";
-    private static final String COLOR_RED        = "#e74c3c";
+    // -------------------------
+    // NUEVOS ELEMENTOS DEL MENÚ
+    // -------------------------
+    @FXML private StackPane sideMenu;
+    @FXML private StackPane profileIconContainer;
+    @FXML private ImageView profileIcon;
+    @FXML private Label profileInitialLabel;
+    @FXML private ImageView profilePicture;
+    @FXML private Label profileInitialLabelBig;
+    @FXML private Label usernameLabel;
 
-    // ===== Badges =====
-    private static final String BADGE_ANIME  = "🎌 ANIME";
-    private static final String BADGE_SERIES = "📺 SERIE";
-    private static final String BADGE_MOVIE  = "🎬 PELÍCULA";
-    private static final String BADGE_MUSIC  = "🎵 MÚSICA";
-    private static final String BADGE_GAME   = "🎮 JUEGO";
+    private boolean menuOpen = false;
 
+    // -------------------------
+    // INICIALIZACIÓN
+    // -------------------------
     @FXML
     public void initialize() {
 
-        searchField.setOnAction(e -> onSearch());
+        // Cargar foto de perfil si existe; si no, se queda el círculo con la inicial
+        File profileFile = new File("userdata/profile.png");
+        if (profileFile.exists()) {
+            Image img = new Image(profileFile.toURI().toString());
+            profileIcon.setImage(img);
+            profilePicture.setImage(img);
+            profileIcon.setVisible(true);
+            profilePicture.setVisible(true);
+            profileInitialLabel.setVisible(false);
+            profileInitialLabelBig.setVisible(false);
+        }
 
-        // Hover en botón Buscar
-        String baseStyle = searchButton.getStyle();
-        searchButton.setOnMouseEntered(e ->
-                searchButton.setStyle(baseStyle.replace(COLOR_PRIMARY, "#ff6b8a")));
-        searchButton.setOnMouseExited(e ->
-                searchButton.setStyle(baseStyle));
+        // Cargar nombre de usuario (placeholder)
+        usernameLabel.setText("Usuario");
+        updateProfileInitial(usernameLabel.getText());
 
-        // Grupo de filtros
-        filterGroup = new ToggleGroup();
+        // Ocultar menú al inicio
+        sideMenu.setTranslateX(-240);
+        sideMenu.setVisible(false);
+
+        // Agrupar los filtros para que solo uno esté activo a la vez
         filterAll.setToggleGroup(filterGroup);
         filterAnime.setToggleGroup(filterGroup);
         filterSeries.setToggleGroup(filterGroup);
@@ -88,265 +94,269 @@ public class SearchController {
         filterMusic.setToggleGroup(filterGroup);
         filterGame.setToggleGroup(filterGroup);
 
-        filterGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null && oldVal != null) oldVal.setSelected(true);
+        // Evitar que el usuario pueda dejar el grupo sin ninguna selección
+        filterGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle == null && oldToggle != null) {
+                oldToggle.setSelected(true);
+            }
         });
-
-        updateFilterStyles();
     }
 
+    /**
+     * Muestra la primera letra del nombre de usuario en los círculos
+     * placeholder (icono pequeño y foto grande del panel lateral).
+     */
+    private void updateProfileInitial(String username) {
+        String initial = (username != null && !username.isBlank())
+                ? username.trim().substring(0, 1).toUpperCase()
+                : "U";
+        profileInitialLabel.setText(initial);
+        profileInitialLabelBig.setText(initial);
+    }
+
+    // -------------------------
+    // BÚSQUEDA
+    // -------------------------
     @FXML
     private void onSearch() {
         String query = searchField.getText().trim();
-        if (query.isEmpty()) return;
+        if (query.isEmpty()) {
+            statusLabel.setText("Escribe algo para buscar ✨");
+            return;
+        }
 
-        showLoading(true);
-        resultsGrid.getChildren().clear();
+        statusLabel.setText("Buscando \"" + query + "\"...");
 
-        new Thread(() -> {
-            List<MediaItem> results = new ArrayList<>();
-
-            try { results.addAll(anilist.search(query)); } catch (Exception ignored) {}
-            try { results.addAll(tmdb.searchSeries(query)); } catch (Exception ignored) {}
-            try { results.addAll(tmdb.searchMovies(query)); } catch (Exception ignored) {}
-            try { results.addAll(music.search(query)); } catch (Exception ignored) {}
-            try { results.addAll(games.search(query)); } catch (Exception ignored) {}
-
-            Platform.runLater(() -> {
-                allResults = results;
-                applyFilterAndDisplay();
-            });
-
-        }).start();
+        // TODO: aquí conectarás los servicios reales (TMDBService, AnilistService,
+        // MusicService, GameService) y llamarás a setResults(...) con lo que devuelvan.
     }
 
+    /**
+     * Llamar a este método cuando lleguen resultados nuevos de la búsqueda
+     * (por ejemplo, desde los services). Guarda los resultados sin filtrar
+     * y aplica el filtro actualmente seleccionado.
+     */
+    public void setResults(List<MediaItem> items) {
+        lastResults.clear();
+        if (items != null) lastResults.addAll(items);
+        applyFilter();
+    }
+
+    // -------------------------
+    // FILTROS POR TIPO
+    // -------------------------
     @FXML
     private void onFilterChanged() {
-        if (filterAnime.isSelected()) activeFilter = MediaType.ANIME;
-        else if (filterSeries.isSelected()) activeFilter = MediaType.SERIES;
-        else if (filterMovie.isSelected()) activeFilter = MediaType.MOVIE;
-        else if (filterMusic.isSelected()) activeFilter = MediaType.MUSIC;
-        else if (filterGame.isSelected()) activeFilter = MediaType.GAME;
-        else activeFilter = null;
-
-        updateFilterStyles();
-        applyFilterAndDisplay();
+        applyFilter();
     }
 
-    private void updateFilterStyles() {
-        List<ToggleButton> all = List.of(filterAll, filterAnime, filterSeries, filterMovie, filterMusic, filterGame);
-        for (ToggleButton btn : all) {
-            if (btn.isSelected()) {
-                btn.setStyle("-fx-background-color: " + COLOR_PRIMARY + "; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14; -fx-cursor: hand;");
-            } else {
-                btn.setStyle("-fx-background-color: " + COLOR_BG_DARK + "; -fx-text-fill: " + COLOR_TEXT + "; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14; -fx-cursor: hand;");
+    private void applyFilter() {
+        Toggle selected = filterGroup.getSelectedToggle();
+        MediaType typeFilter = null; // null = sin filtro (mostrar todo)
+
+        if (selected == filterAnime) {
+            typeFilter = MediaType.ANIME;
+        } else if (selected == filterSeries) {
+            typeFilter = MediaType.SERIES;
+        } else if (selected == filterMovie) {
+            typeFilter = MediaType.MOVIE;
+        } else if (selected == filterMusic) {
+            typeFilter = MediaType.MUSIC;
+        } else if (selected == filterGame) {
+            typeFilter = MediaType.GAME;
+        }
+        // Si selected == filterAll (o ninguno), typeFilter se queda en null
+
+        List<MediaItem> filtered = new ArrayList<>();
+        for (MediaItem item : lastResults) {
+            if (typeFilter == null || item.getType() == typeFilter) {
+                filtered.add(item);
             }
         }
+
+        renderResults(filtered);
     }
 
-    private void applyFilterAndDisplay() {
-        List<MediaItem> filtered =
-                activeFilter == null
-                        ? allResults
-                        : allResults.stream().filter(i -> i.getType() == activeFilter).toList();
+    /**
+     * Pinta los resultados filtrados en el FlowPane.
+     * TODO: sustituir el Label de marcador por tu componente de tarjeta real
+     * (por ejemplo, un VBox con ImageView + título, abriendo DetailView al click).
+     */
+    private void renderResults(List<MediaItem> items) {
+        resultsGrid.getChildren().clear();
 
-        displayResults(filtered);
-    }
-
-    private void displayResults(List<MediaItem> results) {
-        showLoading(false);
-
-        if (results.isEmpty()) {
-            showStatus(activeFilter == null
-                    ? "⚠️ No se encontraron resultados"
-                    : "⚠️ Sin resultados para este filtro");
+        if (items.isEmpty()) {
+            statusPane.setVisible(true);
+            scrollPane.setVisible(false);
+            statusLabel.setText("Sin resultados para este filtro 🔍");
+            statusLabel.setVisible(true);
+            loadingSpinner.setVisible(false);
             return;
         }
 
         statusPane.setVisible(false);
         scrollPane.setVisible(true);
 
-        for (int i = 0; i < results.size(); i++) {
-            resultsGrid.getChildren().add(createCard(results.get(i), i));
+        for (MediaItem item : items) {
+            Label card = new Label(item.getTitle());
+            card.setStyle(
+                    "-fx-background-color: #16213e;" +
+                            "-fx-text-fill: #eaeaea;" +
+                            "-fx-padding: 12;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-pref-width: 160;" +
+                            "-fx-pref-height: 90;"
+            );
+            resultsGrid.getChildren().add(card);
         }
     }
 
-    private VBox createCard(MediaItem item, int index) {
+    // -------------------------
+    // MENÚ LATERAL
+    // -------------------------
+    @FXML
+    private void toggleProfileMenu() {
+        if (menuOpen) closeMenu();
+        else openMenu();
+    }
 
-        VBox card = new VBox(8);
-        card.setPrefWidth(150);
-        card.setMaxWidth(150);
-        card.setAlignment(Pos.TOP_CENTER);
-        card.setStyle(
-                "-fx-background-color: " + COLOR_BG_CARD + ";" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-padding: 0 0 10 0;" +
-                        "-fx-cursor: hand;"
+    private void openMenu() {
+        sideMenu.setVisible(true);
+
+        TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
+        slide.setFromX(-240);
+        slide.setToX(0);
+        slide.play();
+
+        menuOpen = true;
+    }
+
+    private void closeMenu() {
+        TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
+        slide.setFromX(0);
+        slide.setToX(-240);
+        slide.setOnFinished(e -> sideMenu.setVisible(false));
+        slide.play();
+
+        menuOpen = false;
+    }
+
+    // -------------------------
+    // FOTO DE PERFIL
+    // -------------------------
+    @FXML
+    private void onChangeProfilePicture() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Selecciona una foto de perfil");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg")
         );
 
-        DropShadow shadow = new DropShadow(15, Color.web("#000000bb"));
-        card.setEffect(shadow);
+        File file = chooser.showOpenDialog(profilePicture.getScene().getWindow());
+        if (file != null) {
+            Image img = new Image(file.toURI().toString());
+            profileIcon.setImage(img);
+            profilePicture.setImage(img);
+            profileIcon.setVisible(true);
+            profilePicture.setVisible(true);
+            profileInitialLabel.setVisible(false);
+            profileInitialLabelBig.setVisible(false);
 
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(150);
-        imageView.setFitHeight(210);
-        imageView.setPreserveRatio(false);
-        imageView.setSmooth(true);
-        imageView.setCache(true);
-        imageView.setImage(createPlaceholder());
-
-        String imageUrl = item.getImageUrl();
-        if (imageUrl != null && !imageUrl.isBlank()) {
-            new Thread(() -> {
-                try {
-                    Image img = new Image(imageUrl, 600, 840, true, true, true);
-                    Platform.runLater(() -> {
-                        imageView.setImage(img);
-                        FadeTransition fadeImg = new FadeTransition(Duration.millis(350), imageView);
-                        fadeImg.setFromValue(0.2);
-                        fadeImg.setToValue(1.0);
-                        fadeImg.play();
-                    });
-                } catch (Exception ignored) {}
-            }).start();
+            // Guardar en userdata/
+            File dest = new File("userdata/profile.png");
+            dest.getParentFile().mkdirs();
+            file.renameTo(dest);
         }
+    }
 
-        Label typeLabel = new Label(getBadgeText(item.getType()));
-        typeLabel.setStyle(
-                "-fx-background-color: " + getBadgeColor(item.getType()) + ";" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 9px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 4;" +
-                        "-fx-padding: 2 6;"
-        );
+    // -------------------------
+    // CAMBIAR NOMBRE DE USUARIO
+    // -------------------------
+    @FXML
+    private void onChangeUsername() {
+        TextInputDialog dialog = new TextInputDialog(usernameLabel.getText());
+        dialog.setTitle("Cambiar nombre de usuario");
+        dialog.setHeaderText("Introduce tu nuevo nombre de usuario");
+        dialog.setContentText("Nuevo nombre:");
 
-        Label titleLabel = new Label(item.getTitle());
-        titleLabel.setWrapText(true);
-        titleLabel.setMaxWidth(130);
-        titleLabel.setTextAlignment(TextAlignment.CENTER);
-        titleLabel.setAlignment(Pos.CENTER);
-        titleLabel.setStyle(
-                "-fx-text-fill: " + COLOR_TEXT + ";" +
-                        "-fx-font-size: 11px;" +
-                        "-fx-font-weight: bold;"
-        );
-
-        Label yearLabel = new Label(item.getYear() != null ? String.valueOf(item.getYear()) : "—");
-        yearLabel.setStyle("-fx-text-fill: " + COLOR_TEXT_DIM + "; -fx-font-size: 10px;");
-
-        int score = item.getScore() != null ? item.getScore() : 0;
-        String scoreColor = score >= 75 ? COLOR_GREEN : score >= 50 ? COLOR_YELLOW : COLOR_RED;
-        Label scoreLabel = new Label(score > 0 ? "⭐ " + score + "/100" : "Sin puntuación");
-        scoreLabel.setStyle("-fx-text-fill: " + scoreColor + "; -fx-font-size: 10px;");
-
-        if (item.getPlatforms() != null && !item.getPlatforms().isEmpty()) {
-            Label platLabel = new Label(String.join(" · ", item.getPlatforms().stream().limit(2).toList()));
-            platLabel.setMaxWidth(130);
-            platLabel.setWrapText(true);
-            platLabel.setTextAlignment(TextAlignment.CENTER);
-            platLabel.setAlignment(Pos.CENTER);
-            platLabel.setStyle("-fx-text-fill: #8888aa; -fx-font-size: 9px;");
-            card.getChildren().addAll(imageView, typeLabel, titleLabel, yearLabel, scoreLabel, platLabel);
-        } else {
-            card.getChildren().addAll(imageView, typeLabel, titleLabel, yearLabel, scoreLabel);
-        }
-
-        card.setOpacity(0);
-        PauseTransition delay = new PauseTransition(Duration.millis(index * 55L));
-        delay.setOnFinished(e -> {
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(400), card);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-
-            TranslateTransition slideUp = new TranslateTransition(Duration.millis(400), card);
-            slideUp.setFromY(24);
-            slideUp.setToY(0);
-
-            new ParallelTransition(fadeIn, slideUp).play();
-        });
-        delay.play();
-
-        card.setOnMouseEntered(e -> {
-            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
-            scale.setToX(1.06);
-            scale.setToY(1.06);
-            scale.play();
-            card.setEffect(new DropShadow(28, Color.web(COLOR_PRIMARY + "99")));
-        });
-
-        card.setOnMouseExited(e -> {
-            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
-            scale.setToX(1.0);
-            scale.setToY(1.0);
-            scale.play();
-            card.setEffect(shadow);
-        });
-
-        card.setOnMouseClicked(e -> {
-            String url = item.getExternalUrl();
-            if (url != null && !url.isBlank()) {
-                try {
-                    java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-                } catch (Exception ignored) {}
+        dialog.showAndWait().ifPresent(newName -> {
+            if (newName.trim().length() < 3) {
+                showAlert("El nombre debe tener al menos 3 caracteres.");
+                return;
             }
+
+            usernameLabel.setText(newName);
+            updateProfileInitial(newName);
+            showAlert("Nombre de usuario actualizado.");
+        });
+    }
+
+    // -------------------------
+    // CAMBIAR CONTRASEÑA
+    // -------------------------
+    @FXML
+    private void onChangePassword() {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Cambiar contraseña");
+
+        PasswordField pass1 = new PasswordField();
+        pass1.setPromptText("Nueva contraseña");
+
+        PasswordField pass2 = new PasswordField();
+        pass2.setPromptText("Confirmar contraseña");
+
+        VBox box = new VBox(10, pass1, pass2);
+        dialog.getDialogPane().setContent(box);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.setResultConverter(btn -> {
+            if (btn == ButtonType.OK) return pass1.getText();
+            return null;
         });
 
-        return card;
+        dialog.showAndWait().ifPresent(pass -> {
+            if (!pass1.getText().equals(pass2.getText())) {
+                showAlert("Las contraseñas no coinciden.");
+                return;
+            }
+
+            if (pass1.getText().length() < 4) {
+                showAlert("La contraseña debe tener al menos 4 caracteres.");
+                return;
+            }
+
+            showAlert("Contraseña actualizada.");
+        });
     }
 
-    private String getBadgeText(MediaType type) {
-        return switch (type) {
-            case ANIME -> BADGE_ANIME;
-            case SERIES -> BADGE_SERIES;
-            case MOVIE -> BADGE_MOVIE;
-            case MUSIC -> BADGE_MUSIC;
-            case GAME -> BADGE_GAME;
-            default -> "• OTRO";
-        };
+    // -------------------------
+    // SECCIONES
+    // -------------------------
+    @FXML private void openFavorites() { showAlert("Abrir favoritos"); }
+    @FXML private void openWatchedSeries() { showAlert("Abrir series vistas"); }
+    @FXML private void openWatchingSeries() { showAlert("Abrir series viendo"); }
+    @FXML private void openWatchedMovies() { showAlert("Abrir películas vistas"); }
+    @FXML private void openGames() { showAlert("Abrir videojuegos"); }
+
+    // -------------------------
+    // LOGOUT
+    // -------------------------
+    @FXML
+    private void logout() {
+        showAlert("Sesión cerrada.");
+        Stage stage = (Stage) searchField.getScene().getWindow();
+        stage.close();
     }
 
-    private String getBadgeColor(MediaType type) {
-        return switch (type) {
-            case ANIME -> "#e94560";
-            case SERIES -> "#0078d4";
-            case MOVIE -> "#7b2d8b";
-            case MUSIC -> "#1db954";
-            case GAME -> "#f39c12";
-            default -> "#555577";
-        };
+    // -------------------------
+    // UTILIDAD
+    // -------------------------
+    private void showAlert(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.show();
     }
 
-    private Image createPlaceholder() {
-        javafx.scene.canvas.Canvas canvas = new javafx.scene.canvas.Canvas(150, 210);
-        var gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.web(COLOR_BG_DARK));
-        gc.fillRoundRect(0, 0, 150, 210, 12, 12);
-        gc.setFill(Color.web(COLOR_TEXT_DIM));
-        gc.setFont(javafx.scene.text.Font.font(28));
-        gc.fillText("🎬", 52, 118);
-        return canvas.snapshot(null, null);
-    }
-
-    private void showLoading(boolean loading) {
-        statusPane.setVisible(true);
-        scrollPane.setVisible(false);
-        statusLabel.setVisible(!loading);
-        loadingSpinner.setVisible(loading);
-
-        if (loading) {
-            FadeTransition fade = new FadeTransition(Duration.millis(200), loadingSpinner);
-            fade.setFromValue(0);
-            fade.setToValue(1);
-            fade.play();
-        }
-    }
-
-    private void showStatus(String message) {
-        statusPane.setVisible(true);
-        scrollPane.setVisible(false);
-        loadingSpinner.setVisible(false);
-        statusLabel.setVisible(true);
-        statusLabel.setText(message);
-    }
 }

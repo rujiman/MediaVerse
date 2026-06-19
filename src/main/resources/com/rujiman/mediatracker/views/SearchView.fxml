@@ -6,15 +6,18 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.rujiman.mediatracker.controllers.SearchController"
-            style="-fx-background-color: #0f0f1a;">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.rujiman.mediatracker.controllers.SearchController">
+
+<BorderPane style="-fx-background-color: #0f0f1a;">
 
     <top>
         <VBox style="-fx-background-color: #1a1a2e; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
             <padding><Insets top="16" right="20" bottom="12" left="20"/></padding>
-            <HBox spacing="12" alignment="CENTER_LEFT">
+            <HBox spacing="12" alignment="CENTER">
+
+                <!-- IZQUIERDA: Logo -->
                 <HBox spacing="8" alignment="CENTER_LEFT">
                     <ImageView fitWidth="26" fitHeight="26" preserveRatio="true">
                         <image>
@@ -24,28 +27,57 @@
                     <Label text="Mediaverse"
                            style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold;"/>
                 </HBox>
+
+                <!-- ESPACIO FLEXIBLE -->
                 <HBox HBox.hgrow="ALWAYS"/>
-                <TextField fx:id="searchField"
-                           promptText="Buscar anime, series, pelis , música o videojuegos..."
-                           prefWidth="340"
-                           style="-fx-background-color: #16213e;
-                                  -fx-text-fill: #eaeaea;
-                                  -fx-prompt-text-fill: #555577;
-                                  -fx-border-color: #e94560;
-                                  -fx-border-radius: 20;
-                                  -fx-background-radius: 20;
-                                  -fx-padding: 8 16 8 16;
-                                  -fx-font-size: 13px;"/>
-                <Button fx:id="searchButton"
-                        text="Buscar"
-                        onAction="#onSearch"
-                        style="-fx-background-color: #e94560;
-                               -fx-text-fill: white;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20;
-                               -fx-padding: 8 20 8 20;
-                               -fx-cursor: hand;"/>
+
+                <!-- CENTRO: Barra de búsqueda -->
+                <HBox spacing="8" alignment="CENTER">
+                    <TextField fx:id="searchField"
+                               promptText="Buscar anime, series, pelis , música o videojuegos..."
+                               prefWidth="340"
+                               style="-fx-background-color: #16213e;
+                          -fx-text-fill: #eaeaea;
+                          -fx-prompt-text-fill: #555577;
+                          -fx-border-color: #e94560;
+                          -fx-border-radius: 20;
+                          -fx-background-radius: 20;
+                          -fx-padding: 8 16 8 16;
+                          -fx-font-size: 13px;"/>
+                    <Button fx:id="searchButton"
+                            text="Buscar"
+                            onAction="#onSearch"
+                            style="-fx-background-color: #e94560;
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 20;
+                       -fx-padding: 8 20 8 20;
+                       -fx-cursor: hand;"/>
+                </HBox>
+
+                <!-- ESPACIO FLEXIBLE -->
+                <HBox HBox.hgrow="ALWAYS"/>
+
+                <!-- DERECHA: Icono de perfil (placeholder circular si no hay foto) -->
+                <StackPane fx:id="profileIconContainer"
+                           prefWidth="32" prefHeight="32"
+                           maxWidth="32" maxHeight="32"
+                           onMouseClicked="#toggleProfileMenu"
+                           style="-fx-background-color: #e94560;
+                                  -fx-background-radius: 50;
+                                  -fx-cursor: hand;">
+                    <ImageView fx:id="profileIcon"
+                               fitWidth="32" fitHeight="32"
+                               preserveRatio="true"
+                               pickOnBounds="true"
+                               visible="false"/>
+                    <Label fx:id="profileInitialLabel"
+                           text="U"
+                           style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                </StackPane>
+
             </HBox>
+
 
             <!-- Filtros por tipo -->
             <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 12 0 0 0;">
@@ -78,7 +110,7 @@
             <!-- Estado vacío / loading -->
             <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
                 <Label fx:id="statusLabel"
-                       text="Busca tu próxima obsesión: anime, series, pelis o música ✨"
+                       text="Busca tu próxima obsesión: anime, series, pelis, música o videojuegos ✨"
                        style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
                 <ProgressIndicator fx:id="loadingSpinner"
                                    visible="false"
@@ -105,3 +137,76 @@
     </center>
 
 </BorderPane>
+
+    <!-- PANEL LATERAL DESPLEGABLE (segunda capa, flota sobre el BorderPane) -->
+    <StackPane fx:id="sideMenu" visible="false"
+               style="-fx-background-color: #1a1a2e; -fx-padding: 20;
+                      -fx-effect: dropshadow(gaussian, #000000cc, 20, 0, 4, 0);"
+               prefWidth="240" maxWidth="240"
+               StackPane.alignment="CENTER_LEFT">
+
+        <VBox spacing="16">
+
+            <!-- FOTO DE PERFIL (placeholder circular si no hay foto) -->
+            <StackPane prefWidth="80" prefHeight="80"
+                       maxWidth="80" maxHeight="80"
+                       onMouseClicked="#onChangeProfilePicture"
+                       style="-fx-background-color: #e94560;
+                              -fx-background-radius: 50;
+                              -fx-cursor: hand;">
+                <ImageView fx:id="profilePicture"
+                           fitWidth="80" fitHeight="80"
+                           preserveRatio="true"
+                           visible="false"/>
+                <Label fx:id="profileInitialLabelBig"
+                       text="U"
+                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 28px;"/>
+            </StackPane>
+
+            <Label fx:id="usernameLabel"
+                   text="Usuario"
+                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+            <Separator/>
+
+            <Button text="Cambiar nombre de usuario"
+                    onAction="#onChangeUsername"
+                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Button text="Cambiar contraseña"
+                    onAction="#onChangePassword"
+                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Separator/>
+
+            <Button text="Favoritos"
+                    onAction="#openFavorites"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Button text="Series vistas"
+                    onAction="#openWatchedSeries"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Button text="Series viendo"
+                    onAction="#openWatchingSeries"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Button text="Películas vistas"
+                    onAction="#openWatchedMovies"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Button text="Videojuegos"
+                    onAction="#openGames"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Separator/>
+
+            <Button text="Cerrar sesión"
+                    onAction="#logout"
+                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+        </VBox>
+
+    </StackPane>
+
+</StackPane>
