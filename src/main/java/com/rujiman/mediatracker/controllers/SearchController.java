@@ -5,6 +5,7 @@ import com.rujiman.mediatracker.models.MediaType;
 import com.rujiman.mediatracker.services.AnilistService;
 import com.rujiman.mediatracker.services.TMDBService;
 import com.rujiman.mediatracker.services.MusicService;
+import com.rujiman.mediatracker.services.GameService;
 
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -36,11 +37,13 @@ public class SearchController {
     @FXML private ToggleButton filterSeries;
     @FXML private ToggleButton filterMovie;
     @FXML private ToggleButton filterMusic;
+    @FXML private ToggleButton filterGame;
 
     // ===== Servicios (tus clases existentes) =====
     private final AnilistService anilist = new AnilistService();
     private final TMDBService tmdb = new TMDBService();
     private final MusicService music = new MusicService();
+    private final GameService games = new GameService();
 
     // ===== Estado de búsqueda/filtro =====
     private List<MediaItem> allResults = new ArrayList<>();
@@ -62,6 +65,7 @@ public class SearchController {
     private static final String BADGE_SERIES = "📺 SERIE";
     private static final String BADGE_MOVIE  = "🎬 PELÍCULA";
     private static final String BADGE_MUSIC  = "🎵 MÚSICA";
+    private static final String BADGE_GAME   = "🎮 JUEGO";
 
     // =====================================================
     //  INICIALIZACIÓN
@@ -85,6 +89,7 @@ public class SearchController {
         filterSeries.setToggleGroup(filterGroup);
         filterMovie.setToggleGroup(filterGroup);
         filterMusic.setToggleGroup(filterGroup);
+        filterGame.setToggleGroup(filterGroup);
 
         // Evita que se pueda deseleccionar todo (siempre hay uno activo)
         filterGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
@@ -122,6 +127,9 @@ public class SearchController {
             try { results.addAll(music.search(query)); }
             catch (Exception e) { e.printStackTrace(); }
 
+            try { results.addAll(games.search(query)); }
+            catch (Exception e) { e.printStackTrace(); }
+
             final List<MediaItem> finalResults = results;
             Platform.runLater(() -> {
                 allResults = finalResults;
@@ -140,6 +148,7 @@ public class SearchController {
         else if (filterSeries.isSelected()) activeFilter = MediaType.SERIES;
         else if (filterMovie.isSelected())  activeFilter = MediaType.MOVIE;
         else if (filterMusic.isSelected())  activeFilter = MediaType.MUSIC;
+        else if (filterGame.isSelected())  activeFilter = MediaType.GAME;
         else activeFilter = null; // "Todo"
 
         updateFilterStyles();
@@ -148,7 +157,7 @@ public class SearchController {
 
     /** Resalta visualmente el filtro activo */
     private void updateFilterStyles() {
-        List<ToggleButton> all = List.of(filterAll, filterAnime, filterSeries, filterMovie, filterMusic);
+        List<ToggleButton> all = List.of(filterAll, filterAnime, filterSeries, filterMovie, filterMusic, filterGame);
         for (ToggleButton btn : all) {
             if (btn.isSelected()) {
                 btn.setStyle("-fx-background-color: " + COLOR_PRIMARY + "; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;");
@@ -277,7 +286,7 @@ public class SearchController {
         Label scoreLabel = new Label(score > 0 ? "⭐ " + score + "/100" : "Sin puntuación");
         scoreLabel.setStyle("-fx-text-fill: " + scoreColor + "; -fx-font-size: 10px;");
 
-        // ── Plataformas (solo series/películas) ──
+        // ── Plataformas (series/películas/juegos) ──
         if (item.getPlatforms() != null && !item.getPlatforms().isEmpty()) {
             String plats = String.join(" · ", item.getPlatforms().stream().limit(2).toList());
             Label platLabel = new Label(plats);
@@ -355,6 +364,7 @@ public class SearchController {
             case SERIES -> BADGE_SERIES;
             case MOVIE  -> BADGE_MOVIE;
             case MUSIC  -> BADGE_MUSIC;
+            case GAME   -> BADGE_GAME;
             default     -> "• " + type.name();
         };
     }
@@ -366,6 +376,7 @@ public class SearchController {
             case SERIES -> "#0078d4";
             case MOVIE  -> "#7b2d8b";
             case MUSIC  -> "#1db954";
+            case GAME   -> "#f39c12";
             default     -> "#555577";
         };
     }
