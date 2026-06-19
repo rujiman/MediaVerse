@@ -13,7 +13,7 @@ import java.util.List;
 public class TMDBService {
 
     private static final String API_URL = "https://api.themoviedb.org/3";
-    private static final String IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+    private static final String IMAGE_BASE = "https://image.tmdb.org/t/p/original";
 
     private final OkHttpClient client = new OkHttpClient();
     private final Gson gson = new Gson();
@@ -89,6 +89,7 @@ public class TMDBService {
             item.setTitle(obj.get("name").getAsString());
             item.setDescription(obj.get("overview").getAsString());
 
+            // Imagen
             if (!obj.get("poster_path").isJsonNull()) {
                 item.setImageUrl(IMAGE_BASE + obj.get("poster_path").getAsString());
             }
@@ -101,13 +102,16 @@ public class TMDBService {
                 }
             }
 
-            // Puntuación
+            // Puntuación (0–100)
             if (!obj.get("vote_average").isJsonNull()) {
                 item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
             }
 
             // URL externa
             item.setExternalUrl("https://www.themoviedb.org/tv/" + obj.get("id").getAsInt());
+
+            // Plataformas disponibles
+            item.setPlatforms(getWatchProviders(obj.get("id").getAsInt(), false));
 
             results.add(item);
         }
@@ -118,46 +122,91 @@ public class TMDBService {
     // ============================
     // PARSEAR PELÍCULAS
     // ============================
-    private List<MediaItem> parseMovies(String json) {
+        private List<MediaItem> parseMovies(String json) {
 
-        List<MediaItem> results = new ArrayList<>();
+            List<MediaItem> results = new ArrayList<>();
 
-        JsonObject root = gson.fromJson(json, JsonObject.class);
-        JsonArray items = root.getAsJsonArray("results");
+            JsonObject root = gson.fromJson(json, JsonObject.class);
+            JsonArray items = root.getAsJsonArray("results");
 
-        for (JsonElement el : items) {
-            JsonObject obj = el.getAsJsonObject();
+            for (JsonElement el : items) {
+                JsonObject obj = el.getAsJsonObject();
 
-            MediaItem item = new MediaItem();
-            item.setType(MediaType.MOVIE);
+                MediaItem item = new MediaItem();
+                item.setType(MediaType.MOVIE);
 
-            item.setTitle(obj.get("title").getAsString());
-            item.setDescription(obj.get("overview").getAsString());
+                item.setTitle(obj.get("title").getAsString());
+                item.setDescription(obj.get("overview").getAsString());
 
-            if (!obj.get("poster_path").isJsonNull()) {
-                item.setImageUrl(IMAGE_BASE + obj.get("poster_path").getAsString());
-            }
-
-            // Año
-            if (!obj.get("release_date").isJsonNull()) {
-                String date = obj.get("release_date").getAsString();
-                if (!date.isEmpty()) {
-                    item.setYear(Integer.parseInt(date.substring(0, 4)));
+                // Imagen
+                if (!obj.get("poster_path").isJsonNull()) {
+                    item.setImageUrl(IMAGE_BASE + obj.get("poster_path").getAsString());
                 }
+
+                // Año
+                if (!obj.get("release_date").isJsonNull()) {
+                    String date = obj.get("release_date").getAsString();
+                    if (!date.isEmpty()) {
+                        item.setYear(Integer.parseInt(date.substring(0, 4)));
+                    }
+                }
+
+                // Puntuación (0–100)
+                if (!obj.get("vote_average").isJsonNull()) {
+                    item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
+                }
+
+                // URL externa
+                item.setExternalUrl("https://www.themoviedb.org/movie/" + obj.get("id").getAsInt());
+
+                // Plataformas disponibles
+                item.setPlatforms(getWatchProviders(obj.get("id").getAsInt(), true));
+
+                results.add(item);
             }
 
-            // Puntuación
-            if (!obj.get("vote_average").isJsonNull()) {
-                item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
-            }
-
-            // URL externa
-            item.setExternalUrl("https://www.themoviedb.org/movie/" + obj.get("id").getAsInt());
-
-            results.add(item);
+            return results;
         }
+    public List<String> getWatchProviders(int tmdbId, boolean isMovie) {
 
-        return results;
+        String url = API_URL + (isMovie ?
+                "/movie/" + tmdbId + "/watch/providers?api_key=" + getKey() :
+                "/tv/" + tmdbId + "/watch/providers?api_key=" + getKey()
+        );
+
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) {
+                throw new IOException("Error TMDB Providers: " + response);
+            }
+
+            String json = response.body().string();
+            JsonObject root = gson.fromJson(json, JsonObject.class);
+
+            JsonObject results = root.getAsJsonObject("results");
+
+            // España (ES)
+            if (!results.has("ES")) return new ArrayList<>();
+
+            JsonObject es = results.getAsJsonObject("ES");
+
+            if (!es.has("flatrate")) return new ArrayList<>();
+
+            JsonArray providers = es.getAsJsonArray("flatrate");
+
+            List<String> list = new ArrayList<>();
+            for (JsonElement el : providers) {
+                list.add(el.getAsJsonObject().get("provider_name").getAsString());
+            }
+
+            return list;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }
 

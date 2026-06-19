@@ -25,7 +25,7 @@ public class AnilistService {
                   id
                   title { romaji }
                   description
-                  coverImage { large }
+                  coverImage { extraLarge }
                   startDate { year }
                   studios { nodes { name } }
                   format
@@ -86,7 +86,7 @@ public class AnilistService {
 
             item.setTitle(obj.getAsJsonObject("title").get("romaji").getAsString());
             item.setDescription(obj.get("description").getAsString());
-            item.setImageUrl(obj.getAsJsonObject("coverImage").get("large").getAsString());
+            item.setImageUrl(obj.getAsJsonObject("coverImage").get("extraLarge").getAsString());
             item.setExternalUrl("https://anilist.co/anime/" + obj.get("id").getAsInt());
 
             // Año

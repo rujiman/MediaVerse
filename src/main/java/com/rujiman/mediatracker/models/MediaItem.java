@@ -23,6 +23,15 @@ public class MediaItem {
     private Integer score;
     private String status;
 
+
+// ===== Datos extra series/peliculas =====
+private List<String> platforms;
+
+
+
+
+
+
     // ===== Getters y Setters =====
 
     public int getId() { return id; }
@@ -66,4 +75,7 @@ public class MediaItem {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public List<String> getPlatforms() { return platforms; }
+    public void setPlatforms(List<String> platforms) { this.platforms = platforms; }
 }

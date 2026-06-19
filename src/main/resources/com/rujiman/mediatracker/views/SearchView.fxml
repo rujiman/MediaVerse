@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.rujiman.mediatracker.controllers.SearchController"
+            style="-fx-background-color: #0f0f1a;">
+
+    <top>
+        <VBox style="-fx-background-color: #1a1a2e; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
+            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="🎌 MediaTracker"
+                       style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <HBox HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="searchField"
+                           promptText="Buscar anime..."
+                           prefWidth="320"
+                           style="-fx-background-color: #16213e;
+                                  -fx-text-fill: #eaeaea;
+                                  -fx-prompt-text-fill: #555577;
+                                  -fx-border-color: #e94560;
+                                  -fx-border-radius: 20;
+                                  -fx-background-radius: 20;
+                                  -fx-padding: 8 16 8 16;
+                                  -fx-font-size: 13px;"/>
+                <Button fx:id="searchButton"
+                        text="Buscar"
+                        onAction="#onSearch"
+                        style="-fx-background-color: #e94560;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 8 20 8 20;
+                               -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox>
+            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+
+            <!-- Estado vacío / loading -->
+            <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
+                <Label fx:id="statusLabel"
+                       text="Busca tu anime favorito ✨"
+                       style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
+                <ProgressIndicator fx:id="loadingSpinner"
+                                   visible="false"
+                                   prefWidth="48" prefHeight="48"
+                                   style="-fx-progress-color: #e94560;"/>
+            </StackPane>
+
+            <!-- Grid de resultados -->
+            <ScrollPane fx:id="scrollPane"
+                        fitToWidth="true"
+                        VBox.vgrow="ALWAYS"
+                        visible="false"
+                        style="-fx-background: transparent;
+                               -fx-background-color: transparent;
+                               -fx-border-color: transparent;">
+                <FlowPane fx:id="resultsGrid"
+                          hgap="16" vgap="16"
+                          style="-fx-background-color: transparent;">
+                    <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+                </FlowPane>
+            </ScrollPane>
+
+        </VBox>
+    </center>
+
+</BorderPane>

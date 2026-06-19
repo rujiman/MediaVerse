@@ -1,0 +1,325 @@
+package com.rujiman.mediatracker.controllers;
+
+import com.rujiman.mediatracker.models.MediaItem;
+import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.services.AnilistService;
+import com.rujiman.mediatracker.services.TMDBService;
+
+import javafx.animation.*;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SearchController {
+
+    // ===== FXML =====
+    @FXML private TextField searchField;
+    @FXML private Button searchButton;
+    @FXML private FlowPane resultsGrid;
+    @FXML private ScrollPane scrollPane;
+    @FXML private StackPane statusPane;
+    @FXML private Label statusLabel;
+    @FXML private ProgressIndicator loadingSpinner;
+
+    // ===== Servicios (tus clases existentes) =====
+    private final AnilistService anilist = new AnilistService();
+    private final TMDBService tmdb = new TMDBService();
+
+    // ===== Colores del tema =====
+    private static final String COLOR_PRIMARY   = "#e94560";
+    private static final String COLOR_BG_CARD   = "#1a1a2e";
+    private static final String COLOR_BG_DARK   = "#16213e";
+    private static final String COLOR_TEXT       = "#eaeaea";
+    private static final String COLOR_TEXT_DIM   = "#555577";
+    private static final String COLOR_GREEN      = "#2ecc71";
+    private static final String COLOR_YELLOW     = "#f39c12";
+    private static final String COLOR_RED        = "#e74c3c";
+
+    // ===== Etiquetas de tipo =====
+    private static final String BADGE_ANIME  = "🎌 ANIME";
+    private static final String BADGE_SERIES = "📺 SERIE";
+    private static final String BADGE_MOVIE  = "🎬 PELÍCULA";
+
+    // =====================================================
+    //  INICIALIZACIÓN
+    // =====================================================
+    @FXML
+    public void initialize() {
+        // Enter también lanza búsqueda
+        searchField.setOnAction(e -> onSearch());
+
+        // Hover en botón Buscar
+        String baseStyle = searchButton.getStyle();
+        searchButton.setOnMouseEntered(e ->
+                searchButton.setStyle(baseStyle.replace(COLOR_PRIMARY, "#ff6b8a")));
+        searchButton.setOnMouseExited(e ->
+                searchButton.setStyle(baseStyle));
+    }
+
+    // =====================================================
+    //  ACCIÓN BUSCAR
+    // =====================================================
+    @FXML
+    private void onSearch() {
+        String query = searchField.getText().trim();
+        if (query.isEmpty()) return;
+
+        showLoading(true);
+        resultsGrid.getChildren().clear();
+
+        new Thread(() -> {
+            List<MediaItem> results = new ArrayList<>();
+
+            try { results.addAll(anilist.search(query)); }
+            catch (Exception e) { e.printStackTrace(); }
+
+            try { results.addAll(tmdb.searchSeries(query)); }
+            catch (Exception e) { e.printStackTrace(); }
+
+            try { results.addAll(tmdb.searchMovies(query)); }
+            catch (Exception e) { e.printStackTrace(); }
+
+            final List<MediaItem> finalResults = results;
+            Platform.runLater(() -> displayResults(finalResults));
+
+        }).start();
+    }
+
+    // =====================================================
+    //  MOSTRAR RESULTADOS
+    // =====================================================
+    private void displayResults(List<MediaItem> results) {
+        showLoading(false);
+
+        if (results.isEmpty()) {
+            showStatus("⚠️ No se encontraron resultados");
+            return;
+        }
+
+        statusPane.setVisible(false);
+        scrollPane.setVisible(true);
+
+        for (int i = 0; i < results.size(); i++) {
+            VBox card = createCard(results.get(i), i);
+            resultsGrid.getChildren().add(card);
+        }
+    }
+
+    // =====================================================
+    //  CREAR CARD
+    // =====================================================
+    private VBox createCard(MediaItem item, int index) {
+
+        // ── Contenedor principal ──
+        VBox card = new VBox(8);
+        card.setPrefWidth(150);
+        card.setMaxWidth(150);
+        card.setAlignment(Pos.TOP_CENTER);
+        card.setStyle(
+                "-fx-background-color: " + COLOR_BG_CARD + ";" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 0 0 10 0;" +
+                        "-fx-cursor: hand;"
+        );
+
+        DropShadow shadow = new DropShadow(15, Color.web("#000000bb"));
+        card.setEffect(shadow);
+
+        // ── Imagen ──
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(150);
+        imageView.setFitHeight(210);
+        imageView.setPreserveRatio(false);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
+        imageView.setImage(createPlaceholder());
+
+        // Cargar imagen en background si existe URL
+        String imageUrl = item.getImageUrl();
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            new Thread(() -> {
+                try {
+                    Image img = new Image(imageUrl, 600, 840, true, true, true);
+                    Platform.runLater(() -> {
+                        imageView.setImage(img);
+                        FadeTransition fadeImg = new FadeTransition(Duration.millis(350), imageView);
+                        fadeImg.setFromValue(0.2);
+                        fadeImg.setToValue(1.0);
+                        fadeImg.play();
+                    });
+                } catch (Exception ignored) {}
+            }).start();
+        }
+
+        // ── Badge de tipo ──
+        String badgeText  = getBadgeText(item.getType());
+        String badgeColor = getBadgeColor(item.getType());
+
+        Label typeLabel = new Label(badgeText);
+        typeLabel.setStyle(
+                "-fx-background-color: " + badgeColor + ";" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 9px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 4;" +
+                        "-fx-padding: 2 6 2 6;"
+        );
+
+        // ── Título ──
+        Label titleLabel = new Label(item.getTitle());
+        titleLabel.setWrapText(true);
+        titleLabel.setMaxWidth(130);
+        titleLabel.setTextAlignment(TextAlignment.CENTER);
+        titleLabel.setAlignment(Pos.CENTER);
+        titleLabel.setStyle(
+                "-fx-text-fill: " + COLOR_TEXT + ";" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;"
+        );
+
+        // ── Año ──
+        String yearText = item.getYear() != null ? String.valueOf(item.getYear()) : "—";
+        Label yearLabel = new Label(yearText);
+        yearLabel.setStyle("-fx-text-fill: " + COLOR_TEXT_DIM + "; -fx-font-size: 10px;");
+
+        // ── Puntuación ──
+        int score = item.getScore() != null ? item.getScore() : 0;
+        String scoreColor = score >= 75 ? COLOR_GREEN : score >= 50 ? COLOR_YELLOW : COLOR_RED;
+        Label scoreLabel = new Label(score > 0 ? "⭐ " + score + "/100" : "Sin puntuación");
+        scoreLabel.setStyle("-fx-text-fill: " + scoreColor + "; -fx-font-size: 10px;");
+
+        // ── Plataformas (solo series/películas) ──
+        if (item.getPlatforms() != null && !item.getPlatforms().isEmpty()) {
+            String plats = String.join(" · ", item.getPlatforms().stream().limit(2).toList());
+            Label platLabel = new Label(plats);
+            platLabel.setMaxWidth(130);
+            platLabel.setWrapText(true);
+            platLabel.setTextAlignment(TextAlignment.CENTER);
+            platLabel.setAlignment(Pos.CENTER);
+            platLabel.setStyle(
+                    "-fx-text-fill: #8888aa;" +
+                            "-fx-font-size: 9px;"
+            );
+            card.getChildren().addAll(imageView, typeLabel, titleLabel, yearLabel, scoreLabel, platLabel);
+        } else {
+            card.getChildren().addAll(imageView, typeLabel, titleLabel, yearLabel, scoreLabel);
+        }
+
+        // =====================================================
+        //  ANIMACIONES
+        // =====================================================
+
+        // Entrada escalonada: fade + slide up con delay por índice
+        card.setOpacity(0);
+        PauseTransition delay = new PauseTransition(Duration.millis(index * 55L));
+        delay.setOnFinished(e -> {
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(400), card);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+
+            TranslateTransition slideUp = new TranslateTransition(Duration.millis(400), card);
+            slideUp.setFromY(24);
+            slideUp.setToY(0);
+
+            new ParallelTransition(fadeIn, slideUp).play();
+        });
+        delay.play();
+
+        // Hover: escala + sombra de color
+        card.setOnMouseEntered(e -> {
+            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
+            scale.setToX(1.06);
+            scale.setToY(1.06);
+            scale.play();
+            card.setEffect(new DropShadow(28, Color.web(COLOR_PRIMARY + "99")));
+        });
+
+        card.setOnMouseExited(e -> {
+            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
+            scale.setToX(1.0);
+            scale.setToY(1.0);
+            scale.play();
+            card.setEffect(shadow);
+        });
+
+        // Click: abrir URL externa en el navegador
+        card.setOnMouseClicked(e -> {
+            String url = item.getExternalUrl();
+            if (url != null && !url.isBlank()) {
+                try {
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                } catch (Exception ex) { ex.printStackTrace(); }
+            }
+        });
+
+        return card;
+    }
+
+    // =====================================================
+    //  HELPERS
+    // =====================================================
+
+    private String getBadgeText(MediaType type) {
+        if (type == null) return "• OTRO";
+        return switch (type) {
+            case ANIME  -> BADGE_ANIME;
+            case SERIES -> BADGE_SERIES;
+            case MOVIE  -> BADGE_MOVIE;
+            default     -> "• " + type.name();
+        };
+    }
+
+    private String getBadgeColor(MediaType type) {
+        if (type == null) return "#555577";
+        return switch (type) {
+            case ANIME  -> "#e94560";
+            case SERIES -> "#0078d4";
+            case MOVIE  -> "#7b2d8b";
+            default     -> "#555577";
+        };
+    }
+
+    /** Imagen placeholder oscura mientras carga la real */
+    private Image createPlaceholder() {
+        javafx.scene.canvas.Canvas canvas = new javafx.scene.canvas.Canvas(150, 210);
+        var gc = canvas.getGraphicsContext2D();
+        gc.setFill(Color.web(COLOR_BG_DARK));
+        gc.fillRoundRect(0, 0, 150, 210, 12, 12);
+        gc.setFill(Color.web(COLOR_TEXT_DIM));
+        gc.setFont(javafx.scene.text.Font.font(28));
+        gc.fillText("🎬", 52, 118);
+        return canvas.snapshot(null, null);
+    }
+
+    private void showLoading(boolean loading) {
+        statusPane.setVisible(true);
+        scrollPane.setVisible(false);
+        statusLabel.setVisible(!loading);
+        loadingSpinner.setVisible(loading);
+
+        if (loading) {
+            FadeTransition fade = new FadeTransition(Duration.millis(200), loadingSpinner);
+            fade.setFromValue(0);
+            fade.setToValue(1);
+            fade.play();
+        }
+    }
+
+    private void showStatus(String message) {
+        statusPane.setVisible(true);
+        scrollPane.setVisible(false);
+        loadingSpinner.setVisible(false);
+        statusLabel.setVisible(true);
+        statusLabel.setText(message);
+    }
+}
