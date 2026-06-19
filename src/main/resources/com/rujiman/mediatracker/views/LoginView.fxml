@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.rujiman.mediatracker.controllers.LoginController"
+            style="-fx-background-color: #0f0f1a;">
+
+    <center>
+        <VBox alignment="CENTER" spacing="30"
+              style="-fx-background-color: #0f0f1a;">
+            <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
+
+            <!-- Logo -->
+            <VBox alignment="CENTER" spacing="15">
+                <ImageView fitWidth="80" fitHeight="80" preserveRatio="true">
+                    <image>
+                        <Image url="@icons/mediaverse_logo.png"/>
+                    </image>
+                </ImageView>
+                <Label text="Mediaverse"
+                       style="-fx-text-fill: #e94560; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+                <Label text="Tu gestor de media favorito"
+                       style="-fx-text-fill: #555577; -fx-font-size: 14px;"/>
+            </VBox>
+
+            <!-- Formulario Login -->
+            <VBox alignment="TOP_CENTER" spacing="16" prefWidth="300">
+                <!-- Username -->
+                <VBox spacing="8">
+                    <Label text="Usuario"
+                           style="-fx-text-fill: #eaeaea; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    <TextField fx:id="usernameField"
+                               promptText="Ingresa tu usuario"
+                               style="-fx-background-color: #16213e;
+                                      -fx-text-fill: #eaeaea;
+                                      -fx-prompt-text-fill: #555577;
+                                      -fx-border-color: #e94560;
+                                      -fx-border-radius: 8;
+                                      -fx-background-radius: 8;
+                                      -fx-padding: 12 16 12 16;
+                                      -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Password -->
+                <VBox spacing="8">
+                    <Label text="Contraseña"
+                           style="-fx-text-fill: #eaeaea; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Ingresa tu contraseña"
+                                   style="-fx-background-color: #16213e;
+                                          -fx-text-fill: #eaeaea;
+                                          -fx-prompt-text-fill: #555577;
+                                          -fx-border-color: #e94560;
+                                          -fx-border-radius: 8;
+                                          -fx-background-radius: 8;
+                                          -fx-padding: 12 16 12 16;
+                                          -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Error Message -->
+                <Label fx:id="errorLabel"
+                       visible="false"
+                       wrapText="true"
+                       style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
+
+                <!-- Login Button -->
+                <Button fx:id="loginButton"
+                        text="Iniciar Sesión"
+                        onAction="#onLogin"
+                        prefWidth="300"
+                        style="-fx-background-color: #e94560;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14px;
+                               -fx-padding: 12 20 12 20;
+                               -fx-background-radius: 8;
+                               -fx-cursor: hand;"/>
+
+                <!-- Hint -->
+                <Label text="Usuario: admin | Contraseña: 1234"
+                       style="-fx-text-fill: #555577; -fx-font-size: 10px;"/>
+
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

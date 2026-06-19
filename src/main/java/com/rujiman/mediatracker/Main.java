@@ -10,16 +10,17 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/rujiman/mediatracker/views/SearchView.fxml"));
+        // Cargar LoginView en lugar de SearchView
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/rujiman/mediatracker/views/LoginView.fxml"));
 
-        Scene scene = new Scene(loader.load(), 1100, 720);
+        Scene scene = new Scene(loader.load(), 800, 600);
 
         // Icono de la ventana / barra de tareas
         stage.getIcons().add(new Image(
                 Main.class.getResourceAsStream("/com/rujiman/mediatracker/views/icons/mediaverse_logo.png")
         ));
 
-        stage.setTitle("Mediaverse");
+        stage.setTitle("Mediaverse - Login");
         stage.setScene(scene);
         stage.show();
     }

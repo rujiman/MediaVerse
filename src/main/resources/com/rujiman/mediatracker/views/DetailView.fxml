@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.rujiman.mediatracker.controllers.DetailViewController"
+            style="-fx-background-color: #0f0f1a;">
+
+    <center>
+        <ScrollPane fx:id="detailScroll"
+                    fitToWidth="true"
+                    style="-fx-background-color: #0f0f1a; -fx-border-color: transparent;">
+            
+            <VBox fx:id="detailContainer"
+                  spacing="16"
+                  style="-fx-background-color: #0f0f1a;">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+                <!-- Encabezado con Imagen y Título -->
+                <HBox spacing="20" alignment="TOP_LEFT">
+                    <!-- Imagen -->
+                    <ImageView fx:id="detailImage"
+                               fitWidth="250"
+                               fitHeight="350"
+                               preserveRatio="true"/>
+
+                    <!-- Información -->
+                    <VBox spacing="12" HBox.hgrow="ALWAYS">
+                        <!-- Título -->
+                        <Label fx:id="detailTitle"
+                               text="Título"
+                               wrapText="true"
+                               style="-fx-text-fill: #e94560;
+                                      -fx-font-size: 24px;
+                                      -fx-font-weight: bold;"/>
+
+                        <!-- Año y Puntuación -->
+                        <HBox spacing="20">
+                            <Label fx:id="detailYear"
+                                   text="2023"
+                                   style="-fx-text-fill: #555577; -fx-font-size: 12px;"/>
+                            <Label fx:id="detailScore"
+                                   text="⭐ 85/100"
+                                   style="-fx-text-fill: #2ecc71; -fx-font-size: 12px;"/>
+                        </HBox>
+
+                        <!-- Botones -->
+                        <HBox spacing="10">
+                            <Button fx:id="favoriteButton"
+                                    text="⭐ Agregar a favoritos"
+                                    style="-fx-background-color: #e94560;
+                                           -fx-text-fill: white;
+                                           -fx-font-weight: bold;
+                                           -fx-padding: 10 16 10 16;
+                                           -fx-background-radius: 8;
+                                           -fx-cursor: hand;"
+                                    onAction="#onToggleFavorite"/>
+                            
+                            <Button fx:id="viewedButton"
+                                    text="Marcar como visto"
+                                    style="-fx-background-color: #16213e;
+                                           -fx-text-fill: #eaeaea;
+                                           -fx-font-weight: bold;
+                                           -fx-padding: 10 16 10 16;
+                                           -fx-background-radius: 8;
+                                           -fx-cursor: hand;"
+                                    onAction="#onToggleViewed"/>
+                            
+                            <Button fx:id="openExternalButton"
+                                    text="Abrir en navegador"
+                                    style="-fx-background-color: #0078d4;
+                                           -fx-text-fill: white;
+                                           -fx-font-weight: bold;
+                                           -fx-padding: 10 16 10 16;
+                                           -fx-background-radius: 8;
+                                           -fx-cursor: hand;"
+                                    onAction="#onOpenExternal"/>
+                        </HBox>
+
+                        <!-- Géneros -->
+                        <Label fx:id="detailGenres"
+                               text="Géneros: Acción, Aventura"
+                               wrapText="true"
+                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+
+                        <!-- Plataformas -->
+                        <Label fx:id="detailPlatforms"
+                               text="Plataformas: Netflix, Prime Video"
+                               wrapText="true"
+                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Separador -->
+                <Separator style="-fx-text-fill: #16213e;"/>
+
+                <!-- Descripción -->
+                <VBox spacing="8">
+                    <Label text="Descripción"
+                           style="-fx-text-fill: #e94560;
+                                  -fx-font-size: 14px;
+                                  -fx-font-weight: bold;"/>
+                    <Label fx:id="detailDescription"
+                           text="Descripción del contenido..."
+                           wrapText="true"
+                           style="-fx-text-fill: #eaeaea;
+                                  -fx-font-size: 12px;
+                                  -fx-line-spacing: 4;"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
