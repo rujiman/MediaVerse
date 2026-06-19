@@ -12,7 +12,6 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         // Cargar LoginView en lugar de SearchView
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/rujiman/mediatracker/views/LoginView.fxml"));
-
         Scene scene = new Scene(loader.load(), 800, 600);
 
         // Icono de la ventana / barra de tareas

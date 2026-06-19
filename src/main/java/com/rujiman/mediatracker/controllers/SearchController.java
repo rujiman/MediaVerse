@@ -39,18 +39,18 @@ public class SearchController {
     @FXML private ToggleButton filterMusic;
     @FXML private ToggleButton filterGame;
 
-    // ===== Servicios (tus clases existentes) =====
+    // ===== Servicios =====
     private final AnilistService anilist = new AnilistService();
     private final TMDBService tmdb = new TMDBService();
     private final MusicService music = new MusicService();
     private final GameService games = new GameService();
 
-    // ===== Estado de búsqueda/filtro =====
+    // ===== Estado =====
     private List<MediaItem> allResults = new ArrayList<>();
     private ToggleGroup filterGroup;
-    private MediaType activeFilter = null; // null = "Todo"
+    private MediaType activeFilter = null;
 
-    // ===== Colores del tema =====
+    // ===== Colores =====
     private static final String COLOR_PRIMARY   = "#e94560";
     private static final String COLOR_BG_CARD   = "#1a1a2e";
     private static final String COLOR_BG_DARK   = "#16213e";
@@ -60,19 +60,16 @@ public class SearchController {
     private static final String COLOR_YELLOW     = "#f39c12";
     private static final String COLOR_RED        = "#e74c3c";
 
-    // ===== Etiquetas de tipo =====
+    // ===== Badges =====
     private static final String BADGE_ANIME  = "🎌 ANIME";
     private static final String BADGE_SERIES = "📺 SERIE";
     private static final String BADGE_MOVIE  = "🎬 PELÍCULA";
     private static final String BADGE_MUSIC  = "🎵 MÚSICA";
     private static final String BADGE_GAME   = "🎮 JUEGO";
 
-    // =====================================================
-    //  INICIALIZACIÓN
-    // =====================================================
     @FXML
     public void initialize() {
-        // Enter también lanza búsqueda
+
         searchField.setOnAction(e -> onSearch());
 
         // Hover en botón Buscar
@@ -82,7 +79,7 @@ public class SearchController {
         searchButton.setOnMouseExited(e ->
                 searchButton.setStyle(baseStyle));
 
-        // Agrupar los filtros para que solo uno esté activo a la vez
+        // Grupo de filtros
         filterGroup = new ToggleGroup();
         filterAll.setToggleGroup(filterGroup);
         filterAnime.setToggleGroup(filterGroup);
@@ -91,19 +88,13 @@ public class SearchController {
         filterMusic.setToggleGroup(filterGroup);
         filterGame.setToggleGroup(filterGroup);
 
-        // Evita que se pueda deseleccionar todo (siempre hay uno activo)
         filterGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null && oldVal != null) {
-                oldVal.setSelected(true);
-            }
+            if (newVal == null && oldVal != null) oldVal.setSelected(true);
         });
 
         updateFilterStyles();
     }
 
-    // =====================================================
-    //  ACCIÓN BUSCAR
-    // =====================================================
     @FXML
     private void onSearch() {
         String query = searchField.getText().trim();
@@ -115,82 +106,60 @@ public class SearchController {
         new Thread(() -> {
             List<MediaItem> results = new ArrayList<>();
 
-            try { results.addAll(anilist.search(query)); }
-            catch (Exception e) { e.printStackTrace(); }
+            try { results.addAll(anilist.search(query)); } catch (Exception ignored) {}
+            try { results.addAll(tmdb.searchSeries(query)); } catch (Exception ignored) {}
+            try { results.addAll(tmdb.searchMovies(query)); } catch (Exception ignored) {}
+            try { results.addAll(music.search(query)); } catch (Exception ignored) {}
+            try { results.addAll(games.search(query)); } catch (Exception ignored) {}
 
-            try { results.addAll(tmdb.searchSeries(query)); }
-            catch (Exception e) { e.printStackTrace(); }
-
-            try { results.addAll(tmdb.searchMovies(query)); }
-            catch (Exception e) { e.printStackTrace(); }
-
-            try { results.addAll(music.search(query)); }
-            catch (Exception e) { e.printStackTrace(); }
-
-            try { results.addAll(games.search(query)); }
-            catch (Exception e) { e.printStackTrace(); }
-
-            final List<MediaItem> finalResults = results;
             Platform.runLater(() -> {
-                allResults = finalResults;
+                allResults = results;
                 applyFilterAndDisplay();
             });
 
         }).start();
     }
 
-    // =====================================================
-    //  FILTROS POR TIPO
-    // =====================================================
     @FXML
     private void onFilterChanged() {
-        if (filterAnime.isSelected())  activeFilter = MediaType.ANIME;
+        if (filterAnime.isSelected()) activeFilter = MediaType.ANIME;
         else if (filterSeries.isSelected()) activeFilter = MediaType.SERIES;
-        else if (filterMovie.isSelected())  activeFilter = MediaType.MOVIE;
-        else if (filterMusic.isSelected())  activeFilter = MediaType.MUSIC;
-        else if (filterGame.isSelected())  activeFilter = MediaType.GAME;
-        else activeFilter = null; // "Todo"
+        else if (filterMovie.isSelected()) activeFilter = MediaType.MOVIE;
+        else if (filterMusic.isSelected()) activeFilter = MediaType.MUSIC;
+        else if (filterGame.isSelected()) activeFilter = MediaType.GAME;
+        else activeFilter = null;
 
         updateFilterStyles();
         applyFilterAndDisplay();
     }
 
-    /** Resalta visualmente el filtro activo */
     private void updateFilterStyles() {
         List<ToggleButton> all = List.of(filterAll, filterAnime, filterSeries, filterMovie, filterMusic, filterGame);
         for (ToggleButton btn : all) {
             if (btn.isSelected()) {
-                btn.setStyle("-fx-background-color: " + COLOR_PRIMARY + "; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;");
+                btn.setStyle("-fx-background-color: " + COLOR_PRIMARY + "; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14; -fx-cursor: hand;");
             } else {
-                btn.setStyle("-fx-background-color: " + COLOR_BG_DARK + "; -fx-text-fill: " + COLOR_TEXT + "; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;");
+                btn.setStyle("-fx-background-color: " + COLOR_BG_DARK + "; -fx-text-fill: " + COLOR_TEXT + "; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14; -fx-cursor: hand;");
             }
         }
     }
 
-    /** Aplica el filtro activo sobre allResults y refresca el grid */
     private void applyFilterAndDisplay() {
-        List<MediaItem> filtered;
-        if (activeFilter == null) {
-            filtered = allResults;
-        } else {
-            filtered = allResults.stream()
-                    .filter(item -> item.getType() == activeFilter)
-                    .toList();
-        }
+        List<MediaItem> filtered =
+                activeFilter == null
+                        ? allResults
+                        : allResults.stream().filter(i -> i.getType() == activeFilter).toList();
+
         displayResults(filtered);
     }
 
-    // =====================================================
-    //  MOSTRAR RESULTADOS
-    // =====================================================
     private void displayResults(List<MediaItem> results) {
         showLoading(false);
 
         if (results.isEmpty()) {
-            String msg = activeFilter == null
+            showStatus(activeFilter == null
                     ? "⚠️ No se encontraron resultados"
-                    : "⚠️ Sin resultados para este filtro";
-            showStatus(msg);
+                    : "⚠️ Sin resultados para este filtro");
             return;
         }
 
@@ -198,17 +167,12 @@ public class SearchController {
         scrollPane.setVisible(true);
 
         for (int i = 0; i < results.size(); i++) {
-            VBox card = createCard(results.get(i), i);
-            resultsGrid.getChildren().add(card);
+            resultsGrid.getChildren().add(createCard(results.get(i), i));
         }
     }
 
-    // =====================================================
-    //  CREAR CARD
-    // =====================================================
     private VBox createCard(MediaItem item, int index) {
 
-        // ── Contenedor principal ──
         VBox card = new VBox(8);
         card.setPrefWidth(150);
         card.setMaxWidth(150);
@@ -223,7 +187,6 @@ public class SearchController {
         DropShadow shadow = new DropShadow(15, Color.web("#000000bb"));
         card.setEffect(shadow);
 
-        // ── Imagen ──
         ImageView imageView = new ImageView();
         imageView.setFitWidth(150);
         imageView.setFitHeight(210);
@@ -232,7 +195,6 @@ public class SearchController {
         imageView.setCache(true);
         imageView.setImage(createPlaceholder());
 
-        // Cargar imagen en background si existe URL (4x resolución para nitidez)
         String imageUrl = item.getImageUrl();
         if (imageUrl != null && !imageUrl.isBlank()) {
             new Thread(() -> {
@@ -249,21 +211,16 @@ public class SearchController {
             }).start();
         }
 
-        // ── Badge de tipo ──
-        String badgeText  = getBadgeText(item.getType());
-        String badgeColor = getBadgeColor(item.getType());
-
-        Label typeLabel = new Label(badgeText);
+        Label typeLabel = new Label(getBadgeText(item.getType()));
         typeLabel.setStyle(
-                "-fx-background-color: " + badgeColor + ";" +
+                "-fx-background-color: " + getBadgeColor(item.getType()) + ";" +
                         "-fx-text-fill: white;" +
                         "-fx-font-size: 9px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 4;" +
-                        "-fx-padding: 2 6 2 6;"
+                        "-fx-padding: 2 6;"
         );
 
-        // ── Título ──
         Label titleLabel = new Label(item.getTitle());
         titleLabel.setWrapText(true);
         titleLabel.setMaxWidth(130);
@@ -275,39 +232,26 @@ public class SearchController {
                         "-fx-font-weight: bold;"
         );
 
-        // ── Año ──
-        String yearText = item.getYear() != null ? String.valueOf(item.getYear()) : "—";
-        Label yearLabel = new Label(yearText);
+        Label yearLabel = new Label(item.getYear() != null ? String.valueOf(item.getYear()) : "—");
         yearLabel.setStyle("-fx-text-fill: " + COLOR_TEXT_DIM + "; -fx-font-size: 10px;");
 
-        // ── Puntuación ──
         int score = item.getScore() != null ? item.getScore() : 0;
         String scoreColor = score >= 75 ? COLOR_GREEN : score >= 50 ? COLOR_YELLOW : COLOR_RED;
         Label scoreLabel = new Label(score > 0 ? "⭐ " + score + "/100" : "Sin puntuación");
         scoreLabel.setStyle("-fx-text-fill: " + scoreColor + "; -fx-font-size: 10px;");
 
-        // ── Plataformas (series/películas/juegos) ──
         if (item.getPlatforms() != null && !item.getPlatforms().isEmpty()) {
-            String plats = String.join(" · ", item.getPlatforms().stream().limit(2).toList());
-            Label platLabel = new Label(plats);
+            Label platLabel = new Label(String.join(" · ", item.getPlatforms().stream().limit(2).toList()));
             platLabel.setMaxWidth(130);
             platLabel.setWrapText(true);
             platLabel.setTextAlignment(TextAlignment.CENTER);
             platLabel.setAlignment(Pos.CENTER);
-            platLabel.setStyle(
-                    "-fx-text-fill: #8888aa;" +
-                            "-fx-font-size: 9px;"
-            );
+            platLabel.setStyle("-fx-text-fill: #8888aa; -fx-font-size: 9px;");
             card.getChildren().addAll(imageView, typeLabel, titleLabel, yearLabel, scoreLabel, platLabel);
         } else {
             card.getChildren().addAll(imageView, typeLabel, titleLabel, yearLabel, scoreLabel);
         }
 
-        // =====================================================
-        //  ANIMACIONES
-        // =====================================================
-
-        // Entrada escalonada: fade + slide up con delay por índice
         card.setOpacity(0);
         PauseTransition delay = new PauseTransition(Duration.millis(index * 55L));
         delay.setOnFinished(e -> {
@@ -323,7 +267,6 @@ public class SearchController {
         });
         delay.play();
 
-        // Hover: escala + sombra de color
         card.setOnMouseEntered(e -> {
             ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
             scale.setToX(1.06);
@@ -340,48 +283,40 @@ public class SearchController {
             card.setEffect(shadow);
         });
 
-        // Click: abrir URL externa en el navegador
         card.setOnMouseClicked(e -> {
             String url = item.getExternalUrl();
             if (url != null && !url.isBlank()) {
                 try {
                     java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-                } catch (Exception ex) { ex.printStackTrace(); }
+                } catch (Exception ignored) {}
             }
         });
 
         return card;
     }
 
-    // =====================================================
-    //  HELPERS
-    // =====================================================
-
     private String getBadgeText(MediaType type) {
-        if (type == null) return "• OTRO";
         return switch (type) {
-            case ANIME  -> BADGE_ANIME;
+            case ANIME -> BADGE_ANIME;
             case SERIES -> BADGE_SERIES;
-            case MOVIE  -> BADGE_MOVIE;
-            case MUSIC  -> BADGE_MUSIC;
-            case GAME   -> BADGE_GAME;
-            default     -> "• " + type.name();
+            case MOVIE -> BADGE_MOVIE;
+            case MUSIC -> BADGE_MUSIC;
+            case GAME -> BADGE_GAME;
+            default -> "• OTRO";
         };
     }
 
     private String getBadgeColor(MediaType type) {
-        if (type == null) return "#555577";
         return switch (type) {
-            case ANIME  -> "#e94560";
+            case ANIME -> "#e94560";
             case SERIES -> "#0078d4";
-            case MOVIE  -> "#7b2d8b";
-            case MUSIC  -> "#1db954";
-            case GAME   -> "#f39c12";
-            default     -> "#555577";
+            case MOVIE -> "#7b2d8b";
+            case MUSIC -> "#1db954";
+            case GAME -> "#f39c12";
+            default -> "#555577";
         };
     }
 
-    /** Imagen placeholder oscura mientras carga la real */
     private Image createPlaceholder() {
         javafx.scene.canvas.Canvas canvas = new javafx.scene.canvas.Canvas(150, 210);
         var gc = canvas.getGraphicsContext2D();

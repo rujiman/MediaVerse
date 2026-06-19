@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="12" alignment="CENTER"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.rujiman.mediatracker.controllers.RegisterWindowController"
+      style="-fx-padding: 20; -fx-background-color: #0f0f1a;">
+
+    <Label text="Crear nueva cuenta"
+           style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="usernameField" promptText="Usuario"
+               style="-fx-background-color: #1a1a2e; -fx-text-fill: white; -fx-padding: 8;"/>
+
+    <PasswordField fx:id="passwordField" promptText="Contraseña"
+                   style="-fx-background-color: #1a1a2e; -fx-text-fill: white; -fx-padding: 8;"/>
+
+    <PasswordField fx:id="confirmField" promptText="Confirmar contraseña"
+                   style="-fx-background-color: #1a1a2e; -fx-text-fill: white; -fx-padding: 8;"/>
+
+    <Label fx:id="messageLabel"
+           style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
+
+    <Button text="Crear cuenta"
+            onAction="#onCreateAccount"
+            style="-fx-background-color: #e94560; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 6;"/>
+
+    <!-- ⭐ NUEVO BOTÓN ⭐ -->
+    <Button text="Volver al login"
+            onAction="#onBackToLogin"
+            style="-fx-background-color: #444; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 6;"/>
+
+</VBox>

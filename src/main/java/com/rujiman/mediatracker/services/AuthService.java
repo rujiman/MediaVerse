@@ -94,6 +94,72 @@ public class AuthService {
     }
 
     // ============================
+    // REGISTRAR NUEVO USUARIO
+    // ============================
+    public static boolean register(String username, String password, String confirmPassword) {
+        System.out.println("📝 Intentando registrar: " + username);
+
+        // Validaciones
+        if (username.isEmpty() || username.length() < 3) {
+            System.err.println("❌ Usuario debe tener al menos 3 caracteres");
+            return false;
+        }
+
+        if (password.isEmpty() || password.length() < 4) {
+            System.err.println("❌ Contraseña debe tener al menos 4 caracteres");
+            return false;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            System.err.println("❌ Las contraseñas no coinciden");
+            return false;
+        }
+
+        List<User> users = loadUsers();
+
+        // Verificar si el usuario ya existe
+        for (User user : users) {
+            if (user.getUsername().equalsIgnoreCase(username)) {
+                System.err.println("❌ El usuario ya existe");
+                return false;
+            }
+        }
+
+        // Agregar nuevo usuario
+        User newUser = new User(username, password);
+        users.add(newUser);
+        saveUsers(users);
+
+        System.out.println("✅ Usuario registrado: " + username);
+        return true;
+    }
+
+    // ============================
+    // GUARDAR USUARIOS EN JSON
+    // ============================
+    private static void saveUsers(List<User> users) {
+        try {
+            JsonObject root = new JsonObject();
+            JsonArray usersArray = new JsonArray();
+
+            for (User user : users) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("username", user.getUsername());
+                obj.addProperty("password", user.getPassword());
+                usersArray.add(obj);
+            }
+
+            root.add("users", usersArray);
+
+            String json = gson.toJson(root);
+            Files.write(Paths.get(USERS_FILE), json.getBytes());
+            System.out.println("💾 users.json actualizado");
+        } catch (IOException e) {
+            System.err.println("❌ Error al guardar users.json: " + e.getMessage());
+        }
+    }
+
+    // ============================
     // CREAR ARCHIVO POR DEFECTO
     // ============================
     private static void createDefaultUsersFile() {
@@ -101,16 +167,11 @@ public class AuthService {
             JsonObject root = new JsonObject();
             JsonArray users = new JsonArray();
 
-            JsonObject user = new JsonObject();
-            user.addProperty("username", "admin");
-            user.addProperty("password", "1234");
-            users.add(user);
-
             root.add("users", users);
 
             String json = gson.toJson(root);
             Files.write(Paths.get(USERS_FILE), json.getBytes());
-            System.out.println("✅ users.json creado con usuario por defecto (admin / 1234)");
+            System.out.println("✅ users.json creado vacío (sin usuarios por defecto)");
         } catch (IOException e) {
             System.err.println("❌ Error al crear users.json: " + e.getMessage());
         }
