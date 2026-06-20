@@ -31,8 +31,8 @@
                 <!-- ESPACIO FLEXIBLE -->
                 <HBox HBox.hgrow="ALWAYS"/>
 
-                <!-- CENTRO: Barra de búsqueda -->
-                <HBox spacing="8" alignment="CENTER">
+                <!-- CENTRO: Barra de búsqueda (solo visible en modo Búsqueda) -->
+                <HBox fx:id="searchBarBox" spacing="8" alignment="CENTER" visible="false" managed="false">
                     <TextField fx:id="searchField"
                                promptText="Buscar anime, series, pelis , música o videojuegos..."
                                prefWidth="340"
@@ -79,8 +79,8 @@
             </HBox>
 
 
-            <!-- Filtros por tipo -->
-            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 12 0 0 0;">
+            <!-- Filtros por tipo (solo visibles en modo Búsqueda) -->
+            <HBox fx:id="filterBarBox" spacing="8" alignment="CENTER_LEFT" visible="false" managed="false" style="-fx-padding: 12 0 0 0;">
                 <ToggleButton fx:id="filterAll" text="Todo" selected="true"
                               onAction="#onFilterChanged"
                               style="-fx-background-color: #e94560; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
@@ -104,36 +104,51 @@
     </top>
 
     <center>
-        <VBox>
-            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+        <StackPane fx:id="centerContent">
 
-            <!-- Estado vacío / loading -->
-            <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
-                <Label fx:id="statusLabel"
-                       text="Busca tu próxima obsesión: anime, series, pelis, música o videojuegos ✨"
-                       style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
-                <ProgressIndicator fx:id="loadingSpinner"
-                                   visible="false"
-                                   prefWidth="48" prefHeight="48"
-                                   style="-fx-progress-color: #e94560;"/>
+            <!-- HOME (vista por defecto, se llena dinámicamente con HomeView.fxml) -->
+            <StackPane fx:id="homeContainer" visible="true">
+                <!-- El contenido de HomeView.fxml se inyecta aquí en initialize() -->
             </StackPane>
 
-            <!-- Grid de resultados -->
-            <ScrollPane fx:id="scrollPane"
-                        fitToWidth="true"
-                        VBox.vgrow="ALWAYS"
-                        visible="false"
-                        style="-fx-background: transparent;
-                               -fx-background-color: transparent;
-                               -fx-border-color: transparent;">
-                <FlowPane fx:id="resultsGrid"
-                          hgap="16" vgap="16"
-                          style="-fx-background-color: transparent;">
-                    <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
-                </FlowPane>
-            </ScrollPane>
+            <!-- BÚSQUEDA -->
+            <VBox fx:id="searchContentBox" visible="false">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
 
-        </VBox>
+                <!-- Estado vacío / loading -->
+                <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
+                    <VBox spacing="16" alignment="CENTER">
+                        <ProgressIndicator fx:id="loadingSpinner"
+                                           visible="false"
+                                           managed="false"
+                                           prefWidth="48" prefHeight="48"
+                                           style="-fx-progress-color: #e94560;"/>
+                        <Label fx:id="statusLabel"
+                               text="Busca tu próxima obsesión: anime, series, pelis, música o videojuegos ✨"
+                               wrapText="true"
+                               textAlignment="CENTER"
+                               style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
+                    </VBox>
+                </StackPane>
+
+                <!-- Grid de resultados -->
+                <ScrollPane fx:id="scrollPane"
+                            fitToWidth="true"
+                            VBox.vgrow="ALWAYS"
+                            visible="false"
+                            style="-fx-background: transparent;
+                                   -fx-background-color: transparent;
+                                   -fx-border-color: transparent;">
+                    <FlowPane fx:id="resultsGrid"
+                              hgap="16" vgap="16"
+                              style="-fx-background-color: transparent;">
+                        <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+                    </FlowPane>
+                </ScrollPane>
+
+            </VBox>
+
+        </StackPane>
     </center>
 
 </BorderPane>
@@ -178,6 +193,14 @@
                     style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
             <Separator/>
+
+            <Button text="🏠 Inicio"
+                    onAction="#goHome"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+            <Button text="🔍 Buscar"
+                    onAction="#goSearch"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
             <Button text="Favoritos"
                     onAction="#openFavorites"

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.rujiman.mediatracker.controllers.FavoritesViewController"
+            style="-fx-background-color: #0f0f1a;">
+
+    <top>
+        <VBox style="-fx-background-color: #1a1a2e; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
+            <padding><Insets top="16" right="20" bottom="12" left="20"/></padding>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Button fx:id="backButton"
+                        text="← Volver"
+                        onAction="#onBack"
+                        style="-fx-background-color: #16213e;
+                               -fx-text-fill: #eaeaea;
+                               -fx-font-size: 13px;
+                               -fx-font-weight: bold;
+                               -fx-padding: 8 18 8 18;
+                               -fx-background-radius: 8;
+                               -fx-cursor: hand;"/>
+
+                <Label text="⭐ Mis favoritos"
+                       style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 0 12;"/>
+            </HBox>
+
+            <!-- Filtros por tipo -->
+            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 12 0 0 0;">
+                <ToggleButton fx:id="filterAll" text="Todo" selected="true"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #e94560; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterAnime" text="🎌 Anime"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterSeries" text="📺 Series"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterMovie" text="🎬 Películas"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterMusic" text="🎵 Música"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="filterGame" text="🎮 Juegos"
+                              onAction="#onFilterChanged"
+                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox>
+            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+
+            <!-- Estado vacío -->
+            <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
+                <Label fx:id="statusLabel"
+                       text="Aún no tienes favoritos. ¡Busca algo y dale a la estrella! ⭐"
+                       style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
+            </StackPane>
+
+            <!-- Grid de favoritos -->
+            <ScrollPane fx:id="scrollPane"
+                        fitToWidth="true"
+                        VBox.vgrow="ALWAYS"
+                        visible="false"
+                        style="-fx-background: transparent;
+                               -fx-background-color: transparent;
+                               -fx-border-color: transparent;">
+                <FlowPane fx:id="resultsGrid"
+                          hgap="16" vgap="16"
+                          style="-fx-background-color: transparent;">
+                    <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+                </FlowPane>
+            </ScrollPane>
+
+        </VBox>
+    </center>
+
+</BorderPane>

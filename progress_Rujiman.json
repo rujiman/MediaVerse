@@ -1,0 +1,24 @@
+{
+  "mushoku tensei ii: isekai ittara honki dasu": {
+    "viewed": false,
+    "totalEpisodes": 13,
+    "watchedEpisodes": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "hollow knight": {
+    "viewed": true,
+    "watchedEpisodes": []
+  },
+  "mushoku tensei: jobless reincarnation": {
+    "viewed": true,
+    "watchedEpisodes": []
+  },
+  "forza horizon 6": {
+    "viewed": true,
+    "watchedEpisodes": []
+  }
+}

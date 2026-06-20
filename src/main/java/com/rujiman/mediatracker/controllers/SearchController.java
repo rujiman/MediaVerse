@@ -11,6 +11,7 @@ import com.rujiman.mediatracker.services.MusicService;
 import com.rujiman.mediatracker.services.GameService;
 import com.rujiman.mediatracker.services.FavoritesService;
 import javafx.animation.TranslateTransition;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -33,6 +34,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchController {
+
+    // -------------------------
+    // SHELL: HOME / BÚSQUEDA
+    // -------------------------
+    @FXML private StackPane centerContent;
+    @FXML private StackPane homeContainer;
+    @FXML private VBox searchContentBox;
+    @FXML private HBox searchBarBox;
+    @FXML private HBox filterBarBox;
+
+    private HomeController homeController;
 
     // -------------------------
     // ELEMENTOS YA EXISTENTES
@@ -117,6 +129,66 @@ public class SearchController {
 
         // Permitir buscar pulsando Enter en el campo de texto
         searchField.setOnAction(e -> onSearch());
+
+        // Cargar la Home dentro de su contenedor y mostrarla por defecto
+        loadHomeView();
+        goHome();
+    }
+
+    /**
+     * Carga HomeView.fxml dentro de homeContainer una sola vez al iniciar,
+     * conectando la apertura de detalle a la misma lógica que usa búsqueda.
+     */
+    private void loadHomeView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/HomeView.fxml")
+            );
+            javafx.scene.Parent homeRoot = loader.load();
+            homeController = loader.getController();
+            homeController.setOnOpenDetailAction(this::openDetailView);
+
+            homeContainer.getChildren().setAll(homeRoot);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al cargar HomeView: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Muestra la pantalla de Inicio ("Tu MediaVerse") y oculta la búsqueda.
+     * La barra de búsqueda y los filtros del header también se ocultan,
+     * ya que no tienen sentido fuera del modo búsqueda.
+     */
+    @FXML
+    private void goHome() {
+        homeContainer.setVisible(true);
+        searchContentBox.setVisible(false);
+        searchBarBox.setVisible(false);
+        searchBarBox.setManaged(false);
+        filterBarBox.setVisible(false);
+        filterBarBox.setManaged(false);
+
+        if (homeController != null) {
+            homeController.refreshAll();
+        }
+    }
+
+    /**
+     * Muestra la pantalla de Búsqueda y oculta la Home. Activa la barra
+     * de búsqueda y filtros en el header.
+     */
+    @FXML
+    private void goSearch() {
+        homeContainer.setVisible(false);
+        searchContentBox.setVisible(true);
+        searchBarBox.setVisible(true);
+        searchBarBox.setManaged(true);
+        filterBarBox.setVisible(true);
+        filterBarBox.setManaged(true);
+
+        searchField.requestFocus();
     }
 
     /**
@@ -225,53 +297,90 @@ public class SearchController {
         String query = searchField.getText().trim();
         if (query.isEmpty()) {
             statusLabel.setText("Escribe algo para buscar ✨");
+            statusLabel.setVisible(true);
+            statusPane.setVisible(true);
+            scrollPane.setVisible(false);
             return;
         }
 
-        // Mostrar estado de carga
+        // Deshabilitar mientras busca, para evitar búsquedas duplicadas
+        searchButton.setDisable(true);
+        searchField.setDisable(true);
+
+        Task<List<MediaItem>> searchTask = new Task<>() {
+            @Override
+            protected List<MediaItem> call() {
+                List<MediaItem> allResults = new ArrayList<>();
+
+                updateMessage("Buscando series en TMDB...");
+                try {
+                    allResults.addAll(tmdbService.searchSeries(query));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error buscando series: " + e.getMessage());
+                }
+
+                updateMessage("Buscando películas en TMDB...");
+                try {
+                    allResults.addAll(tmdbService.searchMovies(query));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error buscando películas: " + e.getMessage());
+                }
+
+                updateMessage("Buscando anime en AniList...");
+                try {
+                    allResults.addAll(anilistService.search(query));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error buscando anime: " + e.getMessage());
+                }
+
+                updateMessage("Buscando música en Deezer...");
+                try {
+                    allResults.addAll(musicService.search(query));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error buscando música: " + e.getMessage());
+                }
+
+                updateMessage("Buscando videojuegos en IGDB...");
+                try {
+                    allResults.addAll(gameService.search(query));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error buscando videojuegos: " + e.getMessage());
+                }
+
+                return allResults;
+            }
+        };
+
+        // El mensaje de progreso de la tarea se refleja en el statusLabel en tiempo real
+        statusLabel.textProperty().bind(searchTask.messageProperty());
+        statusLabel.setVisible(true);
         statusPane.setVisible(true);
         scrollPane.setVisible(false);
-        statusLabel.setVisible(false);
         loadingSpinner.setVisible(true);
+        loadingSpinner.setManaged(true);
 
-        List<MediaItem> allResults = new ArrayList<>();
+        searchTask.setOnSucceeded(e -> {
+            statusLabel.textProperty().unbind();
+            loadingSpinner.setVisible(false);
+            loadingSpinner.setManaged(false);
+            searchButton.setDisable(false);
+            searchField.setDisable(false);
+            setResults(searchTask.getValue());
+        });
 
-        // Series y películas (TMDB)
-        try {
-            allResults.addAll(tmdbService.searchSeries(query));
-        } catch (Exception e) {
-            System.err.println("⚠️ Error buscando series: " + e.getMessage());
-        }
+        searchTask.setOnFailed(e -> {
+            statusLabel.textProperty().unbind();
+            loadingSpinner.setVisible(false);
+            loadingSpinner.setManaged(false);
+            searchButton.setDisable(false);
+            searchField.setDisable(false);
+            statusLabel.setText("Ocurrió un error al buscar. Inténtalo de nuevo.");
+            System.err.println("❌ Error en la búsqueda: " + searchTask.getException());
+        });
 
-        try {
-            allResults.addAll(tmdbService.searchMovies(query));
-        } catch (Exception e) {
-            System.err.println("⚠️ Error buscando películas: " + e.getMessage());
-        }
-
-        // Anime (AniList)
-        try {
-            allResults.addAll(anilistService.search(query));
-        } catch (Exception e) {
-            System.err.println("⚠️ Error buscando anime: " + e.getMessage());
-        }
-
-        // Música (Deezer)
-        try {
-            allResults.addAll(musicService.search(query));
-        } catch (Exception e) {
-            System.err.println("⚠️ Error buscando música: " + e.getMessage());
-        }
-
-        // Videojuegos (IGDB)
-        try {
-            allResults.addAll(gameService.search(query));
-        } catch (Exception e) {
-            System.err.println("⚠️ Error buscando videojuegos: " + e.getMessage());
-        }
-
-        loadingSpinner.setVisible(false);
-        setResults(allResults);
+        Thread searchThread = new Thread(searchTask);
+        searchThread.setDaemon(true);
+        searchThread.start();
     }
 
     /**
@@ -334,6 +443,7 @@ public class SearchController {
             statusLabel.setText("Sin resultados para este filtro 🔍");
             statusLabel.setVisible(true);
             loadingSpinner.setVisible(false);
+            loadingSpinner.setManaged(false);
             return;
         }
 
@@ -501,19 +611,10 @@ public class SearchController {
             javafx.scene.Parent detailRoot = loader.load();
 
             DetailViewController controller = loader.getController();
-            controller.setOnBackAction(this::closeDetailView);
+            controller.setOnBackAction(this::closeOverlay);
             controller.loadItem(item);
 
-            detailOverlayContainer.getChildren().setAll(detailRoot);
-            detailOverlayContainer.setVisible(true);
-            detailOverlayContainer.setOpacity(0);
-
-            javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(
-                    Duration.millis(180), detailOverlayContainer
-            );
-            fade.setFromValue(0);
-            fade.setToValue(1);
-            fade.play();
+            openOverlay(detailRoot);
 
         } catch (Exception e) {
             System.err.println("❌ Error al abrir DetailView: " + e.getMessage());
@@ -522,10 +623,81 @@ public class SearchController {
     }
 
     /**
-     * Cierra el overlay de detalle y vuelve a mostrar la búsqueda,
-     * que sigue intacta debajo (nunca se destruyó).
+     * Abre la vista de favoritos dentro del mismo overlay, con sus propios
+     * filtros y tarjetas. Al pinchar una tarjeta de favorito, se abre el
+     * detalle correspondiente apilado encima (el "volver" del detalle
+     * regresa a la lista de favoritos, no directamente a la búsqueda).
      */
-    private void closeDetailView() {
+    @FXML
+    private void openFavorites() {
+        // Si el menú lateral está abierto, lo cerramos para no solapar visualmente
+        if (menuOpen) closeMenu();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/FavoritesView.fxml")
+            );
+            javafx.scene.Parent favoritesRoot = loader.load();
+
+            FavoritesViewController controller = loader.getController();
+            controller.setOnBackAction(this::closeOverlay);
+            controller.setOnOpenDetailAction(this::openDetailViewFromFavorites);
+
+            openOverlay(favoritesRoot);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir Favoritos: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Abre el detalle de un favorito apilándolo sobre la vista de favoritos
+     * (en vez de sobre la búsqueda), para que "Volver" regrese a la lista
+     * de favoritos y no se pierda ese contexto.
+     */
+    private void openDetailViewFromFavorites(MediaItem item) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
+            );
+            javafx.scene.Parent detailRoot = loader.load();
+
+            DetailViewController controller = loader.getController();
+            // Al volver desde este detalle, reabrimos la vista de favoritos actualizada
+            controller.setOnBackAction(this::openFavorites);
+            controller.loadItem(item);
+
+            openOverlay(detailRoot);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir DetailView desde favoritos: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Muestra cualquier nodo dentro del overlay genérico (tercera capa
+     * del StackPane raíz) con una animación de fade in.
+     */
+    private void openOverlay(javafx.scene.Parent content) {
+        detailOverlayContainer.getChildren().setAll(content);
+        detailOverlayContainer.setVisible(true);
+        detailOverlayContainer.setOpacity(0);
+
+        javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(
+                Duration.millis(180), detailOverlayContainer
+        );
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        fade.play();
+    }
+
+    /**
+     * Cierra el overlay genérico y vuelve a mostrar lo que hubiera debajo
+     * (búsqueda o menú lateral), que nunca se destruyeron.
+     */
+    private void closeOverlay() {
         javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(
                 Duration.millis(150), detailOverlayContainer
         );
@@ -704,11 +876,6 @@ public class SearchController {
     // -------------------------
     // SECCIONES
     // -------------------------
-    @FXML
-    private void openFavorites() {
-        int count = FavoritesService.getFavorites().size();
-        showAlert("Tienes " + count + " elementos en favoritos. (Vista completa de favoritos: próximo paso)");
-    }
     @FXML private void openWatchedSeries() { showAlert("Abrir series vistas"); }
     @FXML private void openWatchingSeries() { showAlert("Abrir series viendo"); }
     @FXML private void openWatchedMovies() { showAlert("Abrir películas vistas"); }

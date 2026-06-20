@@ -4,6 +4,7 @@ import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
 import com.rujiman.mediatracker.services.FavoritesService;
+import com.rujiman.mediatracker.services.WatchProgressService;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -74,6 +75,36 @@ public class DetailViewController {
     public void initialize() {
         detailScroll.setStyle("-fx-background-color: #0f0f1a;");
         detailContainer.setStyle("-fx-background-color: #0f0f1a;");
+
+        // El viewport interno del ScrollPane no hereda el color de fondo por
+        // CSS normal, y su Skin no existe hasta que el nodo está realmente
+        // en una escena. Un solo Platform.runLater no es fiable porque puede
+        // ejecutarse antes de que el Skin se construya. En su lugar, forzamos
+        // el estilo cada vez que cambia el Skin (se dispara de forma fiable
+        // en cuanto el ScrollPane es renderizable).
+        detailScroll.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                applyViewportBackground();
+            }
+        });
+
+        // Por si el Skin ya existía en el momento de inicializar (poco común,
+        // pero cubre ese caso también)
+        if (detailScroll.getSkin() != null) {
+            applyViewportBackground();
+        }
+    }
+
+    /**
+     * Fuerza el fondo oscuro en el viewport interno del ScrollPane,
+     * evitando el hueco blanco/gris por defecto cuando el contenido
+     * es más corto que el área visible.
+     */
+    private void applyViewportBackground() {
+        javafx.scene.Node viewport = detailScroll.lookup(".viewport");
+        if (viewport != null) {
+            viewport.setStyle("-fx-background-color: #0f0f1a;");
+        }
     }
 
     /**
@@ -128,9 +159,11 @@ public class DetailViewController {
         // Botones según tipo
         updateButtons(item);
 
-        // Verificar si está en favoritos (debe ir antes de construir la lista
-        // de episodios, para que los checkboxes reflejen el progreso guardado)
+        // Verificar si está en favoritos (independiente del progreso)
         checkIfFavorite();
+
+        // Estado de visto/jugado y progreso de episodios (independiente de favoritos)
+        updateViewedButtonStyle();
 
         // Episodios / canciones según el tipo de contenido
         setupEpisodesOrTracks(item);
@@ -182,11 +215,13 @@ public class DetailViewController {
 
     /**
      * Construye la lista de checkboxes "Episodio 1".."Episodio N",
-     * marcando como visto cada uno según lo guardado en favoritos.
+     * marcando como visto cada uno según el progreso guardado
+     * (independiente de si el item es favorito o no).
      */
     private void buildEpisodesList(int totalEpisodes) {
         episodesList.getChildren().clear();
-        episodesHeaderLabel.setText("Episodios (" + watchedCount() + "/" + totalEpisodes + ")");
+        WatchProgressService.Progress progress = WatchProgressService.getProgress(currentItem.getTitle());
+        episodesHeaderLabel.setText("Episodios (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
 
         for (int i = 1; i <= totalEpisodes; i++) {
             final int episodeNumber = i;
@@ -196,61 +231,29 @@ public class DetailViewController {
                     "-fx-text-fill: #eaeaea; -fx-font-size: 12px;"
             );
 
-            boolean watched = currentFavorite != null && currentFavorite.isEpisodeWatched(episodeNumber);
-            checkBox.setSelected(watched);
+            checkBox.setSelected(progress.watchedEpisodes.contains(episodeNumber));
 
             checkBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-                onEpisodeToggled(episodeNumber);
+                onEpisodeToggled(episodeNumber, totalEpisodes);
             });
 
             episodesList.getChildren().add(checkBox);
         }
     }
 
-    private int watchedCount() {
-        return currentFavorite != null ? currentFavorite.getWatchedEpisodes().size() : 0;
-    }
-
     /**
      * Se llama cuando el usuario marca/desmarca un episodio concreto.
-     * Si el item aún no está en favoritos, lo añade automáticamente
-     * (no se puede guardar progreso de episodios sin persistir el item).
+     * Esto NO añade el item a favoritos; el progreso vive en su propio
+     * almacenamiento, totalmente independiente.
      */
-    private void onEpisodeToggled(int episodeNumber) {
-        if (currentFavorite == null) {
-            FavoriteItem fav = new FavoriteItem(currentItem);
-            FavoritesService.addFavorite(fav);
-            currentFavorite = fav;
-            checkIfFavorite();
-        }
+    private void onEpisodeToggled(int episodeNumber, int totalEpisodes) {
+        WatchProgressService.toggleEpisodeWatched(currentItem.getTitle(), episodeNumber, totalEpisodes);
 
-        FavoritesService.toggleEpisodeWatched(currentFavorite.getId(), episodeNumber);
-
-        // Recargar el estado real desde el favorito actualizado para mantener consistencia
-        refreshCurrentFavoriteFromService();
-
-        Integer total = currentItem.getEpisodes();
-        if (total != null) {
-            episodesHeaderLabel.setText("Episodios (" + watchedCount() + "/" + total + ")");
-        }
+        WatchProgressService.Progress progress = WatchProgressService.getProgress(currentItem.getTitle());
+        episodesHeaderLabel.setText("Episodios (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
 
         // Si se completaron todos los episodios, el botón de visto general también se actualiza
         updateViewedButtonStyle();
-    }
-
-    /**
-     * Vuelve a leer el favorito actual desde el servicio, para reflejar
-     * exactamente lo que quedó guardado (evita desincronización).
-     */
-    private void refreshCurrentFavoriteFromService() {
-        if (currentFavorite == null) return;
-        List<FavoriteItem> favs = FavoritesService.getFavorites();
-        for (FavoriteItem fav : favs) {
-            if (fav.getId().equals(currentFavorite.getId())) {
-                currentFavorite = fav;
-                return;
-            }
-        }
     }
 
     /**
@@ -317,23 +320,13 @@ public class DetailViewController {
 
     @FXML
     private void onToggleViewed() {
-        if (currentFavorite != null) {
-            FavoritesService.toggleViewed(currentFavorite.getId());
-            currentFavorite.setViewed(!currentFavorite.isViewed());
-            updateViewedButtonStyle();
-        } else {
-            // Primero agregarlo a favoritos
-            FavoriteItem fav = new FavoriteItem(currentItem);
-            fav.setViewed(true);
-            FavoritesService.addFavorite(fav);
-            currentFavorite = fav;
-            checkIfFavorite();
-            updateViewedButtonStyle();
-        }
+        WatchProgressService.toggleViewed(currentItem.getTitle());
+        updateViewedButtonStyle();
     }
 
     private void updateViewedButtonStyle() {
-        if (currentFavorite != null && currentFavorite.isViewed()) {
+        boolean viewed = WatchProgressService.isViewed(currentItem.getTitle());
+        if (viewed) {
             viewedButton.setStyle("-fx-background-color: " + COLOR_GREEN + ";");
         } else {
             viewedButton.setStyle("-fx-background-color: " + COLOR_BG_CARD + ";");

@@ -1,6 +1,7 @@
 package com.rujiman.mediatracker.models;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,6 +23,10 @@ public class FavoriteItem {
     private Integer totalEpisodes;
     private Set<Integer> watchedEpisodes = new HashSet<>(); // números de episodio (1-based) marcados como vistos
 
+    // Datos adicionales para que el detalle se vea completo también desde favoritos
+    private List<String> platforms;
+    private List<String> genres;
+
     public FavoriteItem() {}
 
     public FavoriteItem(MediaItem item) {
@@ -37,6 +42,8 @@ public class FavoriteItem {
         this.addedDate = System.currentTimeMillis();
         this.totalEpisodes = item.getEpisodes();
         this.watchedEpisodes = new HashSet<>();
+        this.platforms = item.getPlatforms();
+        this.genres = item.getGenres();
     }
 
     private String generateId() {
@@ -91,5 +98,31 @@ public class FavoriteItem {
         } else {
             watchedEpisodes.remove(episodeNumber);
         }
+    }
+
+    public List<String> getPlatforms() { return platforms; }
+    public void setPlatforms(List<String> platforms) { this.platforms = platforms; }
+
+    public List<String> getGenres() { return genres; }
+    public void setGenres(List<String> genres) { this.genres = genres; }
+
+    /**
+     * Reconstruye un MediaItem equivalente a partir de este favorito,
+     * para poder reutilizar la misma tarjeta visual y la misma pantalla
+     * de detalle que se usan en los resultados de búsqueda.
+     */
+    public MediaItem toMediaItem() {
+        MediaItem item = new MediaItem();
+        item.setType(this.type);
+        item.setTitle(this.title);
+        item.setDescription(this.description);
+        item.setImageUrl(this.imageUrl);
+        item.setYear(this.year);
+        item.setScore(this.score);
+        item.setExternalUrl(this.externalUrl);
+        item.setEpisodes(this.totalEpisodes);
+        item.setPlatforms(this.platforms);
+        item.setGenres(this.genres);
+        return item;
     }
 }

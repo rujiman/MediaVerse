@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.rujiman.mediatracker.controllers.HomeController"
+            fx:id="homeScroll"
+            fitToWidth="true"
+            style="-fx-background-color: #0f0f1a; -fx-border-color: transparent;">
+
+    <VBox fx:id="homeRoot" style="-fx-background-color: #0f0f1a;">
+        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+        <Label text="✨ Tu MediaVerse"
+               style="-fx-text-fill: #e94560; -fx-font-size: 26px; -fx-font-weight: bold; -fx-padding: 0 0 4 0;"/>
+        <Label text="Lo que más te gusta, elegido por ti"
+               style="-fx-text-fill: #555577; -fx-font-size: 13px; -fx-padding: 0 0 20 0;"/>
+
+        <!-- Layout principal: Juegos a la izquierda (columna alta), resto a la derecha (filas) -->
+        <HBox spacing="20" alignment="TOP_LEFT">
+
+            <!-- ===================== COLUMNA: JUEGOS ===================== -->
+            <VBox spacing="12" prefWidth="220" minWidth="220"
+                  style="-fx-background-color: #16213e; -fx-background-radius: 14;">
+                <padding><Insets top="16" right="14" bottom="16" left="14"/></padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="🎮 Juegos"
+                           style="-fx-text-fill: #eaeaea; -fx-font-size: 15px; -fx-font-weight: bold;"
+                           HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button fx:id="editGameButton"
+                            text="✏️"
+                            onAction="#onEditGameSection"
+                            style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
+                </HBox>
+
+                <VBox fx:id="gameSectionBox" spacing="10"/>
+
+                <Label fx:id="gameEmptyLabel"
+                       text="Pulsa ✏️ para elegir tus juegos favoritos"
+                       wrapText="true"
+                       visible="false" managed="false"
+                       style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+            </VBox>
+
+            <!-- ===================== COLUMNA DERECHA: FILAS ===================== -->
+            <VBox spacing="16" HBox.hgrow="ALWAYS">
+
+                <!-- MÚSICA -->
+                <VBox fx:id="musicSectionContainer" spacing="10"
+                      style="-fx-background-color: #16213e; -fx-background-radius: 14;">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🎵 Música"
+                               style="-fx-text-fill: #eaeaea; -fx-font-size: 15px; -fx-font-weight: bold;"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Button fx:id="editMusicButton"
+                                text="✏️"
+                                onAction="#onEditMusicSection"
+                                style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
+                    </HBox>
+                    <HBox fx:id="musicSectionBox" spacing="10"/>
+                    <Label fx:id="musicEmptyLabel"
+                           text="Pulsa ✏️ para elegir tu música favorita"
+                           visible="false" managed="false"
+                           style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                </VBox>
+
+                <!-- SERIES -->
+                <VBox fx:id="seriesSectionContainer" spacing="10"
+                      style="-fx-background-color: #16213e; -fx-background-radius: 14;">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📺 Series"
+                               style="-fx-text-fill: #eaeaea; -fx-font-size: 15px; -fx-font-weight: bold;"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Button fx:id="editSeriesButton"
+                                text="✏️"
+                                onAction="#onEditSeriesSection"
+                                style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
+                    </HBox>
+                    <HBox fx:id="seriesSectionBox" spacing="10"/>
+                    <Label fx:id="seriesEmptyLabel"
+                           text="Pulsa ✏️ para elegir tus series favoritas"
+                           visible="false" managed="false"
+                           style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                </VBox>
+
+                <!-- PELÍCULAS -->
+                <VBox fx:id="movieSectionContainer" spacing="10"
+                      style="-fx-background-color: #16213e; -fx-background-radius: 14;">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🎬 Películas"
+                               style="-fx-text-fill: #eaeaea; -fx-font-size: 15px; -fx-font-weight: bold;"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Button fx:id="editMovieButton"
+                                text="✏️"
+                                onAction="#onEditMovieSection"
+                                style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
+                    </HBox>
+                    <HBox fx:id="movieSectionBox" spacing="10"/>
+                    <Label fx:id="movieEmptyLabel"
+                           text="Pulsa ✏️ para elegir tus películas favoritas"
+                           visible="false" managed="false"
+                           style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                </VBox>
+
+                <!-- ANIME -->
+                <VBox fx:id="animeSectionContainer" spacing="10"
+                      style="-fx-background-color: #16213e; -fx-background-radius: 14;">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🎌 Anime"
+                               style="-fx-text-fill: #eaeaea; -fx-font-size: 15px; -fx-font-weight: bold;"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Button fx:id="editAnimeButton"
+                                text="✏️"
+                                onAction="#onEditAnimeSection"
+                                style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
+                    </HBox>
+                    <HBox fx:id="animeSectionBox" spacing="10"/>
+                    <Label fx:id="animeEmptyLabel"
+                           text="Pulsa ✏️ para elegir tu anime favorito"
+                           visible="false" managed="false"
+                           style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                </VBox>
+
+            </VBox>
+
+        </HBox>
+
+    </VBox>
+
+</ScrollPane>

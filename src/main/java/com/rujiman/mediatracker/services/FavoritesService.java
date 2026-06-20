@@ -213,6 +213,18 @@ public class FavoritesService {
                 }
                 obj.add("watchedEpisodes", watchedArray);
 
+                if (fav.getPlatforms() != null) {
+                    JsonArray platformsArray = new JsonArray();
+                    for (String p : fav.getPlatforms()) platformsArray.add(p);
+                    obj.add("platforms", platformsArray);
+                }
+
+                if (fav.getGenres() != null) {
+                    JsonArray genresArray = new JsonArray();
+                    for (String g : fav.getGenres()) genresArray.add(g);
+                    obj.add("genres", genresArray);
+                }
+
                 favArray.add(obj);
             }
 
@@ -257,6 +269,22 @@ public class FavoritesService {
                 watched.add(el.getAsInt());
             }
             item.setWatchedEpisodes(watched);
+        }
+
+        if (obj.has("platforms") && obj.get("platforms").isJsonArray()) {
+            List<String> platforms = new ArrayList<>();
+            for (JsonElement el : obj.getAsJsonArray("platforms")) {
+                platforms.add(el.getAsString());
+            }
+            item.setPlatforms(platforms);
+        }
+
+        if (obj.has("genres") && obj.get("genres").isJsonArray()) {
+            List<String> genres = new ArrayList<>();
+            for (JsonElement el : obj.getAsJsonArray("genres")) {
+                genres.add(el.getAsString());
+            }
+            item.setGenres(genres);
         }
 
         return item;
