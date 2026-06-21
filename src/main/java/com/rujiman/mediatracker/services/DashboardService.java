@@ -27,6 +27,14 @@ public class DashboardService {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    /**
+     * Número máximo de favoritos permitidos por sección en la home.
+     * Juegos tiene más espacio (grid 5x3) que las filas horizontales.
+     */
+    public static int getMaxItemsForSection(MediaType type) {
+        return type == MediaType.GAME ? 15 : 5;
+    }
+
     // Una entrada de lista por cada MediaType que tiene sección fija en la home
     private static Map<MediaType, List<String>> sections = new LinkedHashMap<>();
     private static boolean loaded = false;
@@ -179,10 +187,16 @@ public class DashboardService {
     /**
      * Sustituye por completo el contenido de una sección con la lista
      * de IDs dada, en ese orden. Útil para el selector de "elegir favoritos".
+     * Si se supera el límite de la sección, se recorta (defensa adicional;
+     * la UI del selector ya debería impedir superarlo).
      */
     public static void setSectionItems(MediaType type, List<String> favoriteIds) {
         ensureCorrectUserLoaded();
-        sections.put(type, new ArrayList<>(favoriteIds));
+        int max = getMaxItemsForSection(type);
+        List<String> trimmed = favoriteIds.size() > max
+                ? new ArrayList<>(favoriteIds.subList(0, max))
+                : new ArrayList<>(favoriteIds);
+        sections.put(type, trimmed);
         saveDashboard();
     }
 

@@ -225,6 +225,10 @@ public class FavoritesService {
                     obj.add("genres", genresArray);
                 }
 
+                if (fav.getTmdbId() != null) {
+                    obj.addProperty("tmdbId", fav.getTmdbId());
+                }
+
                 favArray.add(obj);
             }
 
@@ -285,6 +289,10 @@ public class FavoritesService {
                 genres.add(el.getAsString());
             }
             item.setGenres(genres);
+        }
+
+        if (obj.has("tmdbId") && !obj.get("tmdbId").isJsonNull()) {
+            item.setTmdbId(obj.get("tmdbId").getAsInt());
         }
 
         return item;

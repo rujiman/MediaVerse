@@ -26,6 +26,7 @@ public class FavoriteItem {
     // Datos adicionales para que el detalle se vea completo también desde favoritos
     private List<String> platforms;
     private List<String> genres;
+    private Integer tmdbId;
 
     public FavoriteItem() {}
 
@@ -44,6 +45,7 @@ public class FavoriteItem {
         this.watchedEpisodes = new HashSet<>();
         this.platforms = item.getPlatforms();
         this.genres = item.getGenres();
+        this.tmdbId = item.getTmdbId();
     }
 
     private String generateId() {
@@ -106,6 +108,9 @@ public class FavoriteItem {
     public List<String> getGenres() { return genres; }
     public void setGenres(List<String> genres) { this.genres = genres; }
 
+    public Integer getTmdbId() { return tmdbId; }
+    public void setTmdbId(Integer tmdbId) { this.tmdbId = tmdbId; }
+
     /**
      * Reconstruye un MediaItem equivalente a partir de este favorito,
      * para poder reutilizar la misma tarjeta visual y la misma pantalla
@@ -123,6 +128,7 @@ public class FavoriteItem {
         item.setEpisodes(this.totalEpisodes);
         item.setPlatforms(this.platforms);
         item.setGenres(this.genres);
+        item.setTmdbId(this.tmdbId);
         return item;
     }
 }

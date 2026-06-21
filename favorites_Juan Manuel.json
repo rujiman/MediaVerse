@@ -1,0 +1,22 @@
+{
+  "favorites": [
+    {
+      "id": "1781955399024_8232",
+      "type": "SERIES",
+      "title": "Reacher",
+      "description": "Jack Reacher, a veteran military police investigator, has just recently entered civilian life. Reacher is a drifter, carrying no phone and the barest of essentials as he travels the country and explores the nation he once served.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/31GlRQMiDunO8cl3NxTz34U64rf.jpg",
+      "year": 2022,
+      "score": 80,
+      "externalUrl": "https://www.themoviedb.org/tv/108978",
+      "viewed": false,
+      "addedDate": 1781955399026,
+      "totalEpisodes": 24,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Amazon Prime Video",
+        "Amazon Prime Video with Ads"
+      ]
+    }
+  ]
+}

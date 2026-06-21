@@ -19,11 +19,11 @@
         <Label text="Lo que más te gusta, elegido por ti"
                style="-fx-text-fill: #555577; -fx-font-size: 13px; -fx-padding: 0 0 20 0;"/>
 
-        <!-- Layout principal: Juegos a la izquierda (columna alta), resto a la derecha (filas) -->
+        <!-- Layout principal: Juegos a la izquierda (grid 5x3), resto a la derecha (filas) -->
         <HBox spacing="20" alignment="TOP_LEFT">
 
-            <!-- ===================== COLUMNA: JUEGOS ===================== -->
-            <VBox spacing="12" prefWidth="220" minWidth="220"
+            <!-- ===================== COLUMNA: JUEGOS (grid 5x3 = 15 máx) ===================== -->
+            <VBox spacing="12" prefWidth="640" minWidth="640"
                   style="-fx-background-color: #16213e; -fx-background-radius: 14;">
                 <padding><Insets top="16" right="14" bottom="16" left="14"/></padding>
 
@@ -37,7 +37,7 @@
                             style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
                 </HBox>
 
-                <VBox fx:id="gameSectionBox" spacing="10"/>
+                <FlowPane fx:id="gameSectionBox" hgap="12" vgap="12"/>
 
                 <Label fx:id="gameEmptyLabel"
                        text="Pulsa ✏️ para elegir tus juegos favoritos"

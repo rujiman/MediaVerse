@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -28,7 +29,7 @@ public class HomeController {
     @FXML private ScrollPane homeScroll;
     @FXML private VBox homeRoot;
 
-    @FXML private VBox gameSectionBox;
+    @FXML private FlowPane gameSectionBox;
     @FXML private Label gameEmptyLabel;
     @FXML private Button editGameButton;
 
@@ -57,8 +58,26 @@ public class HomeController {
 
     @FXML
     public void initialize() {
+        // El viewport interno del ScrollPane no hereda el fondo oscuro por
+        // CSS normal, dejando un hueco blanco/gris cuando el contenido es
+        // más corto que el área visible. Forzamos el estilo en cuanto el
+        // Skin del ScrollPane existe (mismo fix que en DetailViewController).
+        homeScroll.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) applyViewportBackground();
+        });
+        if (homeScroll.getSkin() != null) {
+            applyViewportBackground();
+        }
+
         DashboardService.pruneDeletedFavorites();
         refreshAll();
+    }
+
+    private void applyViewportBackground() {
+        javafx.scene.Node viewport = homeScroll.lookup(".viewport");
+        if (viewport != null) {
+            viewport.setStyle("-fx-background-color: #0f0f1a;");
+        }
     }
 
     /**
@@ -78,8 +97,8 @@ public class HomeController {
     // RENDERIZADO DE SECCIONES
     // ===========================================================
 
-    /** Para la columna de Juegos: tarjetas apiladas verticalmente. */
-    private void renderVerticalSection(MediaType type, VBox container, Label emptyLabel) {
+    /** Para la columna de Juegos: grid 5x3 (máximo 15). */
+    private void renderVerticalSection(MediaType type, FlowPane container, Label emptyLabel) {
         container.getChildren().clear();
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
 
@@ -88,11 +107,11 @@ public class HomeController {
         emptyLabel.setManaged(empty);
 
         for (FavoriteItem fav : items) {
-            container.getChildren().add(buildCard(fav, 190, 130));
+            container.getChildren().add(buildCard(fav, 110, 150));
         }
     }
 
-    /** Para las filas de Música/Series/Películas/Anime: tarjetas en horizontal. */
+    /** Para las filas de Música/Series/Películas/Anime: tarjetas en horizontal (máximo 5). */
     private void renderHorizontalSection(MediaType type, HBox container, Label emptyLabel) {
         container.getChildren().clear();
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
@@ -102,13 +121,18 @@ public class HomeController {
         emptyLabel.setManaged(empty);
 
         for (FavoriteItem fav : items) {
-            container.getChildren().add(buildCard(fav, 130, 180));
+            container.getChildren().add(buildCard(fav, 150, 210));
         }
     }
 
     /**
      * Tarjeta compacta para el dashboard: imagen + título, sin badges
      * extra (el contexto de la sección ya indica el tipo).
+     *
+     * La imagen se pide al doble de resolución del tamaño visual y luego
+     * se escala hacia abajo con suavizado: pedirla exactamente al tamaño
+     * final hace que JavaFX la reescale desde una versión ya pequeña de
+     * la fuente remota, lo que se ve borroso/pixelado.
      */
     private VBox buildCard(FavoriteItem fav, double width, double imageHeight) {
         VBox card = new VBox(4);
@@ -131,7 +155,11 @@ public class HomeController {
         boolean hasImage = fav.getImageUrl() != null && !fav.getImageUrl().isBlank();
         if (hasImage) {
             try {
-                cover.setImage(new Image(fav.getImageUrl(), width, imageHeight, false, true, true));
+                // Pedimos la imagen al doble de resolución visual para que
+                // no se vea pixelada al mostrarla en pantallas de alta densidad
+                double requestW = width * 2;
+                double requestH = imageHeight * 2;
+                cover.setImage(new Image(fav.getImageUrl(), requestW, requestH, false, true, true));
                 card.getChildren().add(cover);
             } catch (Exception ignored) {
                 hasImage = false;
@@ -172,7 +200,8 @@ public class HomeController {
     /**
      * Abre un diálogo con checkboxes de todos los favoritos de ese tipo,
      * preseleccionando los que ya están en la sección, y guarda la nueva
-     * selección al confirmar.
+     * selección al confirmar. Si se alcanza el límite de la sección, los
+     * checkboxes no marcados se deshabilitan hasta que se desmarque alguno.
      */
     private void openSectionEditor(MediaType type, String sectionDisplayName) {
         List<FavoriteItem> candidates = FavoritesService.getFavoritesByType(type);
@@ -187,13 +216,18 @@ public class HomeController {
         }
 
         List<String> currentIds = DashboardService.getSectionIds(type);
+        int max = DashboardService.getMaxItemsForSection(type);
 
         Dialog<List<String>> dialog = new Dialog<>();
         dialog.setTitle("Elegir " + sectionDisplayName + " para Tu MediaVerse");
         dialog.getDialogPane().setStyle("-fx-background-color: #1a1a2e;");
 
+        Label limitLabel = new Label();
+        limitLabel.setStyle("-fx-text-fill: #555577; -fx-font-size: 11px; -fx-padding: 0 0 8 0;");
+
         VBox content = new VBox(8);
         content.setStyle("-fx-padding: 10;");
+        content.getChildren().add(limitLabel);
 
         List<CheckBox> checkBoxes = new ArrayList<>();
         for (FavoriteItem fav : candidates) {
@@ -205,9 +239,28 @@ public class HomeController {
             content.getChildren().add(cb);
         }
 
+        // Actualiza el contador y bloquea/desbloquea los checkboxes no
+        // marcados según si se ha alcanzado el límite máximo.
+        Runnable updateLimitState = () -> {
+            long selectedCount = checkBoxes.stream().filter(CheckBox::isSelected).count();
+            limitLabel.setText("Seleccionados: " + selectedCount + " / " + max);
+
+            boolean limitReached = selectedCount >= max;
+            for (CheckBox cb : checkBoxes) {
+                if (!cb.isSelected()) {
+                    cb.setDisable(limitReached);
+                }
+            }
+        };
+
+        for (CheckBox cb : checkBoxes) {
+            cb.selectedProperty().addListener((obs, oldVal, newVal) -> updateLimitState.run());
+        }
+        updateLimitState.run();
+
         ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
-        scroll.setPrefHeight(Math.min(350, candidates.size() * 34 + 20));
+        scroll.setPrefHeight(Math.min(350, candidates.size() * 34 + 40));
         scroll.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: transparent;");
 
         dialog.getDialogPane().setContent(scroll);

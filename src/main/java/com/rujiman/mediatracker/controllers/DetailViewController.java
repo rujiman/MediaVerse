@@ -5,6 +5,7 @@ import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
 import com.rujiman.mediatracker.services.FavoritesService;
 import com.rujiman.mediatracker.services.WatchProgressService;
+import com.rujiman.mediatracker.services.TMDBService;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -195,9 +196,14 @@ public class DetailViewController {
                 episodesSeparator.setManaged(true);
                 episodesSection.setVisible(true);
                 episodesSection.setManaged(true);
+            } else if (type == MediaType.SERIES && item.getTmdbId() != null) {
+                // Las series de TMDB no traen el número de episodios en la
+                // búsqueda (para no ralentizarla); se consulta aquí, solo
+                // al abrir el detalle, en un hilo de fondo.
+                loadEpisodeCountInBackground(item);
             }
-            // Si no hay número de episodios disponible, no mostramos nada
-            // (mejor que mostrar una lista vacía o incorrecta)
+            // Si no hay forma de conocer el número de episodios, no se
+            // muestra nada (mejor que una lista vacía o incorrecta)
 
         } else if (type == MediaType.MUSIC) {
             // "episodes" se reutiliza en MusicService para nb_tracks (canciones del álbum)
@@ -211,6 +217,47 @@ public class DetailViewController {
             // Si es 1 canción suelta o no hay dato, no mostramos nada extra
         }
         // MOVIE y GAME: no se muestra nada adicional aquí
+    }
+
+    /**
+     * Consulta el número de episodios de una serie de TMDB en un hilo
+     * de fondo, y si llega un resultado válido y seguimos en el mismo
+     * item, construye la lista de episodios y la muestra con un fade.
+     * No bloquea la UI ni retrasa la apertura del detalle.
+     */
+    private void loadEpisodeCountInBackground(MediaItem item) {
+        final MediaItem itemAtRequestTime = item;
+
+        new Thread(() -> {
+            Integer total = new TMDBService().getEpisodeCount(item.getTmdbId());
+
+            Platform.runLater(() -> {
+                // Si el usuario ya cerró este detalle o abrió otro mientras
+                // se esperaba la respuesta, no tocamos nada para evitar
+                // pintar episodios sobre el item equivocado.
+                if (currentItem != itemAtRequestTime) return;
+                if (total == null || total <= 0) return;
+
+                item.setEpisodes(total);
+                buildEpisodesList(total);
+
+                episodesSeparator.setVisible(true);
+                episodesSeparator.setManaged(true);
+                episodesSection.setVisible(true);
+                episodesSection.setManaged(true);
+
+                // Ahora que sabemos que hay episodios, el botón general de
+                // "Marcar como visto" deja de tener sentido (el progreso se
+                // gestiona episodio a episodio en la lista que acabamos de mostrar)
+                viewedButton.setVisible(false);
+                viewedButton.setManaged(false);
+
+                FadeTransition fade = new FadeTransition(Duration.millis(250), episodesSection);
+                fade.setFromValue(0);
+                fade.setToValue(1);
+                fade.play();
+            });
+        }).start();
     }
 
     /**

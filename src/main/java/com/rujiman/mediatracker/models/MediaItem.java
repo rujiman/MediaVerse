@@ -24,8 +24,12 @@ public class MediaItem {
     private String status;
 
 
-// ===== Datos extra series/peliculas =====
-private List<String> platforms;
+    // ===== Datos extra series/peliculas =====
+    private List<String> platforms;
+
+    // ID en TMDB, necesario para consultar datos extra (episodios) bajo
+// demanda al abrir el detalle, sin tener que pedirlos en la búsqueda
+    private Integer tmdbId;
 
 
 
@@ -78,4 +82,7 @@ private List<String> platforms;
 
     public List<String> getPlatforms() { return platforms; }
     public void setPlatforms(List<String> platforms) { this.platforms = platforms; }
+
+    public Integer getTmdbId() { return tmdbId; }
+    public void setTmdbId(Integer tmdbId) { this.tmdbId = tmdbId; }
 }

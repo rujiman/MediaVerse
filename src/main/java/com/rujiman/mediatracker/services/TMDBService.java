@@ -9,13 +9,23 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TMDBService {
 
     private static final String API_URL = "https://api.themoviedb.org/3";
     private static final String IMAGE_BASE = "https://image.tmdb.org/t/p/original";
 
-    private final OkHttpClient client = new OkHttpClient();
+    // Timeouts cortos: si TMDB no responde rápido, mejor fallar pronto y
+    // seguir con el resto de resultados que quedarse esperando minutos
+    // (con los valores por defecto de OkHttp, 10s, una búsqueda con muchos
+    // resultados y varias llamadas fallidas en cadena podía sentirse
+    // como si la app se hubiera quedado colgada para siempre).
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(4, TimeUnit.SECONDS)
+            .readTimeout(4, TimeUnit.SECONDS)
+            .writeTimeout(4, TimeUnit.SECONDS)
+            .build();
     private final Gson gson = new Gson();
 
     private String getKey() {
@@ -109,11 +119,17 @@ public class TMDBService {
 
             // URL externa
             item.setExternalUrl("https://www.themoviedb.org/tv/" + obj.get("id").getAsInt());
+            item.setTmdbId(obj.get("id").getAsInt());
 
-            // Plataformas disponibles y número de episodios (requieren el endpoint de detalle)
+            // Plataformas disponibles (requiere el endpoint de detalle).
+            // El número de episodios YA NO se pide aquí: se consultaba con
+            // una llamada extra por cada serie, lo que multiplicaba las
+            // peticiones HTTP en búsquedas con muchos resultados y hacía
+            // que la búsqueda pareciera colgada cuando TMDB iba lento.
+            // Ahora se pide solo al abrir el detalle de una serie concreta
+            // (ver DetailViewController + getEpisodeCount()).
             int seriesId = obj.get("id").getAsInt();
             item.setPlatforms(getWatchProviders(seriesId, false));
-            item.setEpisodes(getEpisodeCount(seriesId));
 
             results.add(item);
         }

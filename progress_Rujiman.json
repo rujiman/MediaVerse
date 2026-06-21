@@ -1,12 +1,25 @@
 {
-  "mushoku tensei ii: isekai ittara honki dasu": {
+  "mushoku tensei season 2 (opening | spiral) - dimension anime": {
     "viewed": false,
+    "watchedEpisodes": []
+  },
+  "mushoku tensei ii: isekai ittara honki dasu": {
+    "viewed": true,
     "totalEpisodes": 13,
     "watchedEpisodes": [
       1,
       2,
       3,
-      4
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
     ]
   },
   "hollow knight": {
@@ -17,7 +30,15 @@
     "viewed": true,
     "watchedEpisodes": []
   },
+  "re:zero -starting life in another world- memory snow": {
+    "viewed": true,
+    "watchedEpisodes": []
+  },
   "forza horizon 6": {
+    "viewed": true,
+    "watchedEpisodes": []
+  },
+  "the last of us part ii": {
     "viewed": true,
     "watchedEpisodes": []
   }
