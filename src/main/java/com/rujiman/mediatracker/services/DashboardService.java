@@ -29,10 +29,10 @@ public class DashboardService {
 
     /**
      * Número máximo de favoritos permitidos por sección en la home.
-     * Juegos tiene más espacio (grid 5x3) que las filas horizontales.
+     * Juegos y Anime tienen grid 4x4 (16); el resto son filas horizontales (5).
      */
     public static int getMaxItemsForSection(MediaType type) {
-        return type == MediaType.GAME ? 15 : 5;
+        return (type == MediaType.GAME || type == MediaType.ANIME) ? 16 : 5;
     }
 
     // Una entrada de lista por cada MediaType que tiene sección fija en la home

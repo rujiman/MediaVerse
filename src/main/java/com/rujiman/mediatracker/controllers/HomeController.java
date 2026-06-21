@@ -11,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Controller de la pantalla de inicio "Tu MediaVerse": muestra, por
+ * Controller de la pantalla de inicio "Mi MediaVerse": muestra, por
  * sección fija (Juegos / Música / Series / Películas / Anime), los
  * favoritos que el usuario eligió manualmente mediante el selector (✏️).
  */
@@ -33,19 +32,19 @@ public class HomeController {
     @FXML private Label gameEmptyLabel;
     @FXML private Button editGameButton;
 
-    @FXML private HBox musicSectionBox;
+    @FXML private FlowPane musicSectionBox;
     @FXML private Label musicEmptyLabel;
     @FXML private Button editMusicButton;
 
-    @FXML private HBox seriesSectionBox;
+    @FXML private FlowPane seriesSectionBox;
     @FXML private Label seriesEmptyLabel;
     @FXML private Button editSeriesButton;
 
-    @FXML private HBox movieSectionBox;
+    @FXML private FlowPane movieSectionBox;
     @FXML private Label movieEmptyLabel;
     @FXML private Button editMovieButton;
 
-    @FXML private HBox animeSectionBox;
+    @FXML private FlowPane animeSectionBox;
     @FXML private Label animeEmptyLabel;
     @FXML private Button editAnimeButton;
 
@@ -90,14 +89,14 @@ public class HomeController {
         renderHorizontalSection(MediaType.MUSIC, musicSectionBox, musicEmptyLabel);
         renderHorizontalSection(MediaType.SERIES, seriesSectionBox, seriesEmptyLabel);
         renderHorizontalSection(MediaType.MOVIE, movieSectionBox, movieEmptyLabel);
-        renderHorizontalSection(MediaType.ANIME, animeSectionBox, animeEmptyLabel);
+        renderVerticalSection(MediaType.ANIME, animeSectionBox, animeEmptyLabel);
     }
 
     // ===========================================================
     // RENDERIZADO DE SECCIONES
     // ===========================================================
 
-    /** Para la columna de Juegos: grid 5x3 (máximo 15). */
+    /** Para las columnas de Juegos y Anime: grid 4x4 (máximo 16). */
     private void renderVerticalSection(MediaType type, FlowPane container, Label emptyLabel) {
         container.getChildren().clear();
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
@@ -111,8 +110,8 @@ public class HomeController {
         }
     }
 
-    /** Para las filas de Música/Series/Películas/Anime: tarjetas en horizontal (máximo 5). */
-    private void renderHorizontalSection(MediaType type, HBox container, Label emptyLabel) {
+    /** Para las filas de Música/Series/Películas: tarjetas que envuelven línea si no caben (máximo 5). */
+    private void renderHorizontalSection(MediaType type, FlowPane container, Label emptyLabel) {
         container.getChildren().clear();
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
 
@@ -198,16 +197,18 @@ public class HomeController {
     @FXML private void onEditAnimeSection() { openSectionEditor(MediaType.ANIME, "Anime"); }
 
     /**
-     * Abre un diálogo con checkboxes de todos los favoritos de ese tipo,
-     * preseleccionando los que ya están en la sección, y guarda la nueva
-     * selección al confirmar. Si se alcanza el límite de la sección, los
-     * checkboxes no marcados se deshabilitan hasta que se desmarque alguno.
+     * Abre un selector visual con tarjetas (imagen + título) de todos los
+     * favoritos de ese tipo. Pinchar una tarjeta la marca/desmarca (borde
+     * rosa cuando está seleccionada). Al llegar al límite de la sección,
+     * las tarjetas no seleccionadas quedan atenuadas y no se pueden marcar
+     * hasta que se quite alguna.
      */
     private void openSectionEditor(MediaType type, String sectionDisplayName) {
         List<FavoriteItem> candidates = FavoritesService.getFavoritesByType(type);
 
         if (candidates.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            styleDialogDark(alert.getDialogPane());
             alert.setHeaderText(null);
             alert.setContentText("Todavía no tienes favoritos de " + sectionDisplayName +
                     ".\nBusca contenido y añádelo a favoritos (⭐) para poder elegirlo aquí.");
@@ -218,68 +219,154 @@ public class HomeController {
         List<String> currentIds = DashboardService.getSectionIds(type);
         int max = DashboardService.getMaxItemsForSection(type);
 
+        // Selección en curso, mutable mientras el diálogo está abierto
+        List<String> selectedIds = new ArrayList<>(currentIds);
+
         Dialog<List<String>> dialog = new Dialog<>();
-        dialog.setTitle("Elegir " + sectionDisplayName + " para Tu MediaVerse");
-        dialog.getDialogPane().setStyle("-fx-background-color: #1a1a2e;");
+        dialog.setTitle("Elegir " + sectionDisplayName + " para Mi MediaVerse");
+        styleDialogDark(dialog.getDialogPane());
 
         Label limitLabel = new Label();
-        limitLabel.setStyle("-fx-text-fill: #555577; -fx-font-size: 11px; -fx-padding: 0 0 8 0;");
+        limitLabel.setStyle("-fx-text-fill: #555577; -fx-font-size: 12px; -fx-padding: 0 0 10 0;");
 
-        VBox content = new VBox(8);
-        content.setStyle("-fx-padding: 10;");
-        content.getChildren().add(limitLabel);
+        FlowPane grid = new FlowPane(10, 10);
 
-        List<CheckBox> checkBoxes = new ArrayList<>();
+        Runnable updateLimitState = () -> limitLabel.setText("Seleccionados: " + selectedIds.size() + " / " + max);
+
+        List<javafx.scene.layout.StackPane> cards = new ArrayList<>();
+
         for (FavoriteItem fav : candidates) {
-            CheckBox cb = new CheckBox(fav.getTitle());
-            cb.setUserData(fav.getId());
-            cb.setSelected(currentIds.contains(fav.getId()));
-            cb.setStyle("-fx-text-fill: #eaeaea;");
-            checkBoxes.add(cb);
-            content.getChildren().add(cb);
+            javafx.scene.layout.StackPane card = buildSelectableCard(fav, selectedIds, max, updateLimitState);
+            cards.add(card);
+            grid.getChildren().add(card);
         }
 
-        // Actualiza el contador y bloquea/desbloquea los checkboxes no
-        // marcados según si se ha alcanzado el límite máximo.
-        Runnable updateLimitState = () -> {
-            long selectedCount = checkBoxes.stream().filter(CheckBox::isSelected).count();
-            limitLabel.setText("Seleccionados: " + selectedCount + " / " + max);
-
-            boolean limitReached = selectedCount >= max;
-            for (CheckBox cb : checkBoxes) {
-                if (!cb.isSelected()) {
-                    cb.setDisable(limitReached);
-                }
-            }
-        };
-
-        for (CheckBox cb : checkBoxes) {
-            cb.selectedProperty().addListener((obs, oldVal, newVal) -> updateLimitState.run());
-        }
         updateLimitState.run();
+
+        VBox content = new VBox(0, limitLabel, grid);
 
         ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
-        scroll.setPrefHeight(Math.min(350, candidates.size() * 34 + 40));
-        scroll.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: transparent;");
+        scroll.setPrefSize(560, 420);
+        scroll.setStyle("-fx-background-color: #1a1a2e; -fx-background: #1a1a2e; -fx-border-color: transparent;");
 
         dialog.getDialogPane().setContent(scroll);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        dialog.setResultConverter(btn -> {
-            if (btn == ButtonType.OK) {
-                List<String> selectedIds = new ArrayList<>();
-                for (CheckBox cb : checkBoxes) {
-                    if (cb.isSelected()) selectedIds.add((String) cb.getUserData());
-                }
-                return selectedIds;
-            }
-            return null;
-        });
+        // Los botones por defecto del diálogo se pintan claros; forzamos su estilo
+        Button okBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        Button cancelBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (okBtn != null) okBtn.setStyle("-fx-background-color: #e94560; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        if (cancelBtn != null) cancelBtn.setStyle("-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-background-radius: 6;");
 
-        dialog.showAndWait().ifPresent(selectedIds -> {
-            DashboardService.setSectionItems(type, selectedIds);
+        dialog.setResultConverter(btn -> btn == ButtonType.OK ? selectedIds : null);
+
+        dialog.showAndWait().ifPresent(finalIds -> {
+            DashboardService.setSectionItems(type, finalIds);
             refreshAll();
         });
+    }
+
+    /**
+     * Tarjeta seleccionable para el selector de secciones: imagen + título,
+     * con borde rosa cuando está marcada. Pinchar la imagen marca/desmarca.
+     */
+    private javafx.scene.layout.StackPane buildSelectableCard(
+            FavoriteItem fav, List<String> selectedIds, int max, Runnable onChange) {
+
+        double width = 100, height = 140;
+
+        javafx.scene.layout.StackPane card = new javafx.scene.layout.StackPane();
+        card.setPrefSize(width, height + 28);
+        card.setStyle("-fx-cursor: hand; -fx-background-color: transparent;");
+
+        VBox content = new VBox(4);
+        content.setAlignment(Pos.TOP_CENTER);
+
+        ImageView cover = new ImageView();
+        cover.setFitWidth(width);
+        cover.setFitHeight(height);
+        cover.setPreserveRatio(false);
+        cover.setSmooth(true);
+
+        Rectangle clip = new Rectangle(width, height);
+        clip.setArcWidth(8);
+        clip.setArcHeight(8);
+        cover.setClip(clip);
+
+        if (fav.getImageUrl() != null && !fav.getImageUrl().isBlank()) {
+            try {
+                cover.setImage(new Image(fav.getImageUrl(), width * 2, height * 2, false, true, true));
+            } catch (Exception ignored) {}
+        }
+
+        Label titleLabel = new Label(fav.getTitle());
+        titleLabel.setWrapText(true);
+        titleLabel.setMaxWidth(width);
+        titleLabel.setStyle("-fx-text-fill: #eaeaea; -fx-font-size: 10px; -fx-font-weight: bold; -fx-text-alignment: center;");
+        titleLabel.setAlignment(Pos.TOP_CENTER);
+
+        javafx.scene.layout.StackPane imageContainer = new javafx.scene.layout.StackPane(cover);
+        imageContainer.setPrefSize(width, height);
+        imageContainer.setMaxSize(width, height);
+
+        content.getChildren().addAll(imageContainer, titleLabel);
+        card.getChildren().add(content);
+
+        Runnable updateBorder = () -> {
+            boolean selected = selectedIds.contains(fav.getId());
+            if (selected) {
+                imageContainer.setStyle("-fx-border-color: #e94560; -fx-border-width: 3; -fx-border-radius: 8; -fx-background-radius: 8;");
+            } else {
+                imageContainer.setStyle("-fx-border-color: transparent; -fx-border-width: 3;");
+            }
+            boolean limitReached = !selected && selectedIds.size() >= max;
+            card.setOpacity(limitReached ? 0.35 : 1.0);
+            card.setDisable(limitReached);
+        };
+
+        updateBorder.run();
+
+        card.setOnMouseClicked(e -> {
+            boolean selected = selectedIds.contains(fav.getId());
+            if (selected) {
+                selectedIds.remove(fav.getId());
+            } else {
+                if (selectedIds.size() >= max) return; // protección extra
+                selectedIds.add(fav.getId());
+            }
+            updateBorder.run();
+            onChange.run();
+        });
+
+        return card;
+    }
+
+    /**
+     * Fuerza la paleta oscura de la app en un DialogPane de JavaFX, que
+     * por defecto usa el tema claro del sistema (causaba texto blanco
+     * invisible sobre fondo claro en los selectores).
+     */
+    private void styleDialogDark(DialogPane pane) {
+        pane.setStyle(
+                "-fx-background-color: #1a1a2e;" +
+                        "-fx-text-fill: #eaeaea;"
+        );
+        pane.applyCss();
+        // El texto de contenido por defecto de un Alert vive anidado dentro
+        // de un GridPane interno, no como hijo directo del DialogPane, así
+        // que recorremos el árbol completo para no dejar texto invisible.
+        forceLabelColorRecursive(pane, "#eaeaea");
+    }
+
+    private void forceLabelColorRecursive(javafx.scene.Parent parent, String hexColor) {
+        for (javafx.scene.Node node : parent.getChildrenUnmodifiable()) {
+            if (node instanceof Label label) {
+                label.setStyle("-fx-text-fill: " + hexColor + ";");
+            }
+            if (node instanceof javafx.scene.Parent childParent) {
+                forceLabelColorRecursive(childParent, hexColor);
+            }
+        }
     }
 }

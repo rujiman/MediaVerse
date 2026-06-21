@@ -14,16 +14,18 @@
     <VBox fx:id="homeRoot" style="-fx-background-color: #0f0f1a;">
         <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-        <Label text="✨ Tu MediaVerse"
+        <Label text="✨ Mi MediaVerse"
                style="-fx-text-fill: #e94560; -fx-font-size: 26px; -fx-font-weight: bold; -fx-padding: 0 0 4 0;"/>
         <Label text="Lo que más te gusta, elegido por ti"
                style="-fx-text-fill: #555577; -fx-font-size: 13px; -fx-padding: 0 0 20 0;"/>
 
-        <!-- Layout principal: Juegos a la izquierda (grid 5x3), resto a la derecha (filas) -->
-        <HBox spacing="20" alignment="TOP_LEFT">
+        <!-- Layout principal: Juegos (grid 4x4) izquierda, filas en el centro, Anime (grid 4x4) derecha.
+             Las 3 columnas son flexibles (proporción 30/40/30 del ancho disponible) en vez de
+             anchos fijos en píxeles, para que la pantalla se adapte a portátiles sin scroll horizontal. -->
+        <HBox spacing="16" alignment="TOP_LEFT" fillHeight="false">
 
-            <!-- ===================== COLUMNA: JUEGOS (grid 5x3 = 15 máx) ===================== -->
-            <VBox spacing="12" prefWidth="640" minWidth="640"
+            <!-- ===================== COLUMNA: JUEGOS (grid 4x4 = 16 máx) ===================== -->
+            <VBox spacing="12" minWidth="260" HBox.hgrow="ALWAYS"
                   style="-fx-background-color: #16213e; -fx-background-radius: 14;">
                 <padding><Insets top="16" right="14" bottom="16" left="14"/></padding>
 
@@ -37,7 +39,7 @@
                             style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
                 </HBox>
 
-                <FlowPane fx:id="gameSectionBox" hgap="12" vgap="12"/>
+                <FlowPane fx:id="gameSectionBox" hgap="10" vgap="10"/>
 
                 <Label fx:id="gameEmptyLabel"
                        text="Pulsa ✏️ para elegir tus juegos favoritos"
@@ -46,8 +48,8 @@
                        style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
             </VBox>
 
-            <!-- ===================== COLUMNA DERECHA: FILAS ===================== -->
-            <VBox spacing="16" HBox.hgrow="ALWAYS">
+            <!-- ===================== CENTRO: FILAS (Música / Series / Películas) ===================== -->
+            <VBox spacing="16" minWidth="280" HBox.hgrow="ALWAYS">
 
                 <!-- MÚSICA -->
                 <VBox fx:id="musicSectionContainer" spacing="10"
@@ -62,7 +64,7 @@
                                 onAction="#onEditMusicSection"
                                 style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
                     </HBox>
-                    <HBox fx:id="musicSectionBox" spacing="10"/>
+                    <FlowPane fx:id="musicSectionBox" hgap="10" vgap="10"/>
                     <Label fx:id="musicEmptyLabel"
                            text="Pulsa ✏️ para elegir tu música favorita"
                            visible="false" managed="false"
@@ -82,7 +84,7 @@
                                 onAction="#onEditSeriesSection"
                                 style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
                     </HBox>
-                    <HBox fx:id="seriesSectionBox" spacing="10"/>
+                    <FlowPane fx:id="seriesSectionBox" hgap="10" vgap="10"/>
                     <Label fx:id="seriesEmptyLabel"
                            text="Pulsa ✏️ para elegir tus series favoritas"
                            visible="false" managed="false"
@@ -102,33 +104,37 @@
                                 onAction="#onEditMovieSection"
                                 style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
                     </HBox>
-                    <HBox fx:id="movieSectionBox" spacing="10"/>
+                    <FlowPane fx:id="movieSectionBox" hgap="10" vgap="10"/>
                     <Label fx:id="movieEmptyLabel"
                            text="Pulsa ✏️ para elegir tus películas favoritas"
                            visible="false" managed="false"
                            style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
                 </VBox>
 
-                <!-- ANIME -->
-                <VBox fx:id="animeSectionContainer" spacing="10"
-                      style="-fx-background-color: #16213e; -fx-background-radius: 14;">
-                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="🎌 Anime"
-                               style="-fx-text-fill: #eaeaea; -fx-font-size: 15px; -fx-font-weight: bold;"
-                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        <Button fx:id="editAnimeButton"
-                                text="✏️"
-                                onAction="#onEditAnimeSection"
-                                style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
-                    </HBox>
-                    <HBox fx:id="animeSectionBox" spacing="10"/>
-                    <Label fx:id="animeEmptyLabel"
-                           text="Pulsa ✏️ para elegir tu anime favorito"
-                           visible="false" managed="false"
-                           style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
-                </VBox>
+            </VBox>
 
+            <!-- ===================== COLUMNA: ANIME (grid 4x4 = 16 máx) ===================== -->
+            <VBox spacing="12" minWidth="260" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: #16213e; -fx-background-radius: 14;">
+                <padding><Insets top="16" right="14" bottom="16" left="14"/></padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="🎌 Anime"
+                           style="-fx-text-fill: #eaeaea; -fx-font-size: 15px; -fx-font-weight: bold;"
+                           HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button fx:id="editAnimeButton"
+                            text="✏️"
+                            onAction="#onEditAnimeSection"
+                            style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 2 6 2 6;"/>
+                </HBox>
+
+                <FlowPane fx:id="animeSectionBox" hgap="10" vgap="10"/>
+
+                <Label fx:id="animeEmptyLabel"
+                       text="Pulsa ✏️ para elegir tu anime favorito"
+                       wrapText="true"
+                       visible="false" managed="false"
+                       style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
             </VBox>
 
         </HBox>

@@ -621,6 +621,81 @@
         "Adventure",
         "Drama"
       ]
+    },
+    {
+      "id": "1782044330216_4163",
+      "type": "MUSIC",
+      "title": "YHLQMDLG - Bad Bunny",
+      "description": "Álbum de Bad Bunny",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/0a6f32569d4785c5ef82f581086f4302/1000x1000-000000-80-0-0.jpg",
+      "externalUrl": "https://www.deezer.com/album/133878352",
+      "viewed": false,
+      "addedDate": 1782044330219,
+      "totalEpisodes": 20,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ]
+    },
+    {
+      "id": "1782044334256_2974",
+      "type": "MUSIC",
+      "title": "Diles - Bad Bunny",
+      "description": "Álbum de Bad Bunny",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/bbaf1244f46c20276b04a95ccb79f21b/1000x1000-000000-80-0-0.jpg",
+      "externalUrl": "https://www.deezer.com/album/101842542",
+      "viewed": false,
+      "addedDate": 1782044334256,
+      "totalEpisodes": 1,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ]
+    },
+    {
+      "id": "1782044335400_8532",
+      "type": "MUSIC",
+      "title": "nadie sabe lo que va a pasar mañana - Bad Bunny",
+      "description": "Álbum de Bad Bunny",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/f840891b70f6e240b8ecaec49346bd6a/1000x1000-000000-80-0-0.jpg",
+      "externalUrl": "https://www.deezer.com/album/499463651",
+      "viewed": false,
+      "addedDate": 1782044335400,
+      "totalEpisodes": 22,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ]
+    },
+    {
+      "id": "1782044336557_2139",
+      "type": "MUSIC",
+      "title": "EL ÚLTIMO TOUR DEL MUNDO - Bad Bunny",
+      "description": "Álbum de Bad Bunny",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/6ea80078f0df08737a7471f3c4cf2afa/1000x1000-000000-80-0-0.jpg",
+      "externalUrl": "https://www.deezer.com/album/188972392",
+      "viewed": false,
+      "addedDate": 1782044336557,
+      "totalEpisodes": 16,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ]
+    },
+    {
+      "id": "1782044341370_4011",
+      "type": "MUSIC",
+      "title": "Callaita - Bad Bunny",
+      "description": "Álbum de Bad Bunny",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/53812cc43e108be37113c41a0ebdafaf/1000x1000-000000-80-0-0.jpg",
+      "externalUrl": "https://www.deezer.com/album/98236492",
+      "viewed": false,
+      "addedDate": 1782044341370,
+      "totalEpisodes": 1,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ]
     }
   ]
 }
