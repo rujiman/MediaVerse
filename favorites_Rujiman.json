@@ -291,25 +291,6 @@
       ]
     },
     {
-      "id": "1781957905912_8980",
-      "type": "GAME",
-      "title": "The Last of Us",
-      "description": "The Last of Us is a third-person action-adventure game featuring a mix of exploration, stealth and combat. Players face both infected creatures and hostile human enemies while progressing through varied environments. The game includes a narrative-driven single-player campaign and a competitive online multiplayer mode called Factions. Trophy support is included, and additional downloadable content was made available separately.",
-      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7f.jpg",
-      "score": 92,
-      "externalUrl": "https://www.igdb.com/games/the-last-of-us",
-      "viewed": false,
-      "addedDate": 1781957905912,
-      "watchedEpisodes": [],
-      "platforms": [
-        "PlayStation 3"
-      ],
-      "genres": [
-        "Shooter",
-        "Adventure"
-      ]
-    },
-    {
       "id": "1781957906592_4487",
       "type": "GAME",
       "title": "The Last of Us Part I",
@@ -561,7 +542,8 @@
         "Netflix",
         "Netflix Standard with Ads"
       ],
-      "tmdbId": 196454
+      "tmdbId": 196454,
+      "trailerKey": "oLtnNw0KT78"
     },
     {
       "id": "1781961233411_9853",
@@ -582,7 +564,8 @@
         "Crunchyroll",
         "Crunchyroll Amazon Channel"
       ],
-      "tmdbId": 13916
+      "tmdbId": 13916,
+      "trailerKey": "NlJZ-YgAt-c"
     },
     {
       "id": "1781961306151_7657",
@@ -695,6 +678,242 @@
       "watchedEpisodes": [],
       "platforms": [
         "Deezer"
+      ]
+    },
+    {
+      "id": "1782045160238_1840",
+      "type": "SERIES",
+      "title": "Attack on Titan",
+      "description": "100 years ago, the last remnants of humanity were forced to retreat behind the towering walls of a fortified city to escape the massive, man-eating Titans that roamed the land outside their fortress. Only the members of the Scouting Legion dared to stray beyond the safety of the walls – but even those brave warriors seldom returned alive. Those within the city clung to the illusion of a peaceful existence until the day that dream was shattered, and their slim chance at survival was reduced to one horrifying choice: kill – or be devoured!",
+      "imageUrl": "https://image.tmdb.org/t/p/original/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg",
+      "year": 2013,
+      "score": 86,
+      "externalUrl": "https://www.themoviedb.org/tv/1429",
+      "viewed": false,
+      "addedDate": 1782045160239,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Netflix",
+        "Amazon Prime Video",
+        "Netflix Standard with Ads",
+        "Crunchyroll",
+        "Crunchyroll Amazon Channel",
+        "Amazon Prime Video with Ads"
+      ],
+      "tmdbId": 1429
+    },
+    {
+      "id": "1782045166415_9105",
+      "type": "ANIME",
+      "title": "Shingeki no Kyojin",
+      "description": "Several hundred years ago, humans were nearly exterminated by titans. Titans are typically several stories tall, seem to have no intelligence, devour human beings and, worst of all, seem to do it for the pleasure rather than as a food source. A small percentage of humanity survived by walling themselves in a city protected by extremely high walls, even taller than the biggest of titans.\u003cbr\u003e\u003cbr\u003e\r\nFlash forward to the present and the city has not seen a titan in over 100 years. Teenage boy Eren and his foster sister Mikasa witness something horrific as the city walls are destroyed by a colossal titan that appears out of thin air. As the smaller titans flood the city, the two kids watch in horror as their mother is eaten alive. Eren vows that he will murder every single titan and take revenge for all of mankind.\u003cbr\u003e\u003cbr\u003e\r\n(Source: MangaHelpers) ",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg",
+      "year": 2013,
+      "score": 85,
+      "externalUrl": "https://anilist.co/anime/16498",
+      "viewed": false,
+      "addedDate": 1782045166415,
+      "totalEpisodes": 25,
+      "watchedEpisodes": [],
+      "genres": [
+        "Action",
+        "Drama",
+        "Fantasy",
+        "Mystery"
+      ]
+    },
+    {
+      "id": "1782045167060_1462",
+      "type": "ANIME",
+      "title": "Shingeki no Kyojin: The Final Season",
+      "description": "It’s been four years since the Scout Regiment reached the shoreline, and the world looks different now. Things are heating up as the fate of the Scout Regiment—and the people of Paradis—are determined at last. However, Eren is missing. Will he reappear before age-old tensions between Marleyans and Eldians result in the war of all wars?\u003cbr\u003e\n\u003cbr\u003e\n(Source: Crunchyroll)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx110277-sKUNXAsWMNFw.jpg",
+      "year": 2020,
+      "score": 87,
+      "externalUrl": "https://anilist.co/anime/110277",
+      "viewed": false,
+      "addedDate": 1782045167060,
+      "totalEpisodes": 16,
+      "watchedEpisodes": [],
+      "genres": [
+        "Action",
+        "Drama",
+        "Fantasy",
+        "Mystery"
+      ]
+    },
+    {
+      "id": "1782045168120_4527",
+      "type": "ANIME",
+      "title": "Shingeki no Kyojin OVA",
+      "description": "OVA 1: An old journal is found by Levi and Erwin when they conduct the surveillance operation outside the wall. The contents of \"Ilse\u0027s Journal\" result in some unexpected actions from Hange.\n\u003cbr\u003e\nOVA 2: Another story of the 104th Trainee Squad.\n\u003cbr\u003e\nOVA 3: Will depict a \"memorable episode before the 104th Training Corps became unified.\"\n\u003cbr\u003e\u003cbr\u003e\n(Source: Anime News Network)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx18397-AnpwhLkSjYL1.jpg",
+      "year": 2013,
+      "score": 77,
+      "externalUrl": "https://anilist.co/anime/18397",
+      "viewed": false,
+      "addedDate": 1782045168120,
+      "totalEpisodes": 3,
+      "watchedEpisodes": [],
+      "genres": [
+        "Action",
+        "Drama",
+        "Fantasy",
+        "Mystery"
+      ]
+    },
+    {
+      "id": "1782045168790_5461",
+      "type": "ANIME",
+      "title": "Shingeki no Kyojin Season 2",
+      "description": "Eren Jaeger swore to wipe out every last Titan, but in a battle for his life he wound up becoming the thing he hates most. With his new powers, he fights for humanity\u0027s freedom facing the monsters that threaten his home. After a bittersweet victory against the Female Titan, Eren finds no time to rest—a horde of Titans is approaching Wall Rose and the battle for humanity continues!\u003cbr\u003e\u003cbr\u003e\n\n(Source: Funimation)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx20958-HuFJyr54Mmir.jpg",
+      "year": 2017,
+      "score": 85,
+      "externalUrl": "https://anilist.co/anime/20958",
+      "viewed": false,
+      "addedDate": 1782045168790,
+      "totalEpisodes": 12,
+      "watchedEpisodes": [],
+      "genres": [
+        "Action",
+        "Drama",
+        "Fantasy",
+        "Mystery"
+      ]
+    },
+    {
+      "id": "1782045169424_8711",
+      "type": "ANIME",
+      "title": "Shingeki no Kyojin Season 3",
+      "description": "Eren and his companions in the 104th are assigned to the newly-formed Levi Squad, whose assignment is to keep Eren and Historia safe given Eren\u0027s newly-discovered power and Historia\u0027s knowledge and pedigree. Levi and Erwin have good reason to be concerned, because the priest of the Church that Hanji had hidden away was found tortured to death, making it clear that the Military Police are involved with the cover-up. Things get more harrowing when the MPs make a move on Erwin and the Levi Squad narrowly avoids capture. Eren is also having problems with his Titan transformation, and a deadly killer has been hired to secure Eren and Historia, one Levi knows all too well from his youth.\u003cbr\u003e\n\u003cbr\u003e\n(Source: Anime News Network)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx99147-AiPDD8cwlCfi.jpg",
+      "year": 2018,
+      "score": 86,
+      "externalUrl": "https://anilist.co/anime/99147",
+      "viewed": false,
+      "addedDate": 1782045169424,
+      "totalEpisodes": 12,
+      "watchedEpisodes": [],
+      "genres": [
+        "Action",
+        "Drama",
+        "Fantasy",
+        "Mystery"
+      ]
+    },
+    {
+      "id": "1782047291314_4569",
+      "type": "MOVIE",
+      "title": "Avatar",
+      "description": "In the 22nd century, a paraplegic Marine is dispatched to the moon Pandora on a unique mission, but becomes torn between following orders and protecting an alien civilization.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/gKY6q7SjCkAU6FqvqWybDYgUKIF.jpg",
+      "year": 2009,
+      "score": 76,
+      "externalUrl": "https://www.themoviedb.org/movie/19995",
+      "viewed": false,
+      "addedDate": 1782047291316,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Disney Plus"
+      ]
+    },
+    {
+      "id": "1782047292704_5323",
+      "type": "MOVIE",
+      "title": "Avatar: Fire and Ash",
+      "description": "In the wake of the devastating war against the RDA and the loss of their eldest son, Jake Sully and Neytiri face a new threat on Pandora: the Ash People, a violent and power-hungry Na\u0027vi tribe led by the ruthless Varang. Jake\u0027s family must fight for their survival and the future of Pandora in a conflict that pushes them to their emotional and physical limits.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/bRBeSHfGHwkEpImlhxPmOcUsaeg.jpg",
+      "year": 2025,
+      "score": 75,
+      "externalUrl": "https://www.themoviedb.org/movie/83533",
+      "viewed": false,
+      "addedDate": 1782047292704,
+      "watchedEpisodes": [],
+      "platforms": []
+    },
+    {
+      "id": "1782047294071_6453",
+      "type": "MOVIE",
+      "title": "Avatar: The Way of Water",
+      "description": "Set more than a decade after the events of the first film, learn the story of the Sully family (Jake, Neytiri, and their kids), the trouble that follows them, the lengths they go to keep each other safe, the battles they fight to stay alive, and the tragedies they endure.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
+      "year": 2022,
+      "score": 75,
+      "externalUrl": "https://www.themoviedb.org/movie/76600",
+      "viewed": false,
+      "addedDate": 1782047294071,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Disney Plus"
+      ]
+    },
+    {
+      "id": "1782047299617_1478",
+      "type": "MOVIE",
+      "title": "Avatar 4",
+      "description": "The fourth installment of the franchise. Plot TBA.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/qzMYKnT4MG1d0gnhwytr4cKhUvS.jpg",
+      "year": 2029,
+      "score": 0,
+      "externalUrl": "https://www.themoviedb.org/movie/216527",
+      "viewed": false,
+      "addedDate": 1782047299617,
+      "watchedEpisodes": [],
+      "platforms": []
+    },
+    {
+      "id": "1782047300940_4300",
+      "type": "MOVIE",
+      "title": "Avatar 5",
+      "description": "The fifth installment of the franchise. Plot TBA.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/rtmmvqkIC5zDMEd638Es2woxbz8.jpg",
+      "year": 2031,
+      "score": 0,
+      "externalUrl": "https://www.themoviedb.org/movie/393209",
+      "viewed": false,
+      "addedDate": 1782047300940,
+      "watchedEpisodes": [],
+      "platforms": []
+    },
+    {
+      "id": "1782052899295_8967",
+      "type": "SERIES",
+      "title": "The Last of Us",
+      "description": "Twenty years after modern civilization has been destroyed, Joel, a hardened survivor, is hired to smuggle Ellie, a 14-year-old girl, out of an oppressive quarantine zone. What starts as a small job soon becomes a brutal, heartbreaking journey, as they both must traverse the United States and depend on each other for survival.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg",
+      "year": 2023,
+      "score": 84,
+      "externalUrl": "https://www.themoviedb.org/tv/100088",
+      "viewed": false,
+      "addedDate": 1782052899297,
+      "totalEpisodes": 16,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Movistar Plus+ Ficción Total ",
+        "HBO Max",
+        "HBO Max Amazon Channel"
+      ],
+      "tmdbId": 100088,
+      "trailerKey": "uLtkt8BonwM"
+    },
+    {
+      "id": "1782052910264_1514",
+      "type": "GAME",
+      "title": "The Last of Us: Left Behind - Remastered",
+      "description": "",
+      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7ha7.jpg",
+      "score": 89,
+      "externalUrl": "https://www.igdb.com/games/the-last-of-us:-left-behind---remastered",
+      "viewed": false,
+      "addedDate": 1782052910264,
+      "watchedEpisodes": [],
+      "platforms": [
+        "PlayStation 4"
+      ],
+      "genres": [
+        "Shooter",
+        "Adventure"
       ]
     }
   ]

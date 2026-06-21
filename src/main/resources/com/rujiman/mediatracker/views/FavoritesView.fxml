@@ -69,6 +69,7 @@
                         fitToWidth="true"
                         VBox.vgrow="ALWAYS"
                         visible="false"
+                        managed="false"
                         style="-fx-background: transparent;
                                -fx-background-color: transparent;
                                -fx-border-color: transparent;">

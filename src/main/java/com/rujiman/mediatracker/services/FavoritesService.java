@@ -106,6 +106,18 @@ public class FavoritesService {
         }
     }
 
+    /**
+     * Persiste cambios hechos sobre un FavoriteItem que ya está en la lista
+     * en memoria (por ejemplo, tras rellenar su trailerKey bajo demanda).
+     * addFavorite() no sirve para esto porque, al ser la misma instancia
+     * que ya está en favoritesList, "ya existe" y no se vuelve a guardar
+     * nada en disco aunque el objeto haya cambiado en memoria.
+     */
+    public static void updateFavorite(FavoriteItem item) {
+        ensureCorrectUserLoaded();
+        saveFavorites();
+    }
+
     // ============================
     // ELIMINAR FAVORITO
     // ============================
@@ -229,6 +241,10 @@ public class FavoritesService {
                     obj.addProperty("tmdbId", fav.getTmdbId());
                 }
 
+                if (fav.getTrailerKey() != null) {
+                    obj.addProperty("trailerKey", fav.getTrailerKey());
+                }
+
                 favArray.add(obj);
             }
 
@@ -293,6 +309,10 @@ public class FavoritesService {
 
         if (obj.has("tmdbId") && !obj.get("tmdbId").isJsonNull()) {
             item.setTmdbId(obj.get("tmdbId").getAsInt());
+        }
+
+        if (obj.has("trailerKey") && !obj.get("trailerKey").isJsonNull()) {
+            item.setTrailerKey(obj.get("trailerKey").getAsString());
         }
 
         return item;

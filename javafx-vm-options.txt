@@ -1,0 +1,36 @@
+VM OPTIONS NECESARIAS PARA EJECUTAR MEDIATRACKER (Run Configuration de IntelliJ)
+================================================================================
+
+Dónde se pone: Edit Configurations... > Main > VM options
+
+Por qué hace falta: el proyecto usa un SDK local de JavaFX (vía --module-path,
+no las dependencias Maven con classifier), y desde que se añadió javafx-web
+(WebView, para el tráiler embebido en la pantalla de detalle), hace falta:
+  1) Añadir javafx.web a --add-modules (si no, "module javafx.web not found"
+     o el WebView no carga)
+  2) Añadir varios --add-exports / --add-opens, porque al no haber
+     module-info.java, el module system no abre por defecto los paquetes
+     internos de javafx.graphics que javafx.web necesita para construir su
+     nodo gráfico interno (sin esto: IllegalAccessError NGWebView/NGGroup)
+
+--------------------------------------------------------------------------------
+COPIA Y PEGA ESTO TAL CUAL EN "VM options":
+--------------------------------------------------------------------------------
+
+--module-path "C:\javafx\openjfx-25_windows-x64_bin-sdk\javafx-sdk-25\lib" --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.web --add-exports javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED
+
+--------------------------------------------------------------------------------
+SI EN EL FUTURO CAMBIAS LA RUTA DEL SDK DE JAVAFX:
+--------------------------------------------------------------------------------
+
+Solo hay que cambiar la ruta entre comillas después de --module-path,
+el resto de la línea (--add-modules y los --add-exports/--add-opens)
+se queda igual.
+
+--------------------------------------------------------------------------------
+SI ALGUNA VEZ EJECUTAS CON "mvn javafx:run" EN VEZ DEL BOTÓN DE INTELLIJ:
+--------------------------------------------------------------------------------
+
+No hace falta tocar nada de esto: el pom.xml ya tiene su propia
+configuración equivalente (dentro de <plugin> javafx-maven-plugin,
+sección <options>), así que mvn javafx:run funciona sin pasos extra.

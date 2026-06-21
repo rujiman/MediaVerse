@@ -63,6 +63,13 @@
                                    style="-fx-text-fill: #2ecc71; -fx-font-size: 12px;"/>
                         </HBox>
 
+                        <!-- Valoración personal (1-5 estrellas), independiente de la puntuación de la API -->
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="Tu valoración:"
+                                   style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                            <HBox fx:id="userRatingStars" spacing="2"/>
+                        </HBox>
+
                         <!-- Botones -->
                         <FlowPane hgap="10" vgap="10">
                             <Button fx:id="favoriteButton"
@@ -100,6 +107,19 @@
                                            -fx-background-radius: 8;
                                            -fx-cursor: hand;"
                                     onAction="#onOpenExternal"/>
+
+                            <Button fx:id="trailerButton"
+                                    text="▶ Ver tráiler en YouTube"
+                                    minWidth="190"
+                                    visible="false" managed="false"
+                                    style="-fx-background-color: #e94560;
+                                           -fx-text-fill: white;
+                                           -fx-font-weight: bold;
+                                           -fx-font-size: 12px;
+                                           -fx-padding: 10 16 10 16;
+                                           -fx-background-radius: 8;
+                                           -fx-cursor: hand;"
+                                    onAction="#onOpenTrailer"/>
                         </FlowPane>
 
                         <!-- Géneros -->
@@ -137,12 +157,63 @@
                 <Separator fx:id="episodesSeparator" style="-fx-text-fill: #16213e;" visible="false" managed="false"/>
 
                 <!-- Episodios (solo ANIME / SERIES) -->
-                <VBox fx:id="episodesSection" spacing="8" visible="false" managed="false">
-                    <Label fx:id="episodesHeaderLabel"
-                           text="Episodios"
-                           style="-fx-text-fill: #e94560;
-                                  -fx-font-size: 14px;
-                                  -fx-font-weight: bold;"/>
+                <VBox fx:id="episodesSection" spacing="10" visible="false" managed="false">
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label fx:id="episodesHeaderLabel"
+                               text="Episodios"
+                               style="-fx-text-fill: #e94560;
+                                      -fx-font-size: 14px;
+                                      -fx-font-weight: bold;"
+                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+
+                        <Button fx:id="markAllWatchedButton"
+                                text="✔ Marcar todos"
+                                onAction="#onMarkAllEpisodesWatched"
+                                style="-fx-background-color: #2ecc71;
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 11px;
+                                       -fx-font-weight: bold;
+                                       -fx-padding: 6 12 6 12;
+                                       -fx-background-radius: 6;
+                                       -fx-cursor: hand;"/>
+
+                        <Button fx:id="unmarkAllWatchedButton"
+                                text="✗ Desmarcar todos"
+                                onAction="#onUnmarkAllEpisodesWatched"
+                                style="-fx-background-color: #16213e;
+                                       -fx-text-fill: #eaeaea;
+                                       -fx-font-size: 11px;
+                                       -fx-font-weight: bold;
+                                       -fx-padding: 6 12 6 12;
+                                       -fx-background-radius: 6;
+                                       -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- Ir directamente a un episodio concreto: marca del 1 a ese número -->
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="Ya he visto hasta el episodio"
+                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                        <TextField fx:id="jumpToEpisodeField"
+                                   promptText="nº"
+                                   prefWidth="60"
+                                   style="-fx-background-color: #16213e;
+                                          -fx-text-fill: #eaeaea;
+                                          -fx-prompt-text-fill: #555577;
+                                          -fx-background-radius: 6;
+                                          -fx-font-size: 11px;"/>
+                        <Button fx:id="jumpToEpisodeButton"
+                                text="Ir"
+                                onAction="#onJumpToEpisode"
+                                style="-fx-background-color: #0078d4;
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 11px;
+                                       -fx-font-weight: bold;
+                                       -fx-padding: 5 14 5 14;
+                                       -fx-background-radius: 6;
+                                       -fx-cursor: hand;"/>
+                    </HBox>
+
                     <VBox fx:id="episodesList" spacing="6"/>
                 </VBox>
 

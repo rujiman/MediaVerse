@@ -155,12 +155,13 @@
 
     <!-- PANEL LATERAL DESPLEGABLE (segunda capa, flota sobre el BorderPane) -->
     <StackPane fx:id="sideMenu" visible="false"
-               style="-fx-background-color: #1a1a2e; -fx-padding: 20;
+               style="-fx-background-color: #1a1a2e;
                       -fx-effect: dropshadow(gaussian, #000000cc, 20, 0, 4, 0);"
-               prefWidth="240" maxWidth="240"
+               prefWidth="270" maxWidth="270"
                StackPane.alignment="CENTER_LEFT">
 
-        <VBox spacing="16">
+        <VBox spacing="14">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
             <!-- FOTO DE PERFIL (placeholder circular si no hay foto) -->
             <StackPane prefWidth="80" prefHeight="80"
@@ -180,52 +181,63 @@
 
             <Label fx:id="usernameLabel"
                    text="Usuario"
+                   wrapText="true"
                    style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
 
             <Separator/>
 
             <Button text="Cambiar nombre de usuario"
                     onAction="#onChangeUsername"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
             <Button text="Cambiar contraseña"
                     onAction="#onChangePassword"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
             <Separator/>
 
             <Button text="🏠 Inicio"
                     onAction="#goHome"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
             <Button text="🔍 Buscar"
                     onAction="#goSearch"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
-            <Button text="Favoritos"
+            <Button text="⭐ Favoritos"
                     onAction="#openFavorites"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
-            <Button text="Series vistas"
+            <Button text="📺 Series vistas"
                     onAction="#openWatchedSeries"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
-            <Button text="Series viendo"
+            <Button text="▶️ Series viendo"
                     onAction="#openWatchingSeries"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
-            <Button text="Películas vistas"
+            <Button text="🎬 Películas vistas"
                     onAction="#openWatchedMovies"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
-            <Button text="Videojuegos"
+            <Button text="🎮 Videojuegos"
                     onAction="#openGames"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
             <Separator/>
 
             <Button text="Cerrar sesión"
                     onAction="#logout"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
         </VBox>

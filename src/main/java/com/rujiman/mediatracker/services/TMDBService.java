@@ -176,6 +176,7 @@ public class TMDBService {
 
             // URL externa
             item.setExternalUrl("https://www.themoviedb.org/movie/" + obj.get("id").getAsInt());
+            item.setTmdbId(obj.get("id").getAsInt());
 
             // Plataformas disponibles
             item.setPlatforms(getWatchProviders(obj.get("id").getAsInt(), true));
@@ -214,6 +215,69 @@ public class TMDBService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Obtiene la clave de YouTube ("key") del tráiler oficial de una
+     * película o serie, consultando el endpoint /videos de TMDB. Esa
+     * clave es la que se usa para construir la URL de embed
+     * (https://www.youtube.com/embed/{key}) que se carga en el WebView,
+     * sin necesidad de abrir el navegador externo.
+     *
+     * Prioriza videos de tipo "Trailer" en español o inglés; si no hay
+     * ninguno marcado como tráiler, devuelve el primer video disponible
+     * como mejor opción razonable.
+     */
+    public String getTrailerKey(int tmdbId, boolean isMovie) {
+        String url = API_URL + (isMovie ?
+                "/movie/" + tmdbId + "/videos?api_key=" + getKey() :
+                "/tv/" + tmdbId + "/videos?api_key=" + getKey()
+        );
+
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) {
+                throw new IOException("Error TMDB Videos: " + response);
+            }
+
+            String json = response.body().string();
+            JsonObject root = gson.fromJson(json, JsonObject.class);
+
+            if (!root.has("results")) return null;
+            JsonArray videos = root.getAsJsonArray("results");
+
+            String fallbackKey = null;
+
+            for (JsonElement el : videos) {
+                JsonObject video = el.getAsJsonObject();
+
+                String site = safeString(video, "site");
+                if (!"YouTube".equalsIgnoreCase(site)) continue; // solo nos sirve YouTube para el embed
+
+                String key = safeString(video, "key");
+                if (fallbackKey == null) fallbackKey = key;
+
+                String type = safeString(video, "type");
+                if ("Trailer".equalsIgnoreCase(type)) {
+                    return key; // el primer tráiler real que encontremos, devolución inmediata
+                }
+            }
+
+            return fallbackKey; // no había ningún "Trailer" explícito, pero sí algún video de YouTube
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String safeString(JsonObject obj, String key) {
+        if (obj.has(key) && !obj.get(key).isJsonNull()) {
+            return obj.get(key).getAsString();
+        }
+        return "";
     }
 
     public List<String> getWatchProviders(int tmdbId, boolean isMovie) {

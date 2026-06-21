@@ -31,6 +31,10 @@ public class MediaItem {
 // demanda al abrir el detalle, sin tener que pedirlos en la búsqueda
     private Integer tmdbId;
 
+    // Clave de YouTube del tráiler, obtenida bajo demanda al abrir el
+// detalle (igual que tmdbId/episodes). null hasta que se consulte.
+    private String trailerKey;
+
 
 
 
@@ -85,4 +89,7 @@ public class MediaItem {
 
     public Integer getTmdbId() { return tmdbId; }
     public void setTmdbId(Integer tmdbId) { this.tmdbId = tmdbId; }
+
+    public String getTrailerKey() { return trailerKey; }
+    public void setTrailerKey(String trailerKey) { this.trailerKey = trailerKey; }
 }

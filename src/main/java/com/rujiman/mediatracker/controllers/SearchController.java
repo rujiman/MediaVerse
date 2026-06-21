@@ -93,6 +93,10 @@ public class SearchController {
 
     private boolean menuOpen = false;
 
+    // Ancho del panel lateral (debe coincidir con prefWidth/maxWidth del
+    // sideMenu en SearchView.fxml), usado para la animación de deslizamiento
+    private static final double SIDE_MENU_WIDTH = 270;
+
     // -------------------------
     // INICIALIZACIÓN
     // -------------------------
@@ -106,7 +110,7 @@ public class SearchController {
         loadProfileData();
 
         // Ocultar menú al inicio
-        sideMenu.setTranslateX(-240);
+        sideMenu.setTranslateX(-SIDE_MENU_WIDTH);
         sideMenu.setVisible(false);
 
         // Agrupar los filtros para que solo uno esté activo a la vez
@@ -121,8 +125,13 @@ public class SearchController {
         filterGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle == null && oldToggle != null) {
                 oldToggle.setSelected(true);
+                return;
             }
+            updateFilterButtonStyles();
         });
+
+        // Estilo inicial correcto (Todo seleccionado por defecto)
+        updateFilterButtonStyles();
 
         // Acelerar el scroll con la rueda del ratón (por defecto JavaFX se mueve muy poco)
         speedUpScroll(scrollPane);
@@ -189,6 +198,34 @@ public class SearchController {
         filterBarBox.setManaged(true);
 
         searchField.requestFocus();
+    }
+
+    /**
+     * Actualiza el estilo visual de los botones de filtro: el seleccionado
+     * se pinta en rosa (color de marca), el resto en el fondo oscuro normal.
+     * Sin esto, el ToggleGroup cambia la selección lógica pero el color de
+     * fondo se queda igual, así que no se notaba visualmente qué filtro
+     * estaba activo.
+     */
+    private void updateFilterButtonStyles() {
+        ToggleButton[] allFilters = { filterAll, filterAnime, filterSeries, filterMovie, filterMusic, filterGame };
+
+        for (ToggleButton btn : allFilters) {
+            boolean selected = btn.isSelected();
+            String bgColor = selected ? "#e94560" : "#16213e";
+            String textColor = selected ? "white" : "#eaeaea";
+            String fontWeight = selected ? "-fx-font-weight: bold;" : "";
+
+            btn.setStyle(
+                    "-fx-background-color: " + bgColor + ";" +
+                            "-fx-text-fill: " + textColor + ";" +
+                            "-fx-font-size: 11px;" +
+                            fontWeight +
+                            "-fx-background-radius: 14;" +
+                            "-fx-padding: 5 14 5 14;" +
+                            "-fx-cursor: hand;"
+            );
+        }
     }
 
     /**
@@ -723,7 +760,7 @@ public class SearchController {
         sideMenu.setVisible(true);
 
         TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
-        slide.setFromX(-240);
+        slide.setFromX(-SIDE_MENU_WIDTH);
         slide.setToX(0);
         slide.play();
 
@@ -733,7 +770,7 @@ public class SearchController {
     private void closeMenu() {
         TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
         slide.setFromX(0);
-        slide.setToX(-240);
+        slide.setToX(-SIDE_MENU_WIDTH);
         slide.setOnFinished(e -> sideMenu.setVisible(false));
         slide.play();
 

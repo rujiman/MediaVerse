@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -28,25 +29,30 @@ public class HomeController {
     @FXML private ScrollPane homeScroll;
     @FXML private VBox homeRoot;
 
+    @FXML private VBox gameColumnBox;
     @FXML private FlowPane gameSectionBox;
     @FXML private Label gameEmptyLabel;
     @FXML private Button editGameButton;
 
-    @FXML private FlowPane musicSectionBox;
-    @FXML private Label musicEmptyLabel;
-    @FXML private Button editMusicButton;
-
+    @FXML private VBox seriesColumnBox;
     @FXML private FlowPane seriesSectionBox;
     @FXML private Label seriesEmptyLabel;
     @FXML private Button editSeriesButton;
 
-    @FXML private FlowPane movieSectionBox;
-    @FXML private Label movieEmptyLabel;
-    @FXML private Button editMovieButton;
-
+    @FXML private VBox animeColumnBox;
     @FXML private FlowPane animeSectionBox;
     @FXML private Label animeEmptyLabel;
     @FXML private Button editAnimeButton;
+
+    @FXML private VBox musicSectionContainer;
+    @FXML private HBox musicSectionBox;
+    @FXML private Label musicEmptyLabel;
+    @FXML private Button editMusicButton;
+
+    @FXML private VBox movieSectionContainer;
+    @FXML private HBox movieSectionBox;
+    @FXML private Label movieEmptyLabel;
+    @FXML private Button editMovieButton;
 
     /** Se ejecuta al pinchar una tarjeta; recibe el MediaItem equivalente. */
     private java.util.function.Consumer<MediaItem> onOpenDetailAction;
@@ -86,17 +92,24 @@ public class HomeController {
      */
     public void refreshAll() {
         renderVerticalSection(MediaType.GAME, gameSectionBox, gameEmptyLabel);
-        renderHorizontalSection(MediaType.MUSIC, musicSectionBox, musicEmptyLabel);
-        renderHorizontalSection(MediaType.SERIES, seriesSectionBox, seriesEmptyLabel);
-        renderHorizontalSection(MediaType.MOVIE, movieSectionBox, movieEmptyLabel);
+        renderVerticalSection(MediaType.SERIES, seriesSectionBox, seriesEmptyLabel);
         renderVerticalSection(MediaType.ANIME, animeSectionBox, animeEmptyLabel);
+        renderHorizontalSection(MediaType.MUSIC, musicSectionBox, musicEmptyLabel);
+        renderHorizontalSection(MediaType.MOVIE, movieSectionBox, movieEmptyLabel);
     }
 
     // ===========================================================
     // RENDERIZADO DE SECCIONES
     // ===========================================================
 
-    /** Para las columnas de Juegos y Anime: grid 4x4 (máximo 16). */
+    /**
+     * Para las 3 columnas grandes de arriba (Juegos / Series / Anime): grid
+     * 4x4 (máximo 16). El FlowPane que las contiene tiene una altura FIJA
+     * en el FXML (prefHeight/minHeight=610, calculada para 4 filas exactas
+     * de este tamaño de tarjeta), así que el hueco para las 4 filas queda
+     * siempre reservado, esté lleno o no, y las 3 columnas resultan
+     * idénticas en altura sin necesidad de medir nada en código.
+     */
     private void renderVerticalSection(MediaType type, FlowPane container, Label emptyLabel) {
         container.getChildren().clear();
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
@@ -106,12 +119,17 @@ public class HomeController {
         emptyLabel.setManaged(empty);
 
         for (FavoriteItem fav : items) {
-            container.getChildren().add(buildCard(fav, 110, 150));
+            container.getChildren().add(buildCard(fav, 90, 115));
         }
     }
 
-    /** Para las filas de Música/Series/Películas: tarjetas que envuelven línea si no caben (máximo 5). */
-    private void renderHorizontalSection(MediaType type, FlowPane container, Label emptyLabel) {
+    /**
+     * Para las 2 filas de abajo (Música / Películas), cada una con ancho
+     * fijo (628px, ver FXML): UNA sola fila de máximo 5 tarjetas,
+     * centradas en su contenedor. El tamaño de tarjeta está calculado
+     * para que 5 + sus gaps quepan exactamente en ese ancho fijo.
+     */
+    private void renderHorizontalSection(MediaType type, HBox container, Label emptyLabel) {
         container.getChildren().clear();
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
 
@@ -120,7 +138,7 @@ public class HomeController {
         emptyLabel.setManaged(empty);
 
         for (FavoriteItem fav : items) {
-            container.getChildren().add(buildCard(fav, 150, 210));
+            container.getChildren().add(buildCard(fav, 105, 150));
         }
     }
 

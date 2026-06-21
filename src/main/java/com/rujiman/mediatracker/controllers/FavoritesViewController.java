@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -67,11 +68,44 @@ public class FavoritesViewController {
         filterGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle == null && oldToggle != null) {
                 oldToggle.setSelected(true);
+                return;
             }
+            updateFilterButtonStyles();
         });
+
+        // Estilo inicial correcto (Todo seleccionado por defecto)
+        updateFilterButtonStyles();
 
         speedUpScroll(scrollPane);
         loadFavorites();
+    }
+
+    /**
+     * Actualiza el estilo visual de los botones de filtro: el seleccionado
+     * se pinta en rosa (color de marca), el resto en el fondo oscuro normal.
+     * El ToggleGroup por sí solo solo cambia la selección lógica, no el
+     * color de fondo, así que sin esto no se notaba visualmente qué
+     * filtro estaba activo (mismo bug que ya arreglamos en SearchController).
+     */
+    private void updateFilterButtonStyles() {
+        ToggleButton[] allFilters = { filterAll, filterAnime, filterSeries, filterMovie, filterMusic, filterGame };
+
+        for (ToggleButton btn : allFilters) {
+            boolean selected = btn.isSelected();
+            String bgColor = selected ? "#e94560" : "#16213e";
+            String textColor = selected ? "white" : "#eaeaea";
+            String fontWeight = selected ? "-fx-font-weight: bold;" : "";
+
+            btn.setStyle(
+                    "-fx-background-color: " + bgColor + ";" +
+                            "-fx-text-fill: " + textColor + ";" +
+                            "-fx-font-size: 11px;" +
+                            fontWeight +
+                            "-fx-background-radius: 14;" +
+                            "-fx-padding: 5 14 5 14;" +
+                            "-fx-cursor: hand;"
+            );
+        }
     }
 
     @FXML
@@ -120,13 +154,17 @@ public class FavoritesViewController {
 
         if (favorites.isEmpty()) {
             statusPane.setVisible(true);
+            statusPane.setManaged(true);
             scrollPane.setVisible(false);
+            scrollPane.setManaged(false);
             statusLabel.setVisible(true);
             return;
         }
 
         statusPane.setVisible(false);
+        statusPane.setManaged(false);
         scrollPane.setVisible(true);
+        scrollPane.setManaged(true);
 
         for (FavoriteItem fav : favorites) {
             resultsGrid.getChildren().add(buildCard(fav));
@@ -240,20 +278,39 @@ public class FavoritesViewController {
         com.rujiman.mediatracker.services.WatchProgressService.Progress progress =
                 com.rujiman.mediatracker.services.WatchProgressService.getProgress(fav.getTitle());
 
+        HBox statusRow = new HBox();
+        statusRow.setAlignment(Pos.CENTER_LEFT);
+        statusRow.setStyle("-fx-padding: 0 8 8 8;");
+
         Integer total = fav.getTotalEpisodes();
+        Label statusLabel;
         if (total != null && total > 0) {
-            Label progressLabel = new Label("📺 " + progress.watchedEpisodes.size() + "/" + total + " vistos");
-            progressLabel.setStyle("-fx-text-fill: #555577; -fx-font-size: 10px; -fx-padding: 0 8 8 8;");
-            card.getChildren().add(progressLabel);
+            statusLabel = new Label("📺 " + progress.watchedEpisodes.size() + "/" + total + " vistos");
+            statusLabel.setStyle("-fx-text-fill: #555577; -fx-font-size: 10px;");
         } else if (progress.viewed) {
-            Label viewedLabel = new Label("✔ Visto");
-            viewedLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 10px; -fx-padding: 0 8 8 8;");
-            card.getChildren().add(viewedLabel);
+            statusLabel = new Label("✔ Visto");
+            statusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 10px;");
         } else {
-            Label spacer = new Label(" ");
-            spacer.setStyle("-fx-padding: 0 8 8 8;");
-            card.getChildren().add(spacer);
+            statusLabel = new Label(" ");
         }
+
+        // Espaciador flexible para empujar las estrellas a la derecha de la tarjeta
+        HBox spacerBox = new HBox();
+        HBox.setHgrow(spacerBox, Priority.ALWAYS);
+
+        // Estrellas de valoración personal (1-5), solo se muestran si el
+        // usuario ya valoró este título; si no, no ocupan espacio extra.
+        Label userStars = new Label();
+        Integer userRating = progress.userRating;
+        if (userRating != null && userRating > 0) {
+            StringBuilder starsText = new StringBuilder();
+            for (int i = 0; i < userRating; i++) starsText.append("★");
+            userStars.setText(starsText.toString());
+            userStars.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 10px;");
+        }
+
+        statusRow.getChildren().addAll(statusLabel, spacerBox, userStars);
+        card.getChildren().add(statusRow);
 
         card.setOnMouseClicked(e -> {
             if (onOpenDetailAction != null) {

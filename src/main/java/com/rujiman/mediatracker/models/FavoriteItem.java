@@ -27,6 +27,7 @@ public class FavoriteItem {
     private List<String> platforms;
     private List<String> genres;
     private Integer tmdbId;
+    private String trailerKey;
 
     public FavoriteItem() {}
 
@@ -46,6 +47,7 @@ public class FavoriteItem {
         this.platforms = item.getPlatforms();
         this.genres = item.getGenres();
         this.tmdbId = item.getTmdbId();
+        this.trailerKey = item.getTrailerKey();
     }
 
     private String generateId() {
@@ -111,6 +113,9 @@ public class FavoriteItem {
     public Integer getTmdbId() { return tmdbId; }
     public void setTmdbId(Integer tmdbId) { this.tmdbId = tmdbId; }
 
+    public String getTrailerKey() { return trailerKey; }
+    public void setTrailerKey(String trailerKey) { this.trailerKey = trailerKey; }
+
     /**
      * Reconstruye un MediaItem equivalente a partir de este favorito,
      * para poder reutilizar la misma tarjeta visual y la misma pantalla
@@ -129,6 +134,7 @@ public class FavoriteItem {
         item.setPlatforms(this.platforms);
         item.setGenres(this.genres);
         item.setTmdbId(this.tmdbId);
+        item.setTrailerKey(this.trailerKey);
         return item;
     }
 }

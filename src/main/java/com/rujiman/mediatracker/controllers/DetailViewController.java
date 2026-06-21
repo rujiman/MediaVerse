@@ -39,15 +39,31 @@ public class DetailViewController {
     @FXML private Button openExternalButton;
     @FXML private Button backButton;
 
+    // Botón de tráiler (MOVIE / SERIES): abre YouTube en el navegador
+    // del sistema. Se valoró embeberlo con WebView, pero YouTube exige
+    // un Referer válido que el WebView de JavaFX no envía correctamente
+    // (Error 153: "Video player configuration error"), un problema
+    // conocido y muy extendido en cualquier WebView embebido, no solo en
+    // JavaFX. Para un proyecto de TFG, un enlace simple es más robusto
+    // y mantenible que pelear con esa limitación.
+    @FXML private Button trailerButton;
+
     // Episodios (ANIME / SERIES)
     @FXML private Separator episodesSeparator;
     @FXML private VBox episodesSection;
     @FXML private Label episodesHeaderLabel;
     @FXML private VBox episodesList;
+    @FXML private Button markAllWatchedButton;
+    @FXML private Button unmarkAllWatchedButton;
+    @FXML private TextField jumpToEpisodeField;
+    @FXML private Button jumpToEpisodeButton;
 
     // Canciones de álbum (MUSIC)
     @FXML private VBox trackCountSection;
     @FXML private Label trackCountLabel;
+
+    // Valoración personal (1-5 estrellas), independiente del score de la API
+    @FXML private HBox userRatingStars;
 
     private MediaItem currentItem;
     private FavoriteItem currentFavorite;
@@ -168,6 +184,133 @@ public class DetailViewController {
 
         // Episodios / canciones según el tipo de contenido
         setupEpisodesOrTracks(item);
+
+        // Valoración personal (1-5 estrellas), independiente de favoritos y del score de la API
+        setupUserRatingStars(item);
+
+        // Tráiler embebido (solo MOVIE/SERIES; se carga bajo demanda al pulsar el botón)
+        setupTrailerButton(item);
+    }
+
+    /**
+     * Muestra el botón de tráiler solo para películas y series (TMDB es la
+     * única fuente que nos da videos de YouTube). El botón abre YouTube en
+     * el navegador del sistema, igual que "Abrir en navegador" pero con
+     * la URL del tráiler en concreto.
+     */
+    private void setupTrailerButton(MediaItem item) {
+        boolean canHaveTrailer = (item.getType() == MediaType.MOVIE || item.getType() == MediaType.SERIES)
+                && item.getTmdbId() != null;
+
+        trailerButton.setVisible(canHaveTrailer);
+        trailerButton.setManaged(canHaveTrailer);
+        trailerButton.setText("▶ Ver tráiler en YouTube");
+        trailerButton.setDisable(false);
+    }
+
+    /**
+     * Abre el tráiler en el navegador del sistema. Si todavía no tenemos
+     * la clave de YouTube guardada para este item, la consulta a TMDB en
+     * un hilo de fondo primero (sin congelar la UI mientras se espera).
+     */
+    @FXML
+    private void onOpenTrailer() {
+        if (currentItem.getTrailerKey() != null && !currentItem.getTrailerKey().isBlank()) {
+            openYoutubeUrl(currentItem.getTrailerKey());
+            return;
+        }
+
+        trailerButton.setDisable(true);
+        trailerButton.setText("Buscando tráiler...");
+
+        final MediaItem itemAtRequestTime = currentItem;
+        boolean isMovie = itemAtRequestTime.getType() == MediaType.MOVIE;
+        Integer tmdbId = itemAtRequestTime.getTmdbId();
+
+        new Thread(() -> {
+            String key = new TMDBService().getTrailerKey(tmdbId, isMovie);
+
+            Platform.runLater(() -> {
+                trailerButton.setDisable(false);
+                trailerButton.setText("▶ Ver tráiler en YouTube");
+
+                // Si el usuario ya cerró este detalle o abrió otro mientras
+                // esperábamos la respuesta, no abrimos nada para evitar
+                // abrir el tráiler equivocado.
+                if (currentItem != itemAtRequestTime) return;
+
+                if (key == null || key.isBlank()) {
+                    trailerButton.setText("Sin tráiler disponible");
+                    trailerButton.setDisable(true);
+                    return;
+                }
+
+                itemAtRequestTime.setTrailerKey(key);
+
+                // Si el item ya está en favoritos, guardamos también la
+                // clave ahí, para no tener que volver a pedirla a TMDB la
+                // próxima vez que se abra este detalle desde favoritos.
+                if (currentFavorite != null) {
+                    currentFavorite.setTrailerKey(key);
+                    FavoritesService.updateFavorite(currentFavorite);
+                }
+
+                openYoutubeUrl(key);
+            });
+        }).start();
+    }
+
+    /**
+     * Abre la URL de YouTube correspondiente a una clave de vídeo en el
+     * navegador por defecto del sistema.
+     */
+    private void openYoutubeUrl(String youtubeKey) {
+        try {
+            java.awt.Desktop.getDesktop().browse(
+                    new java.net.URI("https://www.youtube.com/watch?v=" + youtubeKey)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Construye las 5 estrellas clicables para la valoración personal del
+     * usuario. Cada estrella, al pincharla, guarda esa puntuación (1-5) en
+     * WatchProgressService, totalmente aparte de favoritos y del score
+     * que viene de las APIs externas.
+     */
+    private void setupUserRatingStars(MediaItem item) {
+        userRatingStars.getChildren().clear();
+
+        Integer currentRating = WatchProgressService.getUserRating(item.getTitle());
+        int rating = currentRating != null ? currentRating : 0;
+
+        for (int i = 1; i <= 5; i++) {
+            final int starValue = i;
+
+            Label star = new Label(starValue <= rating ? "★" : "☆");
+            star.setStyle(
+                    "-fx-font-size: 18px;" +
+                            "-fx-text-fill: " + (starValue <= rating ? "#f1c40f" : "#555577") + ";" +
+                            "-fx-cursor: hand;"
+            );
+
+            star.setOnMouseClicked(e -> {
+                Integer existing = WatchProgressService.getUserRating(item.getTitle());
+                int existingValue = existing != null ? existing : 0;
+
+                // Pinchar la misma estrella que ya estaba puesta como máxima
+                // quita la valoración (toggle), igual que en apps como
+                // Letterboxd; pinchar cualquier otra la establece directamente.
+                int newRating = (starValue == existingValue) ? 0 : starValue;
+
+                WatchProgressService.setUserRating(item.getTitle(), newRating > 0 ? newRating : null);
+                setupUserRatingStars(item); // repintar con el nuevo estado
+            });
+
+            userRatingStars.getChildren().add(star);
+        }
     }
 
     /**
@@ -301,6 +444,66 @@ public class DetailViewController {
 
         // Si se completaron todos los episodios, el botón de visto general también se actualiza
         updateViewedButtonStyle();
+    }
+
+    /**
+     * Marca de golpe todos los episodios como vistos. Pensado para series
+     * largas que el usuario ya vio antes de usar la app (ej. Naruto,
+     * One Piece), sin tener que pasar episodio a episodio.
+     */
+    @FXML
+    private void onMarkAllEpisodesWatched() {
+        Integer total = currentItem.getEpisodes();
+        if (total == null || total <= 0) return;
+
+        WatchProgressService.markAllEpisodesWatched(currentItem.getTitle(), total);
+        buildEpisodesList(total);
+        updateViewedButtonStyle();
+    }
+
+    /**
+     * Desmarca todos los episodios de golpe (vuelve a 0/total), por si el
+     * usuario se equivocó al usar "Marcar todos" o quiere reiniciar el
+     * seguimiento de esa serie.
+     */
+    @FXML
+    private void onUnmarkAllEpisodesWatched() {
+        Integer total = currentItem.getEpisodes();
+        if (total == null || total <= 0) return;
+
+        WatchProgressService.unmarkAllEpisodesWatched(currentItem.getTitle(), total);
+        buildEpisodesList(total);
+        updateViewedButtonStyle();
+    }
+
+    /**
+     * Marca como vistos todos los episodios desde el 1 hasta el número
+     * introducido en el campo (incluido), y desmarca el resto. Útil para
+     * decir "voy por el episodio 150 de One Piece" de una sola vez, sin
+     * tener que marcar uno a uno.
+     */
+    @FXML
+    private void onJumpToEpisode() {
+        Integer total = currentItem.getEpisodes();
+        if (total == null || total <= 0) return;
+
+        String text = jumpToEpisodeField.getText().trim();
+        if (text.isEmpty()) return;
+
+        int targetEpisode;
+        try {
+            targetEpisode = Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            jumpToEpisodeField.setStyle(jumpToEpisodeField.getStyle() + "-fx-border-color: #e74c3c; -fx-border-width: 1;");
+            return;
+        }
+
+        if (targetEpisode < 0) targetEpisode = 0;
+
+        WatchProgressService.markEpisodesUpTo(currentItem.getTitle(), targetEpisode, total);
+        buildEpisodesList(total);
+        updateViewedButtonStyle();
+        jumpToEpisodeField.clear();
     }
 
     /**

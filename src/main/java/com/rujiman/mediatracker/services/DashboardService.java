@@ -29,10 +29,12 @@ public class DashboardService {
 
     /**
      * Número máximo de favoritos permitidos por sección en la home.
-     * Juegos y Anime tienen grid 4x4 (16); el resto son filas horizontales (5).
+     * Juegos, Series y Anime son las 3 columnas grandes de arriba,
+     * con grid 4x4 (16). Música y Películas son las 2 filas de abajo,
+     * cada una a media anchura, con máximo 5.
      */
     public static int getMaxItemsForSection(MediaType type) {
-        return (type == MediaType.GAME || type == MediaType.ANIME) ? 16 : 5;
+        return (type == MediaType.GAME || type == MediaType.SERIES || type == MediaType.ANIME) ? 16 : 5;
     }
 
     // Una entrada de lista por cada MediaType que tiene sección fija en la home
