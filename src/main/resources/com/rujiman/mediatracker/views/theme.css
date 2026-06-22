@@ -1,0 +1,289 @@
+/*
+ * ============================================================
+ * MEDIAVERSE — THEME.CSS — Paleta "Constelaciones"
+ * ============================================================
+ * JavaFX CSS no tiene variables nativas tipo :root del CSS web,
+ * pero SÍ permite "lookup colors": se define un color con nombre
+ * en el selector .root (la raíz de cualquier Scene que cargue esta
+ * hoja), y desde ahí se referencia por nombre en cualquier otro
+ * selector con -fx-color-name (sin comillas, sin función especial).
+ * Esto es lo más parecido a variables CSS que ofrece JavaFX, y es
+ * la forma recomendada de centralizar una paleta.
+ *
+ * Cómo cambiar un color de toda la app: edita SOLO el valor aquí
+ * en .root, nunca un hex suelto en otro sitio de este archivo ni
+ * en los estilos inline de los FXML (que deberían haber desaparecido
+ * tras la migración a clases).
+ * ============================================================
+ */
+
+.root {
+    /* Fondo y paneles */
+    -bg-base: #100c1c;
+    -bg-panel: #1c1730;
+    -bg-panel-hover: #221c3a;
+    -bg-input: #221c3a;
+
+    /* Texto */
+    -text-main: #f0eef5;
+    -text-dim: #756f94;
+    -text-on-accent: #100c1c; /* texto oscuro sobre acentos claros (cian/menta/ámbar) */
+
+    /* Acento de marca (favoritos, logout, identidad, alertas) */
+    -brand: #ec4d80;
+    -brand-hover: #ff6b98;
+    -error: #e74c3c;
+    -success: #4dec9e;
+
+    /* Acentos por sección de contenido */
+    -accent-game: #4dd9ec;
+    -accent-series: #8b5cf6;
+    -accent-anime: #ec4dc0;
+    -accent-music: #4dec9e;
+    -accent-movie: #ecb14d;
+
+    -fx-background-color: -bg-base;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* ============================================================
+   FONDOS BASE
+   ============================================================ */
+
+.bg-base {
+    -fx-background-color: -bg-base;
+}
+
+.bg-panel {
+    -fx-background-color: -bg-panel;
+    -fx-background-radius: 14;
+}
+
+.bg-panel-flat {
+    -fx-background-color: -bg-panel;
+}
+
+.bg-transparent {
+    -fx-background-color: transparent;
+}
+
+/* ============================================================
+   TEXTO
+   ============================================================ */
+
+.text-title {
+    -fx-text-fill: -brand;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.text-heading {
+    -fx-text-fill: -text-main;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.text-body {
+    -fx-text-fill: -text-main;
+    -fx-font-size: 13px;
+}
+
+.text-dim {
+    -fx-text-fill: -text-dim;
+    -fx-font-size: 12px;
+}
+
+.text-error {
+    -fx-text-fill: -error;
+}
+
+.text-success {
+    -fx-text-fill: -success;
+}
+
+.text-brand-link {
+    -fx-text-fill: -brand;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+/* ============================================================
+   BOTONES — base + variantes de acento por sección
+   ============================================================
+   .btn-pill-* son botones redondeados de acción (estilo principal de
+   la app). .btn-circle-* son los círculos pequeños "+" de cada sección
+   en Inicio. Cada sección tiene su propia variante de color.
+   ============================================================ */
+
+.btn-pill-brand {
+    -fx-background-color: -brand;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 8 20 8 20;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+.btn-pill-brand:hover {
+    -fx-background-color: -brand-hover;
+}
+
+.btn-pill-neutral {
+    -fx-background-color: -bg-panel;
+    -fx-text-fill: -text-main;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.btn-pill-neutral:hover {
+    -fx-background-color: -bg-panel-hover;
+}
+
+.btn-flat-nav {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-main;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+.btn-flat-nav:hover {
+    -fx-text-fill: -brand;
+}
+
+.btn-flat-brand {
+    -fx-background-color: transparent;
+    -fx-text-fill: -brand;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+.btn-flat-brand:hover {
+    -fx-text-fill: -brand-hover;
+}
+
+/* Botones circulares "+" de cada sección, usados en el ✏️/+ de Inicio */
+.btn-circle-base {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 13;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.btn-circle-game     { -fx-background-color: -accent-game;   -fx-text-fill: -text-on-accent; }
+.btn-circle-series   { -fx-background-color: -accent-series; }
+.btn-circle-anime    { -fx-background-color: -accent-anime;  }
+.btn-circle-music    { -fx-background-color: -accent-music;  -fx-text-fill: -text-on-accent; }
+.btn-circle-movie    { -fx-background-color: -accent-movie;  -fx-text-fill: -text-on-accent; }
+
+/* ============================================================
+   TÍTULOS DE SECCIÓN (cabeceras de cajas en Inicio) — color por tipo
+   ============================================================ */
+
+.section-title-game   { -fx-text-fill: -accent-game;   -fx-font-size: 15px; -fx-font-weight: bold; }
+.section-title-series { -fx-text-fill: -accent-series; -fx-font-size: 15px; -fx-font-weight: bold; }
+.section-title-anime  { -fx-text-fill: -accent-anime;  -fx-font-size: 15px; -fx-font-weight: bold; }
+.section-title-music  { -fx-text-fill: -accent-music;  -fx-font-size: 15px; -fx-font-weight: bold; }
+.section-title-movie  { -fx-text-fill: -accent-movie;  -fx-font-size: 15px; -fx-font-weight: bold; }
+
+/* ============================================================
+   TARJETAS — borde y glow de hover por sección
+   ============================================================
+   .card-base es el fondo neutro de cualquier tarjeta. Las variantes
+   .card-hover-* se añaden/quitan dinámicamente en código Java al
+   pasar el ratón por encima, para dar un glow del color de su sección
+   sin tener que duplicar toda la tarjeta por tipo.
+   ============================================================ */
+
+.card-base {
+    -fx-background-color: -bg-panel;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.card-hover-game {
+    -fx-effect: dropshadow(gaussian, #4dd9ec99, 18, 0.35, 0, 0);
+}
+.card-hover-series {
+    -fx-effect: dropshadow(gaussian, #8b5cf699, 18, 0.35, 0, 0);
+}
+.card-hover-anime {
+    -fx-effect: dropshadow(gaussian, #ec4dc099, 18, 0.35, 0, 0);
+}
+.card-hover-music {
+    -fx-effect: dropshadow(gaussian, #4dec9e99, 18, 0.35, 0, 0);
+}
+.card-hover-movie {
+    -fx-effect: dropshadow(gaussian, #ecb14d99, 18, 0.35, 0, 0);
+}
+
+/* Badge de tipo en la esquina de una tarjeta (búsqueda/favoritos/watchlist) */
+.badge-game   { -fx-background-color: -accent-game;   -fx-text-fill: -text-on-accent; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 2 8 2 8; -fx-background-radius: 10; }
+.badge-series { -fx-background-color: -accent-series; -fx-text-fill: white;           -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 2 8 2 8; -fx-background-radius: 10; }
+.badge-anime  { -fx-background-color: -accent-anime;  -fx-text-fill: white;           -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 2 8 2 8; -fx-background-radius: 10; }
+.badge-music  { -fx-background-color: -accent-music;  -fx-text-fill: -text-on-accent; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 2 8 2 8; -fx-background-radius: 10; }
+.badge-movie  { -fx-background-color: -accent-movie;  -fx-text-fill: -text-on-accent; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 2 8 2 8; -fx-background-radius: 10; }
+
+/* ============================================================
+   CAMPOS DE TEXTO / FILTROS / TOGGLES
+   ============================================================ */
+
+.text-field-base {
+    -fx-background-color: -bg-input;
+    -fx-text-fill: -text-main;
+    -fx-prompt-text-fill: -text-dim;
+    -fx-background-radius: 20;
+    -fx-padding: 8 16 8 16;
+    -fx-font-size: 13px;
+}
+.text-field-base:focused {
+    -fx-border-color: -brand;
+    -fx-border-radius: 20;
+    -fx-border-width: 1.5;
+}
+
+.filter-toggle {
+    -fx-background-color: -bg-panel;
+    -fx-text-fill: -text-main;
+    -fx-font-size: 11px;
+    -fx-background-radius: 14;
+    -fx-padding: 5 14 5 14;
+    -fx-cursor: hand;
+}
+.filter-toggle:selected {
+    -fx-background-color: -brand;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ============================================================
+   SEPARADORES Y SCROLL
+   ============================================================ */
+
+.separator-line .line {
+    -fx-border-color: -bg-panel;
+}
+
+.scroll-pane-transparent,
+.scroll-pane-transparent .viewport,
+.scroll-pane-transparent > .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* ============================================================
+   ESTRELLAS DE VALORACIÓN PERSONAL
+   ============================================================ */
+
+.star-filled {
+    -fx-text-fill: #f1c40f;
+    -fx-font-size: 18px;
+    -fx-cursor: hand;
+}
+.star-empty {
+    -fx-text-fill: -text-dim;
+    -fx-font-size: 18px;
+    -fx-cursor: hand;
+}
