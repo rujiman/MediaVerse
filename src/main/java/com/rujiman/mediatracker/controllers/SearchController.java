@@ -10,6 +10,7 @@ import com.rujiman.mediatracker.services.AnilistService;
 import com.rujiman.mediatracker.services.MusicService;
 import com.rujiman.mediatracker.services.GameService;
 import com.rujiman.mediatracker.services.FavoritesService;
+import com.rujiman.mediatracker.services.PlanService;
 import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -1047,6 +1048,91 @@ public class SearchController {
 
             showAlert("Contraseña actualizada.");
         });
+    }
+
+    // -------------------------
+    // "PIENSO VER / JUGAR / ESCUCHAR"
+    // -------------------------
+
+    @FXML
+    private void openPlanWatch() {
+        openPlanList(PlanService.ListKind.WATCH);
+    }
+
+    @FXML
+    private void openPlanPlay() {
+        openPlanList(PlanService.ListKind.PLAY);
+    }
+
+    @FXML
+    private void openPlanListen() {
+        openPlanList(PlanService.ListKind.LISTEN);
+    }
+
+    /**
+     * Abre la lista de plan (Pienso ver/jugar/escuchar) en el overlay,
+     * con su propia navegación de carpetas. Mismo patrón que
+     * openWatchlist(): "Volver" desde aquí cierra el overlay; al pinchar
+     * un item, se abre su detalle apilado encima con setPlanContext() ya
+     * configurado, para que "Mover a Favoritos" aparezca correctamente.
+     */
+    private void openPlanList(PlanService.ListKind kind) {
+        if (navMenuOpen) closeNavMenu();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/PlanListView.fxml")
+            );
+            javafx.scene.Parent planRoot = loader.load();
+
+            PlanListViewController controller = loader.getController();
+            controller.setOnBackAction(this::closeOverlay);
+            controller.setOnOpenItemAction((item, listKind, planItemId) ->
+                    openDetailViewFromPlan(item, listKind, planItemId));
+            controller.setListKind(kind);
+
+            openOverlay(planRoot);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir lista de plan: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Abre el detalle de un item de una lista de plan, apilado sobre esa
+     * misma lista (igual patrón que favoritos/watchlist). Llama a
+     * setPlanContext() justo después de loadItem() para que el botón
+     * "Mover a Favoritos" aparezca en el detalle. Al volver, se reabre
+     * la lista de plan ya actualizada (por ejemplo, si se acaba de mover
+     * el item a favoritos, ya no aparecerá aquí).
+     */
+    private void openDetailViewFromPlan(MediaItem item, PlanService.ListKind kind, String planItemId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
+            );
+            javafx.scene.Parent detailRoot = loader.load();
+
+            DetailViewController controller = loader.getController();
+            controller.setOnBackAction(() -> openPlanList(kind));
+            // Las recomendaciones se apilan como cualquier otro detalle:
+            // su "Volver" reabre ESTE detalle, no la lista de plan
+            // directamente. Importante: el detalle de una recomendación
+            // NO tiene contexto de plan propio (no viene de esta lista),
+            // así que se abre con openDetailView() normal, no con
+            // openDetailViewFromPlan().
+            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended,
+                    () -> openDetailViewFromPlan(item, kind, planItemId)));
+            controller.loadItem(item);
+            controller.setPlanContext(kind, planItemId);
+
+            openOverlay(detailRoot);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir DetailView desde plan: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // -------------------------

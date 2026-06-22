@@ -215,16 +215,63 @@ public class PlanListViewController {
      * Pinchar entra en la carpeta (cambia currentFolderId y refresca).
      */
     private VBox buildFolderCard(PlanFolder folder) {
-        int count = PlanService.getItemsInFolder(listKind, folder.getId()).size();
+        List<PlanItem> contents = PlanService.getItemsInFolder(listKind, folder.getId());
+        int count = contents.size();
 
         VBox card = new VBox(6);
         card.setPrefWidth(140);
         card.getStyleClass().add("card-base");
         card.setAlignment(Pos.CENTER);
-        card.setStyle("-fx-padding: 20 10 16 10; -fx-cursor: hand;");
+        card.setStyle("-fx-padding: 16 10 16 10; -fx-cursor: hand;");
 
-        Label icon = new Label("📁");
-        icon.setStyle("-fx-font-size: 40px;");
+        // Preview tipo "explorador de Windows": un mini-grid 2x2 con las
+        // portadas de hasta 4 items que contiene la carpeta, en vez de un
+        // icono genérico siempre igual. Si la carpeta tiene menos de 4
+        // items (o está vacía), los huecos restantes se rellenan con un
+        // icono 📁 tenue, para que el grid siempre se vea completo y
+        // simétrico sin importar cuántos items tenga dentro.
+        javafx.scene.layout.GridPane previewGrid = new javafx.scene.layout.GridPane();
+        previewGrid.setHgap(3);
+        previewGrid.setVgap(3);
+        previewGrid.setPrefSize(110, 110);
+        previewGrid.setMaxSize(110, 110);
+
+        double cellSize = 53.5;
+        for (int i = 0; i < 4; i++) {
+            int row = i / 2;
+            int col = i % 2;
+
+            StackPane cell = new StackPane();
+            cell.setPrefSize(cellSize, cellSize);
+            cell.setMaxSize(cellSize, cellSize);
+            cell.setStyle("-fx-background-color: #100c1c; -fx-background-radius: 6;");
+
+            if (i < contents.size() && contents.get(i).getImageUrl() != null
+                    && !contents.get(i).getImageUrl().isBlank()) {
+                ImageView thumb = new ImageView();
+                thumb.setFitWidth(cellSize);
+                thumb.setFitHeight(cellSize);
+                thumb.setPreserveRatio(false);
+                thumb.setSmooth(true);
+
+                Rectangle clip = new Rectangle(cellSize, cellSize);
+                clip.setArcWidth(6);
+                clip.setArcHeight(6);
+                thumb.setClip(clip);
+
+                try {
+                    thumb.setImage(new Image(contents.get(i).getImageUrl(), cellSize * 2, cellSize * 2, false, true, true));
+                } catch (Exception ignored) {}
+
+                cell.getChildren().add(thumb);
+            } else {
+                Label placeholder = new Label("📁");
+                placeholder.setStyle("-fx-font-size: 18px; -fx-opacity: 0.25;");
+                cell.getChildren().add(placeholder);
+            }
+
+            previewGrid.add(cell, col, row);
+        }
 
         Label nameLabel = new Label(folder.getName());
         nameLabel.setWrapText(true);
@@ -235,18 +282,23 @@ public class PlanListViewController {
         Label countLabel = new Label(count + (count == 1 ? " elemento" : " elementos"));
         countLabel.getStyleClass().add("text-dim");
 
+        // Botones de gestión con el mismo aspecto de cápsula que los
+        // filtros de tipo (Búsqueda/Favoritos), en vez de iconos planos
+        // sin fondo.
         HBox actionsRow = new HBox(8);
         actionsRow.setAlignment(Pos.CENTER);
 
-        Button renameBtn = new Button("✏️");
-        renameBtn.setStyle("-fx-background-color: transparent; -fx-font-size: 12px; -fx-cursor: hand;");
+        Button renameBtn = new Button("✏️ Renombrar");
+        renameBtn.getStyleClass().add("filter-toggle");
+        renameBtn.setStyle("-fx-font-size: 10px; -fx-padding: 4 10 4 10;");
         renameBtn.setOnAction(e -> {
             e.consume();
             onRenameFolder(folder);
         });
 
-        Button deleteBtn = new Button("🗑️");
-        deleteBtn.setStyle("-fx-background-color: transparent; -fx-font-size: 12px; -fx-cursor: hand;");
+        Button deleteBtn = new Button("🗑️ Eliminar");
+        deleteBtn.getStyleClass().add("filter-toggle");
+        deleteBtn.setStyle("-fx-font-size: 10px; -fx-padding: 4 10 4 10; -fx-text-fill: #e74c3c;");
         deleteBtn.setOnAction(e -> {
             e.consume();
             onDeleteFolder(folder);
@@ -254,7 +306,7 @@ public class PlanListViewController {
 
         actionsRow.getChildren().addAll(renameBtn, deleteBtn);
 
-        card.getChildren().addAll(icon, nameLabel, countLabel, actionsRow);
+        card.getChildren().addAll(previewGrid, nameLabel, countLabel, actionsRow);
 
         card.setOnMouseClicked(e -> {
             currentFolderId = folder.getId();

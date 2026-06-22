@@ -17,7 +17,6 @@
             <padding><Insets top="16" right="20" bottom="12" left="20"/></padding>
             <HBox spacing="12" alignment="CENTER">
 
-                <!-- IZQUIERDA: Hamburguesa (abre el menú de navegación) + Logo -->
                 <HBox spacing="14" alignment="CENTER_LEFT">
                     <Button fx:id="hamburgerButton"
                             text="☰"
@@ -35,8 +34,6 @@
                     </ImageView>
                     <Label text="Mediaverse" styleClass="text-title" style="-fx-font-size: 20px;"/>
 
-                    <!-- Volver a Inicio: solo visible en modo Búsqueda, para no
-                         depender de abrir el menú lateral solo para volver -->
                     <Button fx:id="backToHomeButton"
                             text="← Volver"
                             onAction="#goHome"
@@ -45,10 +42,8 @@
                             style="-fx-font-size: 12px; -fx-padding: 6 14 6 14;"/>
                 </HBox>
 
-                <!-- ESPACIO FLEXIBLE -->
                 <HBox HBox.hgrow="ALWAYS"/>
 
-                <!-- CENTRO: Barra de búsqueda (solo visible en modo Búsqueda) -->
                 <HBox fx:id="searchBarBox" spacing="8" alignment="CENTER" visible="false" managed="false">
                     <TextField fx:id="searchField"
                                promptText="Buscar anime, series, pelis , música o videojuegos..."
@@ -61,10 +56,8 @@
                             styleClass="btn-pill-brand"/>
                 </HBox>
 
-                <!-- ESPACIO FLEXIBLE -->
                 <HBox HBox.hgrow="ALWAYS"/>
 
-                <!-- DERECHA: Icono de perfil (placeholder circular si no hay foto) -->
                 <StackPane fx:id="profileIconContainer"
                            prefWidth="32" prefHeight="32"
                            maxWidth="32" maxHeight="32"
@@ -85,7 +78,6 @@
             </HBox>
 
 
-            <!-- Filtros por tipo (solo visibles en modo Búsqueda) -->
             <HBox fx:id="filterBarBox" spacing="8" alignment="CENTER_LEFT" visible="false" managed="false" style="-fx-padding: 12 0 0 0;">
                 <ToggleButton fx:id="filterAll" text="Todo" selected="true"
                               onAction="#onFilterChanged"
@@ -112,16 +104,12 @@
     <center>
         <StackPane fx:id="centerContent">
 
-            <!-- HOME (vista por defecto, se llena dinámicamente con HomeView.fxml) -->
             <StackPane fx:id="homeContainer" visible="true">
-                <!-- El contenido de HomeView.fxml se inyecta aquí en initialize() -->
             </StackPane>
 
-            <!-- BÚSQUEDA -->
             <VBox fx:id="searchContentBox" visible="false">
                 <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
 
-                <!-- Estado vacío / loading -->
                 <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
                     <VBox spacing="16" alignment="CENTER">
                         <ProgressIndicator fx:id="loadingSpinner"
@@ -138,7 +126,6 @@
                     </VBox>
                 </StackPane>
 
-                <!-- Grid de resultados -->
                 <ScrollPane fx:id="scrollPane"
                             fitToWidth="true"
                             VBox.vgrow="ALWAYS"
@@ -159,20 +146,6 @@
 
 </BorderPane>
 
-    <!-- PANEL LATERAL DE NAVEGACIÓN (segunda capa, flota sobre el BorderPane).
-         Se abre con el botón ☰ junto al logo. Contiene SOLO navegación: el
-         perfil (foto/nombre/cambiar usuario-contraseña) vive aparte, en un
-         popup pequeño que se abre al pulsar la foto de perfil (ver profileMenu
-         más abajo), para no mezclar "quién soy" con "a dónde voy".
-
-         IMPORTANTE: top margin de 100px para que el panel empiece justo
-         DEBAJO del header (que mide ~60px sin filtros visibles, ~98px con
-         filtros visibles en modo Búsqueda). Sin este margen, al estar
-         alineado con StackPane.alignment y sin maxHeight, el panel ocupaba
-         toda la altura de la ventana y TAPABA el header completo (logo +
-         botón ☰) mientras estaba abierto: el botón seguía funcionando
-         (el toggle nunca dejó de hacer su trabajo), pero no se veía para
-         poder pulsarlo y cerrar el menú. -->
     <StackPane fx:id="sideMenu" visible="false"
                style="-fx-background-color: #1c1730;
                       -fx-effect: dropshadow(gaussian, #000000cc, 20, 0, 4, 0);"
@@ -218,6 +191,23 @@
                     onAction="#openFavorites"
                     maxWidth="Infinity"
                     styleClass="btn-flat-nav"/>
+
+            <Button text="📋 Pienso ver"
+                    onAction="#openPlanWatch"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-series"/>
+
+            <Button text="🎮 Pienso jugar"
+                    onAction="#openPlanPlay"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-game"/>
+
+            <Button text="🎵 Pienso escuchar"
+                    onAction="#openPlanListen"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-music"/>
+
+            <Separator/>
 
             <Button text="📺 Series vistas"
                     onAction="#openWatchedSeries"
@@ -265,18 +255,6 @@
 
     </StackPane>
 
-    <!-- POPUP DE PERFIL (tercera capa): foto, nombre, cambiar usuario/contraseña.
-         Se abre al pulsar la foto de perfil del header, anclado a la esquina
-         superior derecha, pequeño y separado del menú de navegación.
-
-         IMPORTANTE: maxWidth/maxHeight deben fijarse explícitamente a
-         USE_PREF_SIZE (o a un valor concreto). Sin esto, al ser hijo
-         directo del StackPane raíz (que ocupa toda la ventana), este
-         StackPane se expandía para llenar toda la pantalla, y el
-         StackPane.alignment="TOP_RIGHT" dejaba de tener efecto visible
-         porque el propio nodo ya media tanto como su contenedor (el
-         fondo oscuro tapaba toda la app, aunque el contenido interno
-         se viera centrado dentro de ese fondo gigante). -->
     <StackPane fx:id="profileMenu" visible="false" managed="false"
                style="-fx-background-color: #1c1730;
                       -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
@@ -325,9 +303,7 @@
         </VBox>
     </StackPane>
 
-    <!-- OVERLAY DE DETALLE (tercera capa, flota sobre todo, incluido el menú lateral) -->
     <StackPane fx:id="detailOverlayContainer" visible="false" styleClass="bg-base">
-        <!-- El contenido de DetailView.fxml se inyecta aquí dinámicamente -->
     </StackPane>
 
 </StackPane>
