@@ -104,11 +104,12 @@ public class HomeController {
 
     /**
      * Para las 3 columnas grandes de arriba (Juegos / Series / Anime): grid
-     * 4x4 (máximo 16). El FlowPane que las contiene tiene una altura FIJA
-     * en el FXML (prefHeight/minHeight=610, calculada para 4 filas exactas
-     * de este tamaño de tarjeta), así que el hueco para las 4 filas queda
-     * siempre reservado, esté lleno o no, y las 3 columnas resultan
-     * idénticas en altura sin necesidad de medir nada en código.
+     * 3x4 (máximo 12), FIJO sin importar la resolución de pantalla. El
+     * FlowPane que las contiene tiene una altura FIJA en el FXML
+     * (prefHeight/minHeight=715, calculada para 4 filas exactas de este
+     * tamaño de tarjeta), así que el hueco para las 4 filas queda siempre
+     * reservado, esté lleno o no, y las 3 columnas resultan idénticas en
+     * altura sin necesidad de medir nada en código.
      */
     private void renderVerticalSection(MediaType type, FlowPane container, Label emptyLabel) {
         container.getChildren().clear();
@@ -119,7 +120,7 @@ public class HomeController {
         emptyLabel.setManaged(empty);
 
         for (FavoriteItem fav : items) {
-            container.getChildren().add(buildCard(fav, 90, 115));
+            container.getChildren().add(buildCard(fav, 115, 145));
         }
     }
 

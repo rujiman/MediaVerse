@@ -83,6 +83,7 @@ public class SearchController {
     // NUEVOS ELEMENTOS DEL MENÚ
     // -------------------------
     @FXML private StackPane sideMenu;
+    @FXML private StackPane profileMenu;
     @FXML private StackPane profileIconContainer;
     @FXML private ImageView profileIcon;
     @FXML private Label profileInitialLabel;
@@ -90,11 +91,18 @@ public class SearchController {
     @FXML private Label profileInitialLabelBig;
     @FXML private Label usernameLabel;
     @FXML private StackPane detailOverlayContainer;
+    @FXML private Button backToHomeButton;
 
-    private boolean menuOpen = false;
+    // sideMenu = panel grande de navegación (☰); profileMenu = popup
+    // pequeño de "quién soy" (foto/nombre/cambiar usuario-contraseña),
+    // anclado bajo la foto de perfil. Son independientes: abrir uno no
+    // cierra el otro automáticamente salvo que el usuario navegue.
+    private boolean navMenuOpen = false;
+    private boolean profileMenuOpen = false;
 
-    // Ancho del panel lateral (debe coincidir con prefWidth/maxWidth del
-    // sideMenu en SearchView.fxml), usado para la animación de deslizamiento
+    // Ancho del panel lateral de navegación (debe coincidir con
+    // prefWidth/maxWidth del sideMenu en SearchView.fxml), usado para la
+    // animación de deslizamiento
     private static final double SIDE_MENU_WIDTH = 270;
 
     // -------------------------
@@ -104,14 +112,16 @@ public class SearchController {
     public void initialize() {
 
         // Recorte circular: la imagen rellena el círculo sin deformarse (estilo "cover")
-        clipCircular(profileIcon, 16);   // radio = mitad de 32
-        clipCircular(profilePicture, 40); // radio = mitad de 80
+        clipCircular(profileIcon, 16);   // radio = mitad de 32 (icono del header)
+        clipCircular(profilePicture, 32); // radio = mitad de 64 (popup de perfil, antes 80px)
 
         loadProfileData();
 
-        // Ocultar menú al inicio
+        // Ocultar ambos menús al inicio
         sideMenu.setTranslateX(-SIDE_MENU_WIDTH);
         sideMenu.setVisible(false);
+        profileMenu.setVisible(false);
+        profileMenu.setManaged(false);
 
         // Agrupar los filtros para que solo uno esté activo a la vez
         filterAll.setToggleGroup(filterGroup);
@@ -172,12 +182,17 @@ public class SearchController {
      */
     @FXML
     private void goHome() {
+        if (navMenuOpen) closeNavMenu();
+        if (profileMenuOpen) closeProfileMenu();
+
         homeContainer.setVisible(true);
         searchContentBox.setVisible(false);
         searchBarBox.setVisible(false);
         searchBarBox.setManaged(false);
         filterBarBox.setVisible(false);
         filterBarBox.setManaged(false);
+        backToHomeButton.setVisible(false);
+        backToHomeButton.setManaged(false);
 
         if (homeController != null) {
             homeController.refreshAll();
@@ -186,16 +201,22 @@ public class SearchController {
 
     /**
      * Muestra la pantalla de Búsqueda y oculta la Home. Activa la barra
-     * de búsqueda y filtros en el header.
+     * de búsqueda y filtros en el header, y el botón "← Volver" (para no
+     * depender de abrir el menú lateral solo para volver a Inicio).
      */
     @FXML
     private void goSearch() {
+        if (navMenuOpen) closeNavMenu();
+        if (profileMenuOpen) closeProfileMenu();
+
         homeContainer.setVisible(false);
         searchContentBox.setVisible(true);
         searchBarBox.setVisible(true);
         searchBarBox.setManaged(true);
         filterBarBox.setVisible(true);
         filterBarBox.setManaged(true);
+        backToHomeButton.setVisible(true);
+        backToHomeButton.setManaged(true);
 
         searchField.requestFocus();
     }
@@ -668,7 +689,7 @@ public class SearchController {
     @FXML
     private void openFavorites() {
         // Si el menú lateral está abierto, lo cerramos para no solapar visualmente
-        if (menuOpen) closeMenu();
+        if (navMenuOpen) closeNavMenu();
 
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -717,7 +738,16 @@ public class SearchController {
      * Muestra cualquier nodo dentro del overlay genérico (tercera capa
      * del StackPane raíz) con una animación de fade in.
      */
+    /**
+     * Abre cualquier overlay (detalle, favoritos, listas de seguimiento)
+     * con un fade-in. Cierra ambos menús (navegación y perfil) primero,
+     * si estuvieran abiertos, para que nunca queden solapados visualmente
+     * detrás del overlay.
+     */
     private void openOverlay(javafx.scene.Parent content) {
+        if (navMenuOpen) closeNavMenu();
+        if (profileMenuOpen) closeProfileMenu();
+
         detailOverlayContainer.getChildren().setAll(content);
         detailOverlayContainer.setVisible(true);
         detailOverlayContainer.setOpacity(0);
@@ -748,15 +778,16 @@ public class SearchController {
     }
 
     // -------------------------
-    // MENÚ LATERAL
+    // MENÚ DE NAVEGACIÓN (☰, junto al logo)
     // -------------------------
     @FXML
-    private void toggleProfileMenu() {
-        if (menuOpen) closeMenu();
-        else openMenu();
+    private void toggleNavMenu() {
+        if (profileMenuOpen) closeProfileMenu(); // no tener ambos abiertos a la vez
+        if (navMenuOpen) closeNavMenu();
+        else openNavMenu();
     }
 
-    private void openMenu() {
+    private void openNavMenu() {
         sideMenu.setVisible(true);
 
         TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
@@ -764,17 +795,39 @@ public class SearchController {
         slide.setToX(0);
         slide.play();
 
-        menuOpen = true;
+        navMenuOpen = true;
     }
 
-    private void closeMenu() {
+    private void closeNavMenu() {
         TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
         slide.setFromX(0);
         slide.setToX(-SIDE_MENU_WIDTH);
         slide.setOnFinished(e -> sideMenu.setVisible(false));
         slide.play();
 
-        menuOpen = false;
+        navMenuOpen = false;
+    }
+
+    // -------------------------
+    // POPUP DE PERFIL (foto de perfil del header)
+    // -------------------------
+    @FXML
+    private void toggleProfileMenu() {
+        if (navMenuOpen) closeNavMenu(); // no tener ambos abiertos a la vez
+        if (profileMenuOpen) closeProfileMenu();
+        else openProfileMenu();
+    }
+
+    private void openProfileMenu() {
+        profileMenu.setVisible(true);
+        profileMenu.setManaged(true);
+        profileMenuOpen = true;
+    }
+
+    private void closeProfileMenu() {
+        profileMenu.setVisible(false);
+        profileMenu.setManaged(false);
+        profileMenuOpen = false;
     }
 
     // -------------------------
@@ -931,6 +984,14 @@ public class SearchController {
     }
 
     @FXML
+    private void openListenedMusic() {
+        openWatchlist(MediaType.MUSIC,
+                progress -> progress.viewed,
+                "🎵 Música escuchada",
+                "Todavía no has marcado ninguna canción como escuchada.\nMárcala desde su detalle.");
+    }
+
+    @FXML
     private void openWatchedSeries() {
         openWatchlist(MediaType.SERIES,
                 progress -> progress.viewed,
@@ -970,7 +1031,7 @@ public class SearchController {
      */
     private void openWatchlist(MediaType type, java.util.function.Predicate<com.rujiman.mediatracker.services.WatchProgressService.Progress> progressFilter,
                                String displayTitle, String emptyMessage) {
-        if (menuOpen) closeMenu();
+        if (navMenuOpen) closeNavMenu();
 
         try {
             FXMLLoader loader = new FXMLLoader(

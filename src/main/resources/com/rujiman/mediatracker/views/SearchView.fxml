@@ -17,8 +17,17 @@
             <padding><Insets top="16" right="20" bottom="12" left="20"/></padding>
             <HBox spacing="12" alignment="CENTER">
 
-                <!-- IZQUIERDA: Logo -->
-                <HBox spacing="8" alignment="CENTER_LEFT">
+                <!-- IZQUIERDA: Hamburguesa (abre el menú de navegación) + Logo -->
+                <HBox spacing="14" alignment="CENTER_LEFT">
+                    <Button fx:id="hamburgerButton"
+                            text="☰"
+                            onAction="#toggleNavMenu"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: #eaeaea;
+                                   -fx-font-size: 20px;
+                                   -fx-cursor: hand;
+                                   -fx-padding: 0 4 0 0;"/>
+
                     <ImageView fitWidth="26" fitHeight="26" preserveRatio="true">
                         <image>
                             <Image url="@icons/mediaverse_logo.png"/>
@@ -26,6 +35,20 @@
                     </ImageView>
                     <Label text="Mediaverse"
                            style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+                    <!-- Volver a Inicio: solo visible en modo Búsqueda, para no
+                         depender de abrir el menú lateral solo para volver -->
+                    <Button fx:id="backToHomeButton"
+                            text="← Volver"
+                            onAction="#goHome"
+                            visible="false" managed="false"
+                            style="-fx-background-color: #16213e;
+                                   -fx-text-fill: #eaeaea;
+                                   -fx-font-size: 12px;
+                                   -fx-font-weight: bold;
+                                   -fx-padding: 6 14 6 14;
+                                   -fx-background-radius: 8;
+                                   -fx-cursor: hand;"/>
                 </HBox>
 
                 <!-- ESPACIO FLEXIBLE -->
@@ -153,7 +176,11 @@
 
 </BorderPane>
 
-    <!-- PANEL LATERAL DESPLEGABLE (segunda capa, flota sobre el BorderPane) -->
+    <!-- PANEL LATERAL DE NAVEGACIÓN (segunda capa, flota sobre el BorderPane).
+         Se abre con el botón ☰ junto al logo. Contiene SOLO navegación: el
+         perfil (foto/nombre/cambiar usuario-contraseña) vive aparte, en un
+         popup pequeño que se abre al pulsar la foto de perfil (ver profileMenu
+         más abajo), para no mezclar "quién soy" con "a dónde voy". -->
     <StackPane fx:id="sideMenu" visible="false"
                style="-fx-background-color: #1a1a2e;
                       -fx-effect: dropshadow(gaussian, #000000cc, 20, 0, 4, 0);"
@@ -163,38 +190,8 @@
         <VBox spacing="14">
             <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-            <!-- FOTO DE PERFIL (placeholder circular si no hay foto) -->
-            <StackPane prefWidth="80" prefHeight="80"
-                       maxWidth="80" maxHeight="80"
-                       onMouseClicked="#onChangeProfilePicture"
-                       style="-fx-background-color: #e94560;
-                              -fx-background-radius: 50;
-                              -fx-cursor: hand;">
-                <ImageView fx:id="profilePicture"
-                           fitWidth="80" fitHeight="80"
-                           preserveRatio="true"
-                           visible="false"/>
-                <Label fx:id="profileInitialLabelBig"
-                       text="U"
-                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 28px;"/>
-            </StackPane>
-
-            <Label fx:id="usernameLabel"
-                   text="Usuario"
-                   wrapText="true"
-                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
-
-            <Separator/>
-
-            <Button text="Cambiar nombre de usuario"
-                    onAction="#onChangeUsername"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
-
-            <Button text="Cambiar contraseña"
-                    onAction="#onChangePassword"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
+            <Label text="Navegación"
+                   style="-fx-text-fill: #555577; -fx-font-size: 12px; -fx-font-weight: bold;"/>
 
             <Separator/>
 
@@ -243,6 +240,11 @@
                     maxWidth="Infinity" alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
 
+            <Button text="🎵 Música escuchada"
+                    onAction="#openListenedMusic"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
             <Separator/>
 
             <Button text="Cerrar sesión"
@@ -252,6 +254,54 @@
 
         </VBox>
 
+    </StackPane>
+
+    <!-- POPUP DE PERFIL (tercera capa): foto, nombre, cambiar usuario/contraseña.
+         Se abre al pulsar la foto de perfil del header, anclado a la esquina
+         superior derecha, pequeño y separado del menú de navegación. -->
+    <StackPane fx:id="profileMenu" visible="false" managed="false"
+               style="-fx-background-color: #1a1a2e;
+                      -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
+                      -fx-background-radius: 12;"
+               prefWidth="220"
+               StackPane.alignment="TOP_RIGHT">
+        <StackPane.margin><Insets top="64" right="20"/></StackPane.margin>
+
+        <VBox spacing="12" alignment="CENTER">
+            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+
+            <StackPane prefWidth="64" prefHeight="64"
+                       maxWidth="64" maxHeight="64"
+                       onMouseClicked="#onChangeProfilePicture"
+                       style="-fx-background-color: #e94560;
+                              -fx-background-radius: 50;
+                              -fx-cursor: hand;">
+                <ImageView fx:id="profilePicture"
+                           fitWidth="64" fitHeight="64"
+                           preserveRatio="true"
+                           visible="false"/>
+                <Label fx:id="profileInitialLabelBig"
+                       text="U"
+                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 22px;"/>
+            </StackPane>
+
+            <Label fx:id="usernameLabel"
+                   text="Usuario"
+                   wrapText="true"
+                   style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+
+            <Separator/>
+
+            <Button text="Cambiar nombre de usuario"
+                    onAction="#onChangeUsername"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
+                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 12px; -fx-cursor: hand;"/>
+
+            <Button text="Cambiar contraseña"
+                    onAction="#onChangePassword"
+                    maxWidth="Infinity" alignment="CENTER_LEFT"
+                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 12px; -fx-cursor: hand;"/>
+        </VBox>
     </StackPane>
 
     <!-- OVERLAY DE DETALLE (tercera capa, flota sobre todo, incluido el menú lateral) -->
