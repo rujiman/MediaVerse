@@ -15,6 +15,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -62,6 +64,13 @@ public class DetailViewController {
     @FXML private VBox trackCountSection;
     @FXML private Label trackCountLabel;
 
+    // Preview de 30s (MUSIC, canciones sueltas con preview de Deezer)
+    @FXML private VBox previewSection;
+    @FXML private Button previewButton;
+    @FXML private Label previewTimeLabel;
+    @FXML private ProgressBar previewProgressBar;
+    private MediaPlayer previewPlayer;
+
     // Valoración personal (1-5 estrellas), independiente del score de la API
     @FXML private HBox userRatingStars;
 
@@ -77,6 +86,10 @@ public class DetailViewController {
 
     @FXML
     private void onBack() {
+        // Si hay un preview sonando, lo detenemos al salir del detalle;
+        // si no, seguiría reproduciéndose de fondo sobre la búsqueda/home.
+        stopAndDisposePreviewPlayer();
+
         if (onBackAction != null) {
             onBackAction.run();
         }
@@ -188,8 +201,11 @@ public class DetailViewController {
         // Valoración personal (1-5 estrellas), independiente de favoritos y del score de la API
         setupUserRatingStars(item);
 
-        // Tráiler embebido (solo MOVIE/SERIES; se carga bajo demanda al pulsar el botón)
+        // Tráiler en YouTube (solo MOVIE/SERIES; se consulta bajo demanda al pulsar el botón)
         setupTrailerButton(item);
+
+        // Preview de 30s (solo MUSIC, canciones sueltas con preview de Deezer)
+        setupPreviewButton(item);
     }
 
     /**
@@ -272,6 +288,112 @@ public class DetailViewController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Muestra el bloque de preview solo si el item es una canción de tipo
+     * MUSIC con preview disponible (Deezer no da preview para álbumes
+     * completos, solo para canciones sueltas). Libera cualquier
+     * reproductor anterior, para no dejar sonando el preview de un item
+     * distinto al cambiar de detalle.
+     */
+    private void setupPreviewButton(MediaItem item) {
+        stopAndDisposePreviewPlayer();
+
+        boolean hasPreview = item.getType() == MediaType.MUSIC
+                && item.getPreviewUrl() != null && !item.getPreviewUrl().isBlank();
+
+        previewSection.setVisible(hasPreview);
+        previewSection.setManaged(hasPreview);
+
+        if (hasPreview) {
+            previewButton.setText("▶ Escuchar preview (30s)");
+            previewTimeLabel.setText("0:00 / 0:30");
+            previewProgressBar.setProgress(0);
+        }
+    }
+
+    // Duración total del preview, fijada una vez que el MediaPlayer la
+    // conoce con certeza (evento "ready"); antes de eso usamos 30s como
+    // valor de referencia, ya que es la duración estándar de los
+    // previews de Deezer. Evita que la barra/tiempo salten de forma
+    // descoordinada mientras totalDuration todavía vale UNKNOWN.
+    private Duration previewKnownDuration = Duration.seconds(30);
+
+    /**
+     * Reproduce/pausa el preview de 30s. Crea el MediaPlayer la primera
+     * vez que se pulsa; las siguientes veces solo lo pausa o reanuda.
+     */
+    @FXML
+    private void onTogglePreview() {
+        if (previewPlayer == null) {
+            previewKnownDuration = Duration.seconds(30);
+
+            previewPlayer = new MediaPlayer(new Media(currentItem.getPreviewUrl()));
+            previewPlayer.setVolume(0.4); // antes sonaba demasiado alto por defecto
+
+            // En cuanto el MediaPlayer conoce la duración real (puede no
+            // ser exactamente 30.000s), la fijamos como referencia estable
+            // para el resto de la reproducción.
+            previewPlayer.setOnReady(() -> {
+                Duration real = previewPlayer.getMedia().getDuration();
+                if (real != null && !real.isUnknown() && real.greaterThan(Duration.ZERO)) {
+                    previewKnownDuration = real;
+                }
+            });
+
+            previewPlayer.currentTimeProperty().addListener((obs, oldVal, newVal) -> {
+                double progress = newVal.toSeconds() / previewKnownDuration.toSeconds();
+                previewProgressBar.setProgress(Math.min(1.0, Math.max(0.0, progress)));
+                previewTimeLabel.setText(formatTime(newVal) + " / " + formatTime(previewKnownDuration));
+            });
+
+            previewPlayer.setOnEndOfMedia(() -> {
+                previewPlayer.stop();
+                previewButton.setText("▶ Escuchar preview (30s)");
+                previewProgressBar.setProgress(0);
+                previewTimeLabel.setText("0:00 / " + formatTime(previewKnownDuration));
+            });
+
+            previewPlayer.setOnError(() -> {
+                previewButton.setText("Error al reproducir");
+                previewButton.setDisable(true);
+            });
+
+            previewPlayer.play();
+            previewButton.setText("⏸ Pausar");
+            return;
+        }
+
+        if (previewPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+            previewPlayer.pause();
+            previewButton.setText("▶ Escuchar preview (30s)");
+        } else {
+            previewPlayer.play();
+            previewButton.setText("⏸ Pausar");
+        }
+    }
+
+    /**
+     * Detiene y libera los recursos del MediaPlayer del preview actual,
+     * si existía. Hay que llamarlo siempre al cambiar de item (para no
+     * dejar un preview sonando de fondo tras navegar a otro detalle) y
+     * sería ideal también al cerrar la app, aunque al ser un clip de
+     * solo 30s el impacto de no liberarlo explícitamente es mínimo.
+     */
+    private void stopAndDisposePreviewPlayer() {
+        if (previewPlayer != null) {
+            previewPlayer.stop();
+            previewPlayer.dispose();
+            previewPlayer = null;
+        }
+    }
+
+    private String formatTime(Duration duration) {
+        int totalSeconds = (int) Math.round(duration.toSeconds());
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%d:%02d", minutes, seconds);
     }
 
     /**

@@ -35,6 +35,11 @@ public class MediaItem {
 // detalle (igual que tmdbId/episodes). null hasta que se consulte.
     private String trailerKey;
 
+    // URL del preview de 30s (mp3 público de Deezer), solo para canciones
+// sueltas de tipo MUSIC. Viene ya incluida en el resultado de búsqueda,
+// no requiere ninguna llamada extra.
+    private String previewUrl;
+
 
 
 
@@ -92,4 +97,7 @@ public class MediaItem {
 
     public String getTrailerKey() { return trailerKey; }
     public void setTrailerKey(String trailerKey) { this.trailerKey = trailerKey; }
+
+    public String getPreviewUrl() { return previewUrl; }
+    public void setPreviewUrl(String previewUrl) { this.previewUrl = previewUrl; }
 }

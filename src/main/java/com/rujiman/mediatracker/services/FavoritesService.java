@@ -245,6 +245,10 @@ public class FavoritesService {
                     obj.addProperty("trailerKey", fav.getTrailerKey());
                 }
 
+                if (fav.getPreviewUrl() != null) {
+                    obj.addProperty("previewUrl", fav.getPreviewUrl());
+                }
+
                 favArray.add(obj);
             }
 
@@ -313,6 +317,10 @@ public class FavoritesService {
 
         if (obj.has("trailerKey") && !obj.get("trailerKey").isJsonNull()) {
             item.setTrailerKey(obj.get("trailerKey").getAsString());
+        }
+
+        if (obj.has("previewUrl") && !obj.get("previewUrl").isJsonNull()) {
+            item.setPreviewUrl(obj.get("previewUrl").getAsString());
         }
 
         return item;

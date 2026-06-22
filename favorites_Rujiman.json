@@ -700,7 +700,8 @@
         "Crunchyroll Amazon Channel",
         "Amazon Prime Video with Ads"
       ],
-      "tmdbId": 1429
+      "tmdbId": 1429,
+      "trailerKey": "HJaUvV9Hwgs"
     },
     {
       "id": "1782045166415_9105",
@@ -915,6 +916,54 @@
         "Shooter",
         "Adventure"
       ]
+    },
+    {
+      "id": "1782055380953_6584",
+      "type": "MUSIC",
+      "title": "BAILE INoLVIDABLE - Bad Bunny",
+      "description": "Canción de Bad Bunny",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/d98eaccfbb945bdf68241d6de7fe6a49/1000x1000-000000-80-0-0.jpg",
+      "score": 71,
+      "externalUrl": "https://www.deezer.com/track/3171003001",
+      "viewed": false,
+      "addedDate": 1782055380954,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ],
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/2/3/5/0/23585201254a725a2f1f42a1b9a25686.mp3?hdnea\u003dexp\u003d1782056272~acl\u003d/api/1/1/2/3/5/0/23585201254a725a2f1f42a1b9a25686.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d2090b1c8a9731f797ff44c00c9cd9785f803c21e846f6fd891955afda4e25df4"
+    },
+    {
+      "id": "1782056198491_9846",
+      "type": "MUSIC",
+      "title": "Unravel - TK from Ling tosite sigure",
+      "description": "Canción de TK from Ling tosite sigure",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/61405c13e00050dd0aed08aa92199d98/1000x1000-000000-80-0-0.jpg",
+      "score": 69,
+      "externalUrl": "https://www.deezer.com/track/975968052",
+      "viewed": false,
+      "addedDate": 1782056198491,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ],
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3?hdnea\u003dexp\u003d1782057090~acl\u003d/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d5fc3241cb7edda23f2237c0a03dace76a838f151c11c5ade6fea2d1b32b1bca9"
+    },
+    {
+      "id": "1782056285747_9030",
+      "type": "MUSIC",
+      "title": "Snow Fairy - FUNKIST",
+      "description": "Canción de FUNKIST",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/e4ce3657e42ae7a22cdee2687566305b/1000x1000-000000-80-0-0.jpg",
+      "score": 68,
+      "externalUrl": "https://www.deezer.com/track/369864211",
+      "viewed": false,
+      "addedDate": 1782056285747,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ],
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/c/6/0/0/c607ed4e0f923e8b6e43e94dc917bbb1.mp3?hdnea\u003dexp\u003d1782057143~acl\u003d/api/1/1/c/6/0/0/c607ed4e0f923e8b6e43e94dc917bbb1.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003df8f529fd89b3f8eeeb7605510c1b577013968d07c206d056976145ad0bcd1c29"
     }
   ]
 }

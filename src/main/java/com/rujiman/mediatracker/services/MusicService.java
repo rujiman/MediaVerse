@@ -134,6 +134,13 @@ public class MusicService {
             // URL externa
             item.setExternalUrl(safeString(obj, "link"));
 
+            // Preview de 30s (mp3 público, sin autenticación), solo
+            // disponible para canciones sueltas, no para álbumes completos
+            String preview = safeString(obj, "preview");
+            if (!preview.isBlank()) {
+                item.setPreviewUrl(preview);
+            }
+
             // Plataforma
             List<String> platforms = new ArrayList<>();
             platforms.add("Deezer");

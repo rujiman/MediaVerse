@@ -133,6 +133,30 @@
                                text="Plataformas: Netflix, Prime Video"
                                wrapText="true"
                                style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+
+                        <!-- Preview de 30s (solo MUSIC, canciones sueltas con preview de Deezer) -->
+                        <VBox fx:id="previewSection" spacing="6" visible="false" managed="false">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Button fx:id="previewButton"
+                                        text="▶ Escuchar preview (30s)"
+                                        minWidth="190"
+                                        style="-fx-background-color: #2ecc71;
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-font-size: 12px;
+                                               -fx-padding: 10 16 10 16;
+                                               -fx-background-radius: 8;
+                                               -fx-cursor: hand;"
+                                        onAction="#onTogglePreview"/>
+                                <Label fx:id="previewTimeLabel"
+                                       text="0:00 / 0:30"
+                                       style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                            </HBox>
+                            <ProgressBar fx:id="previewProgressBar"
+                                         progress="0"
+                                         prefWidth="260"
+                                         style="-fx-accent: #2ecc71;"/>
+                        </VBox>
                     </VBox>
                 </HBox>
 

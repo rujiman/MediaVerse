@@ -913,10 +913,111 @@ public class SearchController {
     // -------------------------
     // SECCIONES
     // -------------------------
-    @FXML private void openWatchedSeries() { showAlert("Abrir series vistas"); }
-    @FXML private void openWatchingSeries() { showAlert("Abrir series viendo"); }
-    @FXML private void openWatchedMovies() { showAlert("Abrir películas vistas"); }
-    @FXML private void openGames() { showAlert("Abrir videojuegos"); }
+
+    @FXML
+    private void openWatchedMovies() {
+        openWatchlist(MediaType.MOVIE,
+                progress -> progress.viewed,
+                "🎬 Películas vistas",
+                "Todavía no has visto ninguna película.\nMárcala como vista desde su detalle.");
+    }
+
+    @FXML
+    private void openGames() {
+        openWatchlist(MediaType.GAME,
+                progress -> progress.viewed,
+                "🎮 Juegos jugados",
+                "Todavía no has jugado a ninguno de tus juegos favoritos.\nMárcalo como jugado desde su detalle.");
+    }
+
+    @FXML
+    private void openWatchedSeries() {
+        openWatchlist(MediaType.SERIES,
+                progress -> progress.viewed,
+                "📺 Series vistas",
+                "Todavía no has terminado ninguna serie.\nMárcala como vista desde su detalle, o completa todos sus episodios.");
+    }
+
+    @FXML
+    private void openWatchingSeries() {
+        openWatchlist(MediaType.SERIES,
+                progress -> !progress.viewed && !progress.watchedEpisodes.isEmpty(),
+                "▶️ Series viendo",
+                "No tienes ninguna serie a medias ahora mismo.\nMarca algún episodio como visto desde su detalle para que aparezca aquí.");
+    }
+
+    @FXML
+    private void openWatchedAnime() {
+        openWatchlist(MediaType.ANIME,
+                progress -> progress.viewed,
+                "🎌 Anime vistos",
+                "Todavía no has terminado ningún anime.\nMárcalo como visto desde su detalle, o completa todos sus episodios.");
+    }
+
+    @FXML
+    private void openWatchingAnime() {
+        openWatchlist(MediaType.ANIME,
+                progress -> !progress.viewed && !progress.watchedEpisodes.isEmpty(),
+                "🎌 Anime viendo",
+                "No tienes ningún anime a medias ahora mismo.\nMarca algún episodio como visto desde su detalle para que aparezca aquí.");
+    }
+
+    /**
+     * Abre la lista de seguimiento (Series/Anime vistos/viendo) en el
+     * overlay, configurada con el tipo y criterio de progreso dados.
+     * Las 4 variantes del menú lateral comparten esta misma lógica;
+     * solo cambian el MediaType, el predicado de progreso y los textos.
+     */
+    private void openWatchlist(MediaType type, java.util.function.Predicate<com.rujiman.mediatracker.services.WatchProgressService.Progress> progressFilter,
+                               String displayTitle, String emptyMessage) {
+        if (menuOpen) closeMenu();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/WatchlistView.fxml")
+            );
+            javafx.scene.Parent watchlistRoot = loader.load();
+
+            WatchlistViewController controller = loader.getController();
+            controller.setOnBackAction(this::closeOverlay);
+            controller.setOnOpenDetailAction(item -> openDetailViewFromWatchlist(item, type, progressFilter, displayTitle, emptyMessage));
+            controller.setFilter(type, progressFilter, displayTitle, emptyMessage);
+
+            openOverlay(watchlistRoot);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir lista de seguimiento: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Abre el detalle de un item de una lista de seguimiento, apilado
+     * sobre esa misma lista (igual patrón que favoritos): al pulsar
+     * "Volver" desde el detalle, se reabre la lista ya actualizada (por
+     * ejemplo, si se acaba de terminar una serie, desaparece de
+     * "viendo" y pasa a "vistas" la próxima vez que se entre ahí).
+     */
+    private void openDetailViewFromWatchlist(MediaItem item, MediaType type,
+                                             java.util.function.Predicate<com.rujiman.mediatracker.services.WatchProgressService.Progress> progressFilter,
+                                             String displayTitle, String emptyMessage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
+            );
+            javafx.scene.Parent detailRoot = loader.load();
+
+            DetailViewController controller = loader.getController();
+            controller.setOnBackAction(() -> openWatchlist(type, progressFilter, displayTitle, emptyMessage));
+            controller.loadItem(item);
+
+            openOverlay(detailRoot);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir DetailView desde lista de seguimiento: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     // -------------------------
     // LOGOUT

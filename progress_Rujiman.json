@@ -18,6 +18,21 @@
       13
     ]
   },
+  "snow fairy - funkist": {
+    "viewed": true,
+    "watchedEpisodes": [],
+    "userRating": 5
+  },
+  "horizon forbidden west: complete edition": {
+    "viewed": true,
+    "watchedEpisodes": [],
+    "userRating": 4
+  },
+  "baile inolvidable - bad bunny": {
+    "viewed": false,
+    "watchedEpisodes": [],
+    "userRating": 5
+  },
   "the last of us part i": {
     "viewed": true,
     "watchedEpisodes": [],
@@ -125,7 +140,8 @@
   },
   "the last of us part ii": {
     "viewed": true,
-    "watchedEpisodes": []
+    "watchedEpisodes": [],
+    "userRating": 4
   },
   "hollow knight: silksong": {
     "viewed": true,
@@ -137,7 +153,7 @@
     "watchedEpisodes": []
   },
   "re:zero kara hajimeru isekai seikatsu": {
-    "viewed": true,
+    "viewed": false,
     "totalEpisodes": 25,
     "watchedEpisodes": [
       1,
@@ -145,27 +161,14 @@
       3,
       4,
       5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23,
-      24,
-      25
-    ]
+      6
+    ],
+    "userRating": 4
+  },
+  "unravel - tk from ling tosite sigure": {
+    "viewed": false,
+    "watchedEpisodes": [],
+    "userRating": 5
   },
   "hollow knight": {
     "viewed": true,
@@ -176,22 +179,44 @@
     "watchedEpisodes": [],
     "userRating": 4
   },
+  "shingeki no kyojin": {
+    "viewed": false,
+    "totalEpisodes": 25,
+    "watchedEpisodes": [
+      5,
+      6,
+      7
+    ]
+  },
   "mushoku tensei: jobless reincarnation": {
     "viewed": true,
     "watchedEpisodes": []
   },
   "re:zero -starting life in another world- memory snow": {
-    "viewed": false,
-    "watchedEpisodes": []
+    "viewed": true,
+    "watchedEpisodes": [],
+    "userRating": 5
   },
   "the last of us": {
     "viewed": false,
     "totalEpisodes": 16,
     "watchedEpisodes": []
   },
+  "queen charlotte: a bridgerton story": {
+    "viewed": false,
+    "totalEpisodes": 6,
+    "watchedEpisodes": [
+      1
+    ]
+  },
   "forza horizon 6": {
     "viewed": false,
     "watchedEpisodes": [],
     "userRating": 5
+  },
+  "death note": {
+    "viewed": false,
+    "totalEpisodes": 37,
+    "watchedEpisodes": []
   }
 }
