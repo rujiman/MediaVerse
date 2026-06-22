@@ -180,6 +180,13 @@ public class LoginController {
 
             Scene scene = new Scene(loader.load(), 1100, 720);
 
+            // theme.css también aquí: SearchView es una Scene nueva e
+            // independiente de la de Login, así que necesita su propia
+            // referencia a la hoja (no la hereda de la Scene anterior).
+            scene.getStylesheets().add(
+                    getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
+            );
+
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Mediaverse - Search");

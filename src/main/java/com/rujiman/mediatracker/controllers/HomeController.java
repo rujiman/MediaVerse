@@ -81,7 +81,7 @@ public class HomeController {
     private void applyViewportBackground() {
         javafx.scene.Node viewport = homeScroll.lookup(".viewport");
         if (viewport != null) {
-            viewport.setStyle("-fx-background-color: #0f0f1a;");
+            viewport.setStyle("-fx-background-color: #100c1c;");
         }
     }
 
@@ -156,7 +156,7 @@ public class HomeController {
         VBox card = new VBox(4);
         card.setPrefWidth(width);
         card.setMaxWidth(width);
-        card.setStyle("-fx-cursor: hand;");
+        card.getStyleClass().add("card-base");
         card.setAlignment(Pos.TOP_LEFT);
 
         ImageView cover = new ImageView();
@@ -186,15 +186,24 @@ public class HomeController {
         if (!hasImage) {
             Pane placeholder = new Pane();
             placeholder.setPrefSize(width, imageHeight);
-            placeholder.setStyle("-fx-background-color: #0f0f1a; -fx-background-radius: 10;");
+            placeholder.getStyleClass().add("bg-base");
+            placeholder.setStyle("-fx-background-radius: 10;"); // el radio es geométrico, no de color: se mantiene puntual
             card.getChildren().add(placeholder);
         }
 
         Label titleLabel = new Label(fav.getTitle());
         titleLabel.setWrapText(true);
         titleLabel.setMaxWidth(width);
-        titleLabel.setStyle("-fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-font-weight: bold;");
+        titleLabel.getStyleClass().add("text-heading");
+        titleLabel.setStyle("-fx-font-size: 11px;"); // tamaño puntual distinto del heading estándar de 15px
         card.getChildren().add(titleLabel);
+
+        // Hover con glow del color de la sección a la que pertenece este
+        // item, para reforzar visualmente "esto es de tipo X" sin tener
+        // que duplicar la tarjeta entera por tipo (ver theme.css).
+        String hoverClass = cardHoverClassFor(fav.getType());
+        card.setOnMouseEntered(e -> card.getStyleClass().add(hoverClass));
+        card.setOnMouseExited(e -> card.getStyleClass().remove(hoverClass));
 
         card.setOnMouseClicked(e -> {
             if (onOpenDetailAction != null) {
@@ -203,6 +212,21 @@ public class HomeController {
         });
 
         return card;
+    }
+
+    /**
+     * Devuelve la clase CSS de hover (glow de color) correspondiente al
+     * tipo de contenido, según la paleta "Constelaciones" de theme.css.
+     */
+    private String cardHoverClassFor(MediaType type) {
+        if (type == null) return "card-hover-series";
+        return switch (type) {
+            case GAME -> "card-hover-game";
+            case SERIES -> "card-hover-series";
+            case ANIME -> "card-hover-anime";
+            case MUSIC -> "card-hover-music";
+            case MOVIE -> "card-hover-movie";
+        };
     }
 
     // ===========================================================
@@ -224,6 +248,7 @@ public class HomeController {
      */
     private void openSectionEditor(MediaType type, String sectionDisplayName) {
         List<FavoriteItem> candidates = FavoritesService.getFavoritesByType(type);
+        String accentHex = sectionAccentHex(type);
 
         if (candidates.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -246,7 +271,8 @@ public class HomeController {
         styleDialogDark(dialog.getDialogPane());
 
         Label limitLabel = new Label();
-        limitLabel.setStyle("-fx-text-fill: #555577; -fx-font-size: 12px; -fx-padding: 0 0 10 0;");
+        limitLabel.getStyleClass().add("text-dim");
+        limitLabel.setStyle("-fx-padding: 0 0 10 0;"); // espaciado puntual
 
         FlowPane grid = new FlowPane(10, 10);
 
@@ -255,7 +281,7 @@ public class HomeController {
         List<javafx.scene.layout.StackPane> cards = new ArrayList<>();
 
         for (FavoriteItem fav : candidates) {
-            javafx.scene.layout.StackPane card = buildSelectableCard(fav, selectedIds, max, updateLimitState);
+            javafx.scene.layout.StackPane card = buildSelectableCard(fav, selectedIds, max, updateLimitState, accentHex);
             cards.add(card);
             grid.getChildren().add(card);
         }
@@ -267,7 +293,8 @@ public class HomeController {
         ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
         scroll.setPrefSize(560, 420);
-        scroll.setStyle("-fx-background-color: #1a1a2e; -fx-background: #1a1a2e; -fx-border-color: transparent;");
+        scroll.getStyleClass().add("bg-panel-flat");
+        scroll.setStyle("-fx-border-color: transparent;");
 
         dialog.getDialogPane().setContent(scroll);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -275,8 +302,15 @@ public class HomeController {
         // Los botones por defecto del diálogo se pintan claros; forzamos su estilo
         Button okBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
         Button cancelBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
-        if (okBtn != null) okBtn.setStyle("-fx-background-color: #e94560; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
-        if (cancelBtn != null) cancelBtn.setStyle("-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-background-radius: 6;");
+        if (okBtn != null) okBtn.getStyleClass().add("btn-pill-brand");
+        if (cancelBtn != null) cancelBtn.getStyleClass().add("btn-pill-neutral");
+
+        // El DialogPane (el contenido) ya se pinta oscuro con styleDialogDark(),
+        // pero la VENTANA que lo envuelve (su propio Stage/Scene, separado del
+        // de la app) usa por defecto el chrome claro del sistema operativo
+        // alrededor del contenido — por eso se veía un marco blanco rodeando
+        // el selector. Forzamos también el fondo de esa Scene nativa.
+        darkenDialogWindow(dialog.getDialogPane());
 
         dialog.setResultConverter(btn -> btn == ButtonType.OK ? selectedIds : null);
 
@@ -287,13 +321,52 @@ public class HomeController {
     }
 
     /**
+     * Devuelve el hex de acento de la sección, según la paleta
+     * "Constelaciones" de theme.css (duplicado aquí porque los colores
+     * dinámicos de un Dialog no pueden referenciar lookup colors de CSS
+     * directamente desde Java sin acceso a la Scene ya construida).
+     */
+    private String sectionAccentHex(MediaType type) {
+        if (type == null) return "#ec4d80";
+        return switch (type) {
+            case GAME -> "#4dd9ec";
+            case SERIES -> "#8b5cf6";
+            case ANIME -> "#ec4dc0";
+            case MUSIC -> "#4dec9e";
+            case MOVIE -> "#ecb14d";
+        };
+    }
+
+    /**
+     * Fuerza fondo oscuro en la ventana (Stage/Scene) que envuelve un
+     * Dialog/Alert, no solo en su DialogPane. Sin esto, el marco que
+     * rodea el contenido del diálogo se queda con el tema claro por
+     * defecto del sistema operativo.
+     */
+    private void darkenDialogWindow(DialogPane pane) {
+        if (pane.getScene() != null) {
+            pane.getScene().setFill(javafx.scene.paint.Color.web("#100c1c"));
+        } else {
+            // La Scene puede no existir todavía en el momento de llamar a
+            // esto; nos suscribimos para aplicarlo en cuanto se asigne.
+            pane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    newScene.setFill(javafx.scene.paint.Color.web("#100c1c"));
+                }
+            });
+        }
+    }
+
+    /**
      * Tarjeta seleccionable para el selector de secciones: imagen + título,
-     * con un botón circular en la esquina (rojo "+" para añadir, verde "✓"
-     * cuando ya está seleccionada) en vez de un simple checkbox. Pinchar
-     * la imagen O el botón marca/desmarca igual.
+     * con un botón circular en la esquina ("+" para añadir, "✓" cuando ya
+     * está seleccionada) usando el color de acento de la sección actual
+     * (cian para Juegos, violeta para Series, etc.) en vez de un rojo/verde
+     * fijo, para que el selector se sienta parte de "esa" sección concreta.
+     * Pinchar la imagen O el botón marca/desmarca igual.
      */
     private javafx.scene.layout.StackPane buildSelectableCard(
-            FavoriteItem fav, List<String> selectedIds, int max, Runnable onChange) {
+            FavoriteItem fav, List<String> selectedIds, int max, Runnable onChange, String accentHex) {
 
         double width = 100, height = 140;
 
@@ -324,25 +397,19 @@ public class HomeController {
         Label titleLabel = new Label(fav.getTitle());
         titleLabel.setWrapText(true);
         titleLabel.setMaxWidth(width);
-        titleLabel.setStyle("-fx-text-fill: #eaeaea; -fx-font-size: 10px; -fx-font-weight: bold; -fx-text-alignment: center;");
+        titleLabel.getStyleClass().add("text-heading");
+        titleLabel.setStyle("-fx-font-size: 10px; -fx-text-alignment: center;"); // tamaño/alineación puntuales
         titleLabel.setAlignment(Pos.TOP_CENTER);
 
         javafx.scene.layout.StackPane imageContainer = new javafx.scene.layout.StackPane(cover);
         imageContainer.setPrefSize(width, height);
         imageContainer.setMaxSize(width, height);
 
-        // Botón circular de añadir/quitar, esquina superior derecha de la imagen
+        // Botón circular de añadir/quitar, esquina superior derecha de la imagen.
         Label addButton = new Label();
         addButton.setMinSize(26, 26);
         addButton.setMaxSize(26, 26);
         addButton.setAlignment(Pos.CENTER);
-        addButton.setStyle(
-                "-fx-font-size: 14px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-background-radius: 13;" +
-                        "-fx-effect: dropshadow(gaussian, #000000aa, 4, 0, 0, 1);"
-        );
         javafx.scene.layout.StackPane.setAlignment(addButton, Pos.TOP_RIGHT);
         javafx.scene.layout.StackPane.setMargin(addButton, new javafx.geometry.Insets(6));
 
@@ -355,11 +422,11 @@ public class HomeController {
             boolean selected = selectedIds.contains(fav.getId());
 
             if (selected) {
-                imageContainer.setStyle("-fx-border-color: #e94560; -fx-border-width: 3; -fx-border-radius: 8; -fx-background-radius: 8;");
+                imageContainer.setStyle("-fx-border-color: " + accentHex + "; -fx-border-width: 3; -fx-border-radius: 8; -fx-background-radius: 8;");
                 addButton.setText("✓");
                 addButton.setStyle(
                         "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;" +
-                                "-fx-background-color: #2ecc71;" +
+                                "-fx-background-color: " + accentHex + ";" +
                                 "-fx-background-radius: 13;" +
                                 "-fx-effect: dropshadow(gaussian, #000000aa, 4, 0, 0, 1);"
                 );
@@ -368,7 +435,7 @@ public class HomeController {
                 addButton.setText("+");
                 addButton.setStyle(
                         "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" +
-                                "-fx-background-color: #e94560;" +
+                                "-fx-background-color: " + accentHex + ";" +
                                 "-fx-background-radius: 13;" +
                                 "-fx-effect: dropshadow(gaussian, #000000aa, 4, 0, 0, 1);"
                 );
@@ -398,18 +465,21 @@ public class HomeController {
     /**
      * Fuerza la paleta oscura de la app en un DialogPane de JavaFX, que
      * por defecto usa el tema claro del sistema (causaba texto blanco
-     * invisible sobre fondo claro en los selectores).
+     * invisible sobre fondo claro en los selectores). Los Dialog/Alert
+     * de JavaFX no siempre heredan el CSS de la Scene padre de forma
+     * fiable, así que aquí se sigue forzando por código en vez de con
+     * una clase CSS aplicada desde el FXML.
      */
     private void styleDialogDark(DialogPane pane) {
         pane.setStyle(
-                "-fx-background-color: #1a1a2e;" +
-                        "-fx-text-fill: #eaeaea;"
+                "-fx-background-color: #1c1730;" +
+                        "-fx-text-fill: #f0eef5;"
         );
         pane.applyCss();
         // El texto de contenido por defecto de un Alert vive anidado dentro
         // de un GridPane interno, no como hijo directo del DialogPane, así
         // que recorremos el árbol completo para no dejar texto invisible.
-        forceLabelColorRecursive(pane, "#eaeaea");
+        forceLabelColorRecursive(pane, "#f0eef5");
     }
 
     private void forceLabelColorRecursive(javafx.scene.Parent parent, String hexColor) {

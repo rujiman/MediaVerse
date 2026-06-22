@@ -184,16 +184,11 @@ public class WatchlistViewController {
             } catch (Exception ignored) {}
         }
 
-        // Badge de tipo (esquina superior izquierda)
+        // Badge de tipo (esquina superior izquierda), con el color de
+        // acento de su propia sección (cian=Juego, violeta=Series, etc.)
+        // en vez de un rojo fijo para todos los tipos.
         Label typeBadge = new Label(typeLabel(fav.getType()));
-        typeBadge.setStyle(
-                "-fx-background-color: #e94560;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 9px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-padding: 2 8 2 8;" +
-                        "-fx-background-radius: 10;"
-        );
+        typeBadge.getStyleClass().add(badgeClassFor(fav.getType()));
         StackPane.setAlignment(typeBadge, Pos.TOP_LEFT);
         StackPane.setMargin(typeBadge, new Insets(6));
 
@@ -279,6 +274,22 @@ public class WatchlistViewController {
             case MOVIE -> "🎬 Película";
             case MUSIC -> "🎵 Música";
             case GAME -> "🎮 Juego";
+        };
+    }
+
+    /**
+     * Clase CSS del badge de tipo, con el color de acento de su propia
+     * sección (ver theme.css), para que el badge "Series"/"Anime"/etc.
+     * no sea siempre del mismo color sin importar el tipo de contenido.
+     */
+    private String badgeClassFor(MediaType type) {
+        if (type == null) return "badge-series";
+        return switch (type) {
+            case GAME -> "badge-game";
+            case SERIES -> "badge-series";
+            case ANIME -> "badge-anime";
+            case MUSIC -> "badge-music";
+            case MOVIE -> "badge-movie";
         };
     }
 
