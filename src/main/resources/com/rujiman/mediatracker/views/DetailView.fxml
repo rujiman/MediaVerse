@@ -91,11 +91,10 @@
                                     onAction="#onOpenTrailer"/>
                         </FlowPane>
 
-                        <!-- Géneros -->
-                        <Label fx:id="detailGenres"
-                               text="Géneros: Acción, Aventura"
-                               wrapText="true"
-                               styleClass="text-dim"/>
+                        <!-- Géneros: cada uno como una cápsula pequeña
+                             individual (chip), construidas dinámicamente
+                             en el controller a partir de item.getGenres() -->
+                        <FlowPane fx:id="detailGenresBox" hgap="6" vgap="6"/>
 
                         <!-- Plataformas -->
                         <Label fx:id="detailPlatforms"
@@ -127,9 +126,12 @@
                 <!-- Separador -->
                 <Separator styleClass="separator-line"/>
 
-                <!-- Descripción -->
+                <!-- Descripción: el color del título de esta sección se
+                     fija dinámicamente en el controller, igual que el
+                     título principal y el de episodios, según la sección
+                     del item (cian=Juego, violeta=Series, etc.) -->
                 <VBox spacing="8">
-                    <Label text="Descripción" styleClass="text-title" style="-fx-font-size: 14px;"/>
+                    <Label fx:id="descriptionHeaderLabel" text="Descripción" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
                     <Label fx:id="detailDescription"
                            text="Descripción del contenido..."
                            wrapText="true"

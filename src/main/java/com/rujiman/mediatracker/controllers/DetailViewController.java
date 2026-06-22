@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
@@ -34,7 +35,8 @@ public class DetailViewController {
     @FXML private Label detailYear;
     @FXML private Label detailScore;
     @FXML private Label detailDescription;
-    @FXML private Label detailGenres;
+    @FXML private FlowPane detailGenresBox;
+    @FXML private Label descriptionHeaderLabel;
     @FXML private Label detailPlatforms;
     @FXML private Button viewedButton;
     @FXML private Button favoriteButton;
@@ -191,15 +193,26 @@ public class DetailViewController {
         int score = item.getScore() != null ? item.getScore() : 0;
         detailScore.setText(score > 0 ? "⭐ " + score + "/100" : "Sin puntuación");
 
-        // Descripción
+        // Descripción: la cabecera se pinta con el acento de la sección
+        // del item, igual que el título principal, para mantener
+        // consistencia visual (antes se quedaba siempre en rosa fijo).
         detailDescription.setText(item.getDescription() != null ? item.getDescription() : "Sin descripción");
+        descriptionHeaderLabel.setStyle("-fx-text-fill: " + sectionAccentHex(item.getType()) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-        // Géneros
+        // Géneros: un chip individual por cada género, en vez de texto
+        // plano separado por comas (más legible y más bonito).
+        detailGenresBox.getChildren().clear();
         if (item.getGenres() != null && !item.getGenres().isEmpty()) {
-            detailGenres.setText("Géneros: " + String.join(", ", item.getGenres()));
-            detailGenres.setVisible(true);
+            for (String genre : item.getGenres()) {
+                Label chip = new Label(genre);
+                chip.getStyleClass().add("genre-chip");
+                detailGenresBox.getChildren().add(chip);
+            }
+            detailGenresBox.setVisible(true);
+            detailGenresBox.setManaged(true);
         } else {
-            detailGenres.setVisible(false);
+            detailGenresBox.setVisible(false);
+            detailGenresBox.setManaged(false);
         }
 
         // Plataformas

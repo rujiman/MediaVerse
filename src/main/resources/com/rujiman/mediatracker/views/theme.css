@@ -271,6 +271,19 @@
     -fx-effect: dropshadow(gaussian, #ecb14d99, 18, 0.35, 0, 0);
 }
 
+/* Chip de género (Acción, Aventura, Drama...) en la pantalla de detalle.
+   Más discreto que los badges de tipo: gris-violeta neutro, sin glow ni
+   degradado, ya que el género es información secundaria (no representa
+   la sección de contenido como sí hacen los badges de tipo). */
+.genre-chip {
+    -fx-background-color: -bg-panel-hover;
+    -fx-text-fill: -text-main;
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-padding: 4 12 4 12;
+    -fx-background-radius: 14;
+}
+
 /* Badge de tipo en la esquina de una tarjeta (búsqueda/favoritos/watchlist).
    Cápsula muy redondeada con degradado sutil del color de su sección,
    glow a su alrededor (dropshadow del mismo tono) y un borde interior
