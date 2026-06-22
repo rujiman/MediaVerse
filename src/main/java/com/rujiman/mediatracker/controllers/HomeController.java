@@ -287,7 +287,9 @@ public class HomeController {
 
     /**
      * Tarjeta seleccionable para el selector de secciones: imagen + título,
-     * con borde rosa cuando está marcada. Pinchar la imagen marca/desmarca.
+     * con un botón circular en la esquina (rojo "+" para añadir, verde "✓"
+     * cuando ya está seleccionada) en vez de un simple checkbox. Pinchar
+     * la imagen O el botón marca/desmarca igual.
      */
     private javafx.scene.layout.StackPane buildSelectableCard(
             FavoriteItem fav, List<String> selectedIds, int max, Runnable onChange) {
@@ -328,15 +330,47 @@ public class HomeController {
         imageContainer.setPrefSize(width, height);
         imageContainer.setMaxSize(width, height);
 
+        // Botón circular de añadir/quitar, esquina superior derecha de la imagen
+        Label addButton = new Label();
+        addButton.setMinSize(26, 26);
+        addButton.setMaxSize(26, 26);
+        addButton.setAlignment(Pos.CENTER);
+        addButton.setStyle(
+                "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 13;" +
+                        "-fx-effect: dropshadow(gaussian, #000000aa, 4, 0, 0, 1);"
+        );
+        javafx.scene.layout.StackPane.setAlignment(addButton, Pos.TOP_RIGHT);
+        javafx.scene.layout.StackPane.setMargin(addButton, new javafx.geometry.Insets(6));
+
+        imageContainer.getChildren().add(addButton);
+
         content.getChildren().addAll(imageContainer, titleLabel);
         card.getChildren().add(content);
 
         Runnable updateBorder = () -> {
             boolean selected = selectedIds.contains(fav.getId());
+
             if (selected) {
                 imageContainer.setStyle("-fx-border-color: #e94560; -fx-border-width: 3; -fx-border-radius: 8; -fx-background-radius: 8;");
+                addButton.setText("✓");
+                addButton.setStyle(
+                        "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;" +
+                                "-fx-background-color: #2ecc71;" +
+                                "-fx-background-radius: 13;" +
+                                "-fx-effect: dropshadow(gaussian, #000000aa, 4, 0, 0, 1);"
+                );
             } else {
                 imageContainer.setStyle("-fx-border-color: transparent; -fx-border-width: 3;");
+                addButton.setText("+");
+                addButton.setStyle(
+                        "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" +
+                                "-fx-background-color: #e94560;" +
+                                "-fx-background-radius: 13;" +
+                                "-fx-effect: dropshadow(gaussian, #000000aa, 4, 0, 0, 1);"
+                );
             }
             boolean limitReached = !selected && selectedIds.size() >= max;
             card.setOpacity(limitReached ? 0.35 : 1.0);
