@@ -90,6 +90,9 @@ public class SearchController {
     @FXML private ImageView profilePicture;
     @FXML private Label profileInitialLabelBig;
     @FXML private Label usernameLabel;
+    @FXML private ImageView navProfilePicture;
+    @FXML private Label navProfileInitialLabel;
+    @FXML private Label welcomeLabel;
     @FXML private StackPane detailOverlayContainer;
     @FXML private Button backToHomeButton;
 
@@ -114,6 +117,7 @@ public class SearchController {
         // Recorte circular: la imagen rellena el círculo sin deformarse (estilo "cover")
         clipCircular(profileIcon, 16);   // radio = mitad de 32 (icono del header)
         clipCircular(profilePicture, 32); // radio = mitad de 64 (popup de perfil, antes 80px)
+        clipCircular(navProfilePicture, 20); // radio = mitad de 40 (cabecera del menú de navegación)
 
         loadProfileData();
 
@@ -317,9 +321,11 @@ public class SearchController {
         }
 
         ProfileService.Profile profile = ProfileService.loadProfile(loginUser);
+        String displayName = profile.displayName != null ? profile.displayName : loginUser;
 
-        usernameLabel.setText(profile.displayName != null ? profile.displayName : loginUser);
-        updateProfileInitial(usernameLabel.getText());
+        usernameLabel.setText(displayName);
+        welcomeLabel.setText("Bienvenido a tu galaxia, " + displayName);
+        updateProfileInitial(displayName);
 
         if (profile.photoPath != null && !profile.photoPath.isBlank()) {
             File photoFile = new File(profile.photoPath);
@@ -327,17 +333,21 @@ public class SearchController {
                 Image img = new Image(photoFile.toURI().toString());
                 profileIcon.setImage(img);
                 profilePicture.setImage(img);
+                navProfilePicture.setImage(img);
                 profileIcon.setVisible(true);
                 profilePicture.setVisible(true);
+                navProfilePicture.setVisible(true);
                 profileInitialLabel.setVisible(false);
                 profileInitialLabelBig.setVisible(false);
+                navProfileInitialLabel.setVisible(false);
             }
         }
     }
 
     /**
      * Muestra la primera letra del nombre de usuario en los círculos
-     * placeholder (icono pequeño y foto grande del panel lateral).
+     * placeholder (icono del header, popup de perfil, y cabecera del
+     * menú de navegación).
      */
     private void updateProfileInitial(String username) {
         String initial = (username != null && !username.isBlank())
@@ -345,6 +355,7 @@ public class SearchController {
                 : "U";
         profileInitialLabel.setText(initial);
         profileInitialLabelBig.setText(initial);
+        navProfileInitialLabel.setText(initial);
     }
 
     // -------------------------
@@ -867,10 +878,13 @@ public class SearchController {
             Image img = new Image(dest.toURI().toString());
             profileIcon.setImage(img);
             profilePicture.setImage(img);
+            navProfilePicture.setImage(img);
             profileIcon.setVisible(true);
             profilePicture.setVisible(true);
+            navProfilePicture.setVisible(true);
             profileInitialLabel.setVisible(false);
             profileInitialLabelBig.setVisible(false);
+            navProfileInitialLabel.setVisible(false);
 
             // Persistir la ruta en profile.json
             ProfileService.updatePhotoPath(loginUser, dest.getPath());
@@ -913,6 +927,7 @@ public class SearchController {
             ProfileService.updateDisplayName(trimmed, trimmed);
 
             usernameLabel.setText(trimmed);
+            welcomeLabel.setText("Bienvenido a tu galaxia, " + trimmed);
             updateProfileInitial(trimmed);
             showAlert("Nombre de usuario actualizado. Úsalo la próxima vez que inicies sesión.");
         });

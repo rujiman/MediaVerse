@@ -180,18 +180,44 @@
          Se abre con el botón ☰ junto al logo. Contiene SOLO navegación: el
          perfil (foto/nombre/cambiar usuario-contraseña) vive aparte, en un
          popup pequeño que se abre al pulsar la foto de perfil (ver profileMenu
-         más abajo), para no mezclar "quién soy" con "a dónde voy". -->
+         más abajo), para no mezclar "quién soy" con "a dónde voy".
+
+         IMPORTANTE: top margin de 100px para que el panel empiece justo
+         DEBAJO del header (que mide ~60px sin filtros visibles, ~98px con
+         filtros visibles en modo Búsqueda). Sin este margen, al estar
+         alineado con StackPane.alignment y sin maxHeight, el panel ocupaba
+         toda la altura de la ventana y TAPABA el header completo (logo +
+         botón ☰) mientras estaba abierto: el botón seguía funcionando
+         (el toggle nunca dejó de hacer su trabajo), pero no se veía para
+         poder pulsarlo y cerrar el menú. -->
     <StackPane fx:id="sideMenu" visible="false"
                style="-fx-background-color: #1a1a2e;
                       -fx-effect: dropshadow(gaussian, #000000cc, 20, 0, 4, 0);"
                prefWidth="270" maxWidth="270"
-               StackPane.alignment="CENTER_LEFT">
+               StackPane.alignment="TOP_LEFT">
+        <StackPane.margin><Insets top="100"/></StackPane.margin>
 
         <VBox spacing="14">
             <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-            <Label text="Navegación"
-                   style="-fx-text-fill: #555577; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <StackPane prefWidth="40" prefHeight="40"
+                           maxWidth="40" maxHeight="40"
+                           style="-fx-background-color: #e94560; -fx-background-radius: 50;">
+                    <ImageView fx:id="navProfilePicture"
+                               fitWidth="40" fitHeight="40"
+                               preserveRatio="true"
+                               visible="false"/>
+                    <Label fx:id="navProfileInitialLabel"
+                           text="U"
+                           style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                </StackPane>
+
+                <Label fx:id="welcomeLabel"
+                       text="Bienvenido a tu galaxia, Usuario"
+                       wrapText="true"
+                       style="-fx-text-fill: #eaeaea; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+            </HBox>
 
             <Separator/>
 
@@ -258,12 +284,22 @@
 
     <!-- POPUP DE PERFIL (tercera capa): foto, nombre, cambiar usuario/contraseña.
          Se abre al pulsar la foto de perfil del header, anclado a la esquina
-         superior derecha, pequeño y separado del menú de navegación. -->
+         superior derecha, pequeño y separado del menú de navegación.
+
+         IMPORTANTE: maxWidth/maxHeight deben fijarse explícitamente a
+         USE_PREF_SIZE (o a un valor concreto). Sin esto, al ser hijo
+         directo del StackPane raíz (que ocupa toda la ventana), este
+         StackPane se expandía para llenar toda la pantalla, y el
+         StackPane.alignment="TOP_RIGHT" dejaba de tener efecto visible
+         porque el propio nodo ya media tanto como su contenedor (el
+         fondo oscuro tapaba toda la app, aunque el contenido interno
+         se viera centrado dentro de ese fondo gigante). -->
     <StackPane fx:id="profileMenu" visible="false" managed="false"
                style="-fx-background-color: #1a1a2e;
                       -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
                       -fx-background-radius: 12;"
-               prefWidth="220"
+               prefWidth="220" maxWidth="220"
+               prefHeight="280" maxHeight="280"
                StackPane.alignment="TOP_RIGHT">
         <StackPane.margin><Insets top="64" right="20"/></StackPane.margin>
 
