@@ -3,11 +3,13 @@ package com.rujiman.mediatracker.controllers;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.models.PlanItem;
 import com.rujiman.mediatracker.services.FavoritesService;
 import com.rujiman.mediatracker.services.WatchProgressService;
 import com.rujiman.mediatracker.services.TMDBService;
 import com.rujiman.mediatracker.services.AnilistService;
 import com.rujiman.mediatracker.services.GameService;
+import com.rujiman.mediatracker.services.PlanService;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -62,6 +64,10 @@ public class DetailViewController {
     // y mantenible que pelear con esa limitación.
     @FXML private Button trailerButton;
 
+    // "Pienso ver/jugar/escuchar" + "Mover a Favoritos"
+    @FXML private Button planButton;
+    @FXML private Button moveToFavoritesButton;
+
     // Episodios (ANIME / SERIES)
     @FXML private Separator episodesSeparator;
     @FXML private VBox episodesSection;
@@ -88,6 +94,30 @@ public class DetailViewController {
 
     private MediaItem currentItem;
     private FavoriteItem currentFavorite;
+
+    /**
+     * Si este detalle se abrió desde una de las listas "Pienso ver/jugar/
+     * escuchar" (en vez de desde búsqueda o favoritos normales), aquí se
+     * guarda desde cuál exactamente y el ID del PlanItem correspondiente.
+     * null en ambos = el detalle NO viene del plan, así que el botón
+     * "Mover a Favoritos" no tiene sentido y se mantiene oculto.
+     * Se resetea a null en cada loadItem() y solo se vuelve a fijar si
+     * SearchController llama a setPlanContext() justo después.
+     */
+    private PlanService.ListKind currentPlanContext;
+    private String currentPlanItemId;
+
+    /**
+     * Marca que el item actual viene de una de las listas de plan. Debe
+     * llamarse DESPUÉS de loadItem(), ya que loadItem() resetea el
+     * contexto a null por defecto (asumiendo que no viene del plan,
+     * salvo que se indique explícitamente lo contrario aquí).
+     */
+    public void setPlanContext(PlanService.ListKind listKind, String planItemId) {
+        this.currentPlanContext = listKind;
+        this.currentPlanItemId = planItemId;
+        updateMoveToFavoritesButtonVisibility();
+    }
 
     /** Acción a ejecutar cuando se pulsa "Volver" (la define quien abre este detalle). */
     private Runnable onBackAction;
@@ -186,6 +216,12 @@ public class DetailViewController {
     public void loadItem(MediaItem item) {
         this.currentItem = item;
 
+        // Por defecto, asumimos que el detalle NO viene de una lista de
+        // plan; si sí viene, quien abre este detalle (SearchController)
+        // llamará a setPlanContext() justo después de loadItem().
+        this.currentPlanContext = null;
+        this.currentPlanItemId = null;
+
         // Cargar imagen con fade
         if (item.getImageUrl() != null && !item.getImageUrl().isBlank()) {
             new Thread(() -> {
@@ -272,6 +308,13 @@ public class DetailViewController {
         // MUSIC se queda sin esta sección, Deezer no da recomendaciones
         // fiables por canción/álbum)
         setupRecommendations(item);
+
+        // "Pienso ver/jugar/escuchar": qué lista corresponde según el
+        // tipo, y si ya está añadido o no. El botón "Mover a Favoritos"
+        // se actualiza aparte, en setPlanContext() (que se llama después
+        // de loadItem() solo si el detalle viene de una de estas listas).
+        setupPlanButton(item);
+        updateMoveToFavoritesButtonVisibility();
     }
 
     /**
@@ -985,6 +1028,122 @@ public class DetailViewController {
             currentFavorite = fav;
         }
         checkIfFavorite();
+    }
+
+    // ===========================================================
+    // "PIENSO VER / JUGAR / ESCUCHAR"
+    // ===========================================================
+
+    /**
+     * Determina a cuál de las 3 listas pertenece un tipo de contenido.
+     * SERIES/MOVIE/ANIME van todas a "Pienso ver" (WATCH), GAME a
+     * "Pienso jugar" (PLAY), MUSIC a "Pienso escuchar" (LISTEN).
+     */
+    private PlanService.ListKind listKindForType(MediaType type) {
+        if (type == MediaType.GAME) return PlanService.ListKind.PLAY;
+        if (type == MediaType.MUSIC) return PlanService.ListKind.LISTEN;
+        return PlanService.ListKind.WATCH; // SERIES, MOVIE, ANIME
+    }
+
+    private String planButtonLabelFor(MediaType type) {
+        return switch (listKindForType(type)) {
+            case WATCH -> "Pienso ver esto";
+            case PLAY -> "Pienso jugar esto";
+            case LISTEN -> "Pienso escuchar esto";
+        };
+    }
+
+    /**
+     * Configura el botón "Pienso ver/jugar/escuchar": el texto exacto
+     * depende del tipo del item, y si ya está añadido a su lista
+     * correspondiente, el botón cambia a "Quitar de..." en vez de
+     * duplicar la entrada.
+     */
+    private void setupPlanButton(MediaItem item) {
+        PlanService.ListKind kind = listKindForType(item.getType());
+        boolean inPlan = PlanService.isInPlan(kind, item.getTitle());
+
+        if (inPlan) {
+            planButton.setText("✕ Quitar de \"" + planButtonLabelFor(item.getType()) + "\"");
+        } else {
+            planButton.setText("📋 " + capitalize(planButtonLabelFor(item.getType())));
+        }
+    }
+
+    private String capitalize(String text) {
+        if (text == null || text.isBlank()) return text;
+        return text.substring(0, 1).toUpperCase() + text.substring(1);
+    }
+
+    @FXML
+    private void onTogglePlan() {
+        PlanService.ListKind kind = listKindForType(currentItem.getType());
+        boolean inPlan = PlanService.isInPlan(kind, currentItem.getTitle());
+
+        if (inPlan) {
+            // Buscar el PlanItem por título para poder quitarlo por ID
+            for (PlanItem planItem : PlanService.getItems(kind)) {
+                if (planItem.getTitle().equalsIgnoreCase(currentItem.getTitle())) {
+                    PlanService.removeItem(kind, planItem.getId());
+                    break;
+                }
+            }
+        } else {
+            PlanService.addItem(kind, new PlanItem(currentItem));
+        }
+
+        setupPlanButton(currentItem);
+    }
+
+    /**
+     * El botón "Mover a Favoritos" solo tiene sentido si este detalle se
+     * abrió desde una de las listas de plan (currentPlanContext no nulo).
+     * Se llama tanto desde loadItem() (lo oculta por defecto) como desde
+     * setPlanContext() (lo muestra si corresponde).
+     */
+    private void updateMoveToFavoritesButtonVisibility() {
+        boolean fromPlan = currentPlanContext != null && currentPlanItemId != null;
+        moveToFavoritesButton.setVisible(fromPlan);
+        moveToFavoritesButton.setManaged(fromPlan);
+    }
+
+    /**
+     * Mueve el item actual de su lista de plan a Favoritos: crea el
+     * FavoriteItem (con el mismo progreso de episodios que ya tuviera en
+     * el plan, si alguno) y elimina el PlanItem original. El usuario
+     * vuelve a quien le abrió este detalle (la propia lista de plan, ya
+     * actualizada al no contener este item).
+     */
+    @FXML
+    private void onMoveToFavorites() {
+        if (currentPlanContext == null || currentPlanItemId == null) return;
+
+        FavoriteItem fav = new FavoriteItem(currentItem);
+
+        // Si el item tenía progreso de episodios en el plan, lo
+        // trasladamos al nuevo favorito para no perderlo.
+        for (PlanItem planItem : PlanService.getItems(currentPlanContext)) {
+            if (planItem.getId().equals(currentPlanItemId)) {
+                fav.setTotalEpisodes(planItem.getTotalEpisodes());
+                fav.setWatchedEpisodes(planItem.getWatchedEpisodes());
+                fav.setViewed(planItem.isViewed());
+                break;
+            }
+        }
+
+        FavoritesService.addFavorite(fav);
+        PlanService.removeItem(currentPlanContext, currentPlanItemId);
+
+        currentFavorite = fav;
+        checkIfFavorite();
+
+        // Tras moverlo, ya no tiene sentido seguir mostrando "Mover a
+        // Favoritos" para este detalle (ya está movido); y el botón de
+        // plan debe reflejar que ya no está en esa lista.
+        currentPlanContext = null;
+        currentPlanItemId = null;
+        updateMoveToFavoritesButtonVisibility();
+        setupPlanButton(currentItem);
     }
 
     @FXML

@@ -150,6 +150,18 @@ public class SearchController {
         // Acelerar el scroll con la rueda del ratón (por defecto JavaFX se mueve muy poco)
         speedUpScroll(scrollPane);
 
+        // El FlowPane de resultados necesita conocer su ancho disponible
+        // real para decidir cuántas tarjetas caben por fila y saltar de
+        // línea correctamente. Sin este binding, el ancho se calculaba
+        // en el momento en que el ScrollPane pasaba de invisible a
+        // visible (al cambiar de filtro), y a veces quedaba "congelado"
+        // en un valor mínimo: todas las tarjetas se apilaban en una sola
+        // columna en la esquina superior izquierda, con el resto del
+        // espacio vacío. Vincular el prefWrapLength directamente al ancho
+        // del viewport interno del ScrollPane es la forma robusta de
+        // evitarlo, sin depender de en qué momento exacto se hace visible.
+        resultsGrid.prefWrapLengthProperty().bind(scrollPane.widthProperty().subtract(20));
+
         // Permitir buscar pulsando Enter en el campo de texto
         searchField.setOnAction(e -> onSearch());
 
@@ -530,7 +542,9 @@ public class SearchController {
 
         if (items.isEmpty()) {
             statusPane.setVisible(true);
+            statusPane.setManaged(true);
             scrollPane.setVisible(false);
+            scrollPane.setManaged(false);
             statusLabel.setText("Sin resultados para este filtro 🔍");
             statusLabel.setVisible(true);
             loadingSpinner.setVisible(false);
@@ -539,7 +553,9 @@ public class SearchController {
         }
 
         statusPane.setVisible(false);
+        statusPane.setManaged(false);
         scrollPane.setVisible(true);
+        scrollPane.setManaged(true);
 
         for (MediaItem item : items) {
             resultsGrid.getChildren().add(buildCard(item));

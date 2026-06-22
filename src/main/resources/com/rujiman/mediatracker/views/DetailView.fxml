@@ -89,6 +89,26 @@
                                     visible="false" managed="false"
                                     style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
                                     onAction="#onOpenTrailer"/>
+
+                            <!-- "Pienso ver/jugar/escuchar": el texto exacto
+                                 (lista a la que pertenece) se fija en el
+                                 controller según el tipo del item. -->
+                            <Button fx:id="planButton"
+                                    text="📋 Pienso ver esto"
+                                    minWidth="190"
+                                    styleClass="btn-pill-neutral"
+                                    onAction="#onTogglePlan"/>
+
+                            <!-- "Mover a Favoritos": solo visible cuando el
+                                 detalle se abrió desde una de las 3 listas
+                                 de "Pienso..." (no desde búsqueda/favoritos
+                                 normales) -->
+                            <Button fx:id="moveToFavoritesButton"
+                                    text="✓ Mover a Favoritos"
+                                    minWidth="190"
+                                    visible="false" managed="false"
+                                    style="-fx-background-color: #4dec9e; -fx-text-fill: #100c1c; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    onAction="#onMoveToFavorites"/>
                         </FlowPane>
 
                         <!-- Géneros: cada uno como una cápsula pequeña

@@ -143,6 +143,7 @@
                             fitToWidth="true"
                             VBox.vgrow="ALWAYS"
                             visible="false"
+                            managed="false"
                             styleClass="scroll-pane-transparent">
                     <FlowPane fx:id="resultsGrid"
                               hgap="16" vgap="16"
