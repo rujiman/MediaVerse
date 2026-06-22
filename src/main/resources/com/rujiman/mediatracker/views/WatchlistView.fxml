@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.rujiman.mediatracker.controllers.WatchlistViewController"
+            style="-fx-background-color: #0f0f1a;">
+
+    <top>
+        <VBox style="-fx-background-color: #1a1a2e; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
+            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Button fx:id="backButton"
+                        text="← Volver"
+                        onAction="#onBack"
+                        style="-fx-background-color: #16213e;
+                               -fx-text-fill: #eaeaea;
+                               -fx-font-size: 13px;
+                               -fx-font-weight: bold;
+                               -fx-padding: 8 18 8 18;
+                               -fx-background-radius: 8;
+                               -fx-cursor: hand;"/>
+
+                <Label fx:id="titleLabel"
+                       text="📺 Series vistas"
+                       style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 0 12;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox>
+            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+
+            <!-- Estado vacío -->
+            <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
+                <Label fx:id="statusLabel"
+                       text="Aquí no hay nada todavía"
+                       wrapText="true"
+                       style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
+            </StackPane>
+
+            <!-- Grid de resultados -->
+            <ScrollPane fx:id="scrollPane"
+                        fitToWidth="true"
+                        VBox.vgrow="ALWAYS"
+                        visible="false"
+                        managed="false"
+                        style="-fx-background: transparent;
+                               -fx-background-color: transparent;
+                               -fx-border-color: transparent;">
+                <FlowPane fx:id="resultsGrid"
+                          hgap="16" vgap="16"
+                          style="-fx-background-color: transparent;">
+                    <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+                </FlowPane>
+            </ScrollPane>
+
+        </VBox>
+    </center>
+
+</BorderPane>
