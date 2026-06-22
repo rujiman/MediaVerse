@@ -82,30 +82,38 @@ public class FavoritesViewController {
 
     /**
      * Actualiza el estilo visual de los botones de filtro: el seleccionado
-     * se pinta en rosa (color de marca), el resto en el fondo oscuro normal.
-     * El ToggleGroup por sí solo solo cambia la selección lógica, no el
-     * color de fondo, así que sin esto no se notaba visualmente qué
-     * filtro estaba activo (mismo bug que ya arreglamos en SearchController).
+     * se pinta con el color de SU PROPIA sección (cian=Juegos, violeta=Series,
+     * magenta=Anime, menta=Música, ámbar=Películas; "Todo" usa el rosa de
+     * marca, al no representar una sección concreta), el resto en el fondo
+     * oscuro normal. El ToggleGroup por sí solo solo cambia la selección
+     * lógica, no el color de fondo, así que sin esto no se notaba
+     * visualmente qué filtro estaba activo (mismo bug que ya arreglamos en
+     * SearchController, donde se usa la misma lógica de colores).
      */
     private void updateFilterButtonStyles() {
-        ToggleButton[] allFilters = { filterAll, filterAnime, filterSeries, filterMovie, filterMusic, filterGame };
+        updateSingleFilterStyle(filterAll, "#ec4d80");
+        updateSingleFilterStyle(filterAnime, "#ec4dc0");
+        updateSingleFilterStyle(filterSeries, "#8b5cf6");
+        updateSingleFilterStyle(filterMovie, "#ecb14d");
+        updateSingleFilterStyle(filterMusic, "#4dec9e");
+        updateSingleFilterStyle(filterGame, "#4dd9ec");
+    }
 
-        for (ToggleButton btn : allFilters) {
-            boolean selected = btn.isSelected();
-            String bgColor = selected ? "#e94560" : "#16213e";
-            String textColor = selected ? "white" : "#eaeaea";
-            String fontWeight = selected ? "-fx-font-weight: bold;" : "";
+    private void updateSingleFilterStyle(ToggleButton btn, String accentHexWhenSelected) {
+        boolean selected = btn.isSelected();
+        String bgColor = selected ? accentHexWhenSelected : "#1c1730";
+        String textColor = selected ? "white" : "#f0eef5";
+        String fontWeight = selected ? "-fx-font-weight: bold;" : "";
 
-            btn.setStyle(
-                    "-fx-background-color: " + bgColor + ";" +
-                            "-fx-text-fill: " + textColor + ";" +
-                            "-fx-font-size: 11px;" +
-                            fontWeight +
-                            "-fx-background-radius: 14;" +
-                            "-fx-padding: 5 14 5 14;" +
-                            "-fx-cursor: hand;"
-            );
-        }
+        btn.setStyle(
+                "-fx-background-color: " + bgColor + ";" +
+                        "-fx-text-fill: " + textColor + ";" +
+                        "-fx-font-size: 11px;" +
+                        fontWeight +
+                        "-fx-background-radius: 14;" +
+                        "-fx-padding: 5 14 5 14;" +
+                        "-fx-cursor: hand;"
+        );
     }
 
     @FXML
@@ -317,11 +325,11 @@ public class FavoritesViewController {
     private String typeLabel(MediaType type) {
         if (type == null) return "";
         return switch (type) {
-            case ANIME -> "🎌 Anime";
-            case SERIES -> "📺 Series";
-            case MOVIE -> "🎬 Película";
-            case MUSIC -> "🎵 Música";
-            case GAME -> "🎮 Juego";
+            case ANIME -> "🎌 ANIME";
+            case SERIES -> "📺 SERIES";
+            case MOVIE -> "🎬 PELÍCULA";
+            case MUSIC -> "🎵 MÚSICA";
+            case GAME -> "🎮 JUEGO";
         };
     }
 

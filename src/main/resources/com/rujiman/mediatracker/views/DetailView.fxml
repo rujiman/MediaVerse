@@ -8,31 +8,25 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.rujiman.mediatracker.controllers.DetailViewController"
-            style="-fx-background-color: #0f0f1a;">
+            styleClass="bg-base">
 
     <top>
         <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 20 0 20;">
             <Button fx:id="backButton"
                     text="← Volver"
                     onAction="#onBack"
-                    style="-fx-background-color: #16213e;
-                           -fx-text-fill: #eaeaea;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;
-                           -fx-padding: 8 18 8 18;
-                           -fx-background-radius: 8;
-                           -fx-cursor: hand;"/>
+                    styleClass="btn-pill-neutral"/>
         </HBox>
     </top>
 
     <center>
         <ScrollPane fx:id="detailScroll"
                     fitToWidth="true"
-                    style="-fx-background-color: #0f0f1a; -fx-border-color: transparent;">
-            
+                    styleClass="scroll-pane-transparent, bg-base">
+
             <VBox fx:id="detailContainer"
                   spacing="16"
-                  style="-fx-background-color: #0f0f1a;">
+                  styleClass="bg-base">
                 <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
                 <!-- Encabezado con Imagen y Título -->
@@ -45,80 +39,55 @@
 
                     <!-- Información -->
                     <VBox spacing="12" HBox.hgrow="ALWAYS">
-                        <!-- Título -->
+                        <!-- Título: el color se fija dinámicamente en el
+                             controller según el tipo del item (cian=Juego,
+                             violeta=Series, magenta=Anime, etc.), por eso
+                             no tiene clase CSS fija aquí. -->
                         <Label fx:id="detailTitle"
                                text="Título"
                                wrapText="true"
-                               style="-fx-text-fill: #e94560;
-                                      -fx-font-size: 24px;
-                                      -fx-font-weight: bold;"/>
+                               style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
                         <!-- Año y Puntuación -->
                         <HBox spacing="20">
-                            <Label fx:id="detailYear"
-                                   text="2023"
-                                   style="-fx-text-fill: #555577; -fx-font-size: 12px;"/>
-                            <Label fx:id="detailScore"
-                                   text="⭐ 85/100"
-                                   style="-fx-text-fill: #2ecc71; -fx-font-size: 12px;"/>
+                            <Label fx:id="detailYear" text="2023" styleClass="text-dim"/>
+                            <Label fx:id="detailScore" text="⭐ 85/100" styleClass="text-success"/>
                         </HBox>
 
                         <!-- Valoración personal (1-5 estrellas), independiente de la puntuación de la API -->
                         <HBox spacing="6" alignment="CENTER_LEFT">
-                            <Label text="Tu valoración:"
-                                   style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                            <Label text="Tu valoración:" styleClass="text-dim"/>
                             <HBox fx:id="userRatingStars" spacing="2"/>
                         </HBox>
 
                         <!-- Botones -->
                         <FlowPane hgap="10" vgap="10">
+                            <!-- Favorito: color dinámico de sección, fijado
+                                 en el controller (igual que el título) -->
                             <Button fx:id="favoriteButton"
                                     text="⭐ Agregar a favoritos"
                                     minWidth="190"
-                                    style="-fx-background-color: #e94560;
-                                           -fx-text-fill: white;
-                                           -fx-font-weight: bold;
-                                           -fx-font-size: 12px;
-                                           -fx-padding: 10 16 10 16;
-                                           -fx-background-radius: 8;
-                                           -fx-cursor: hand;"
+                                    style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
                                     onAction="#onToggleFavorite"/>
-                            
+
                             <Button fx:id="viewedButton"
                                     text="Marcar como visto"
                                     minWidth="170"
-                                    style="-fx-background-color: #16213e;
-                                           -fx-text-fill: #eaeaea;
-                                           -fx-font-weight: bold;
-                                           -fx-font-size: 12px;
-                                           -fx-padding: 10 16 10 16;
-                                           -fx-background-radius: 8;
-                                           -fx-cursor: hand;"
+                                    styleClass="btn-pill-neutral"
                                     onAction="#onToggleViewed"/>
-                            
+
                             <Button fx:id="openExternalButton"
                                     text="Abrir en navegador"
                                     minWidth="170"
-                                    style="-fx-background-color: #0078d4;
-                                           -fx-text-fill: white;
-                                           -fx-font-weight: bold;
-                                           -fx-font-size: 12px;
-                                           -fx-padding: 10 16 10 16;
-                                           -fx-background-radius: 8;
-                                           -fx-cursor: hand;"
+                                    style="-fx-background-color: #0078d4; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
                                     onAction="#onOpenExternal"/>
 
+                            <!-- Tráiler: también color dinámico de sección -->
                             <Button fx:id="trailerButton"
                                     text="▶ Ver tráiler en YouTube"
                                     minWidth="190"
                                     visible="false" managed="false"
-                                    style="-fx-background-color: #e94560;
-                                           -fx-text-fill: white;
-                                           -fx-font-weight: bold;
-                                           -fx-font-size: 12px;
-                                           -fx-padding: 10 16 10 16;
-                                           -fx-background-radius: 8;
-                                           -fx-cursor: hand;"
+                                    style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
                                     onAction="#onOpenTrailer"/>
                         </FlowPane>
 
@@ -126,116 +95,85 @@
                         <Label fx:id="detailGenres"
                                text="Géneros: Acción, Aventura"
                                wrapText="true"
-                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                               styleClass="text-dim"/>
 
                         <!-- Plataformas -->
                         <Label fx:id="detailPlatforms"
                                text="Plataformas: Netflix, Prime Video"
                                wrapText="true"
-                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                               styleClass="text-dim"/>
 
-                        <!-- Preview de 30s (solo MUSIC, canciones sueltas con preview de Deezer) -->
+                        <!-- Preview de 30s (solo MUSIC, canciones sueltas con preview de Deezer);
+                             usa el color de Música (menta) fijo, ya que esta sección
+                             solo aparece para items de tipo MUSIC -->
                         <VBox fx:id="previewSection" spacing="6" visible="false" managed="false">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Button fx:id="previewButton"
                                         text="▶ Escuchar preview (30s)"
                                         minWidth="190"
-                                        style="-fx-background-color: #2ecc71;
-                                               -fx-text-fill: white;
-                                               -fx-font-weight: bold;
-                                               -fx-font-size: 12px;
-                                               -fx-padding: 10 16 10 16;
-                                               -fx-background-radius: 8;
-                                               -fx-cursor: hand;"
+                                        styleClass="btn-circle-music"
+                                        style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
                                         onAction="#onTogglePreview"/>
-                                <Label fx:id="previewTimeLabel"
-                                       text="0:00 / 0:30"
-                                       style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                                <Label fx:id="previewTimeLabel" text="0:00 / 0:30" styleClass="text-dim"/>
                             </HBox>
                             <ProgressBar fx:id="previewProgressBar"
                                          progress="0"
                                          prefWidth="260"
-                                         style="-fx-accent: #2ecc71;"/>
+                                         style="-fx-accent: #4dec9e;"/>
                         </VBox>
                     </VBox>
                 </HBox>
 
                 <!-- Separador -->
-                <Separator style="-fx-text-fill: #16213e;"/>
+                <Separator styleClass="separator-line"/>
 
                 <!-- Descripción -->
                 <VBox spacing="8">
-                    <Label text="Descripción"
-                           style="-fx-text-fill: #e94560;
-                                  -fx-font-size: 14px;
-                                  -fx-font-weight: bold;"/>
+                    <Label text="Descripción" styleClass="text-title" style="-fx-font-size: 14px;"/>
                     <Label fx:id="detailDescription"
                            text="Descripción del contenido..."
                            wrapText="true"
-                           style="-fx-text-fill: #eaeaea;
-                                  -fx-font-size: 12px;
-                                  -fx-line-spacing: 4;"/>
+                           styleClass="text-body"
+                           style="-fx-line-spacing: 4;"/>
                 </VBox>
 
                 <!-- Separador antes de episodios -->
-                <Separator fx:id="episodesSeparator" style="-fx-text-fill: #16213e;" visible="false" managed="false"/>
+                <Separator fx:id="episodesSeparator" styleClass="separator-line" visible="false" managed="false"/>
 
-                <!-- Episodios (solo ANIME / SERIES) -->
+                <!-- Episodios (solo ANIME / SERIES); la cabecera usa el
+                     color dinámico de sección (violeta=Series, magenta=Anime) -->
                 <VBox fx:id="episodesSection" spacing="10" visible="false" managed="false">
 
                     <HBox alignment="CENTER_LEFT" spacing="12">
                         <Label fx:id="episodesHeaderLabel"
                                text="Episodios"
-                               style="-fx-text-fill: #e94560;
-                                      -fx-font-size: 14px;
-                                      -fx-font-weight: bold;"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold;"
                                HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
 
                         <Button fx:id="markAllWatchedButton"
                                 text="✔ Marcar todos"
                                 onAction="#onMarkAllEpisodesWatched"
-                                style="-fx-background-color: #2ecc71;
-                                       -fx-text-fill: white;
-                                       -fx-font-size: 11px;
-                                       -fx-font-weight: bold;
-                                       -fx-padding: 6 12 6 12;
-                                       -fx-background-radius: 6;
-                                       -fx-cursor: hand;"/>
+                                style="-fx-background-color: #4dec9e; -fx-text-fill: #100c1c; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 6 12 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
 
                         <Button fx:id="unmarkAllWatchedButton"
                                 text="✗ Desmarcar todos"
                                 onAction="#onUnmarkAllEpisodesWatched"
-                                style="-fx-background-color: #16213e;
-                                       -fx-text-fill: #eaeaea;
-                                       -fx-font-size: 11px;
-                                       -fx-font-weight: bold;
-                                       -fx-padding: 6 12 6 12;
-                                       -fx-background-radius: 6;
-                                       -fx-cursor: hand;"/>
+                                styleClass="btn-pill-neutral"
+                                style="-fx-font-size: 11px; -fx-padding: 6 12 6 12; -fx-background-radius: 6;"/>
                     </HBox>
 
                     <!-- Ir directamente a un episodio concreto: marca del 1 a ese número -->
                     <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="Ya he visto hasta el episodio"
-                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                        <Label text="Ya he visto hasta el episodio" styleClass="text-dim"/>
                         <TextField fx:id="jumpToEpisodeField"
                                    promptText="nº"
                                    prefWidth="60"
-                                   style="-fx-background-color: #16213e;
-                                          -fx-text-fill: #eaeaea;
-                                          -fx-prompt-text-fill: #555577;
-                                          -fx-background-radius: 6;
-                                          -fx-font-size: 11px;"/>
+                                   styleClass="text-field-base"
+                                   style="-fx-background-radius: 6; -fx-padding: 4 8 4 8; -fx-font-size: 11px;"/>
                         <Button fx:id="jumpToEpisodeButton"
                                 text="Ir"
                                 onAction="#onJumpToEpisode"
-                                style="-fx-background-color: #0078d4;
-                                       -fx-text-fill: white;
-                                       -fx-font-size: 11px;
-                                       -fx-font-weight: bold;
-                                       -fx-padding: 5 14 5 14;
-                                       -fx-background-radius: 6;
-                                       -fx-cursor: hand;"/>
+                                style="-fx-background-color: #0078d4; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 5 14 5 14; -fx-background-radius: 6; -fx-cursor: hand;"/>
                     </HBox>
 
                     <VBox fx:id="episodesList" spacing="6"/>
@@ -243,9 +181,7 @@
 
                 <!-- Canciones del álbum (solo MUSIC tipo álbum, solo total por ahora) -->
                 <VBox fx:id="trackCountSection" spacing="4" visible="false" managed="false">
-                    <Label fx:id="trackCountLabel"
-                           text="🎵 0 canciones"
-                           style="-fx-text-fill: #555577; -fx-font-size: 12px;"/>
+                    <Label fx:id="trackCountLabel" text="🎵 0 canciones" styleClass="text-dim"/>
                 </VBox>
 
             </VBox>

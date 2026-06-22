@@ -10,10 +10,10 @@
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.rujiman.mediatracker.controllers.SearchController">
 
-<BorderPane style="-fx-background-color: #0f0f1a;">
+<BorderPane styleClass="bg-base">
 
     <top>
-        <VBox style="-fx-background-color: #1a1a2e; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
+        <VBox style="-fx-background-color: #1c1730; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
             <padding><Insets top="16" right="20" bottom="12" left="20"/></padding>
             <HBox spacing="12" alignment="CENTER">
 
@@ -23,7 +23,7 @@
                             text="☰"
                             onAction="#toggleNavMenu"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: #eaeaea;
+                                   -fx-text-fill: #f0eef5;
                                    -fx-font-size: 20px;
                                    -fx-cursor: hand;
                                    -fx-padding: 0 4 0 0;"/>
@@ -33,8 +33,7 @@
                             <Image url="@icons/mediaverse_logo.png"/>
                         </image>
                     </ImageView>
-                    <Label text="Mediaverse"
-                           style="-fx-text-fill: #e94560; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <Label text="Mediaverse" styleClass="text-title" style="-fx-font-size: 20px;"/>
 
                     <!-- Volver a Inicio: solo visible en modo Búsqueda, para no
                          depender de abrir el menú lateral solo para volver -->
@@ -42,13 +41,8 @@
                             text="← Volver"
                             onAction="#goHome"
                             visible="false" managed="false"
-                            style="-fx-background-color: #16213e;
-                                   -fx-text-fill: #eaeaea;
-                                   -fx-font-size: 12px;
-                                   -fx-font-weight: bold;
-                                   -fx-padding: 6 14 6 14;
-                                   -fx-background-radius: 8;
-                                   -fx-cursor: hand;"/>
+                            styleClass="btn-pill-neutral"
+                            style="-fx-font-size: 12px; -fx-padding: 6 14 6 14;"/>
                 </HBox>
 
                 <!-- ESPACIO FLEXIBLE -->
@@ -59,23 +53,12 @@
                     <TextField fx:id="searchField"
                                promptText="Buscar anime, series, pelis , música o videojuegos..."
                                prefWidth="340"
-                               style="-fx-background-color: #16213e;
-                          -fx-text-fill: #eaeaea;
-                          -fx-prompt-text-fill: #555577;
-                          -fx-border-color: #e94560;
-                          -fx-border-radius: 20;
-                          -fx-background-radius: 20;
-                          -fx-padding: 8 16 8 16;
-                          -fx-font-size: 13px;"/>
+                               styleClass="text-field-base"
+                               style="-fx-border-color: #ec4d80; -fx-border-radius: 20;"/>
                     <Button fx:id="searchButton"
                             text="Buscar"
                             onAction="#onSearch"
-                            style="-fx-background-color: #e94560;
-                       -fx-text-fill: white;
-                       -fx-font-weight: bold;
-                       -fx-background-radius: 20;
-                       -fx-padding: 8 20 8 20;
-                       -fx-cursor: hand;"/>
+                            styleClass="btn-pill-brand"/>
                 </HBox>
 
                 <!-- ESPACIO FLEXIBLE -->
@@ -86,7 +69,7 @@
                            prefWidth="32" prefHeight="32"
                            maxWidth="32" maxHeight="32"
                            onMouseClicked="#toggleProfileMenu"
-                           style="-fx-background-color: #e94560;
+                           style="-fx-background-color: #ec4d80;
                                   -fx-background-radius: 50;
                                   -fx-cursor: hand;">
                     <ImageView fx:id="profileIcon"
@@ -106,22 +89,22 @@
             <HBox fx:id="filterBarBox" spacing="8" alignment="CENTER_LEFT" visible="false" managed="false" style="-fx-padding: 12 0 0 0;">
                 <ToggleButton fx:id="filterAll" text="Todo" selected="true"
                               onAction="#onFilterChanged"
-                              style="-fx-background-color: #e94560; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                              styleClass="filter-toggle"/>
                 <ToggleButton fx:id="filterAnime" text="🎌 Anime"
                               onAction="#onFilterChanged"
-                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                              styleClass="filter-toggle"/>
                 <ToggleButton fx:id="filterSeries" text="📺 Series"
                               onAction="#onFilterChanged"
-                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                              styleClass="filter-toggle"/>
                 <ToggleButton fx:id="filterMovie" text="🎬 Películas"
                               onAction="#onFilterChanged"
-                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                              styleClass="filter-toggle"/>
                 <ToggleButton fx:id="filterMusic" text="🎵 Música"
                               onAction="#onFilterChanged"
-                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                              styleClass="filter-toggle"/>
                 <ToggleButton fx:id="filterGame" text="🎮 Juegos"
                               onAction="#onFilterChanged"
-                              style="-fx-background-color: #16213e; -fx-text-fill: #eaeaea; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 14 5 14; -fx-cursor: hand;"/>
+                              styleClass="filter-toggle"/>
             </HBox>
         </VBox>
     </top>
@@ -145,12 +128,13 @@
                                            visible="false"
                                            managed="false"
                                            prefWidth="48" prefHeight="48"
-                                           style="-fx-progress-color: #e94560;"/>
+                                           style="-fx-progress-color: #ec4d80;"/>
                         <Label fx:id="statusLabel"
                                text="Busca tu próxima obsesión: anime, series, pelis, música o videojuegos ✨"
                                wrapText="true"
                                textAlignment="CENTER"
-                               style="-fx-text-fill: #555577; -fx-font-size: 16px;"/>
+                               styleClass="text-dim"
+                               style="-fx-font-size: 16px;"/>
                     </VBox>
                 </StackPane>
 
@@ -159,12 +143,10 @@
                             fitToWidth="true"
                             VBox.vgrow="ALWAYS"
                             visible="false"
-                            style="-fx-background: transparent;
-                                   -fx-background-color: transparent;
-                                   -fx-border-color: transparent;">
+                            styleClass="scroll-pane-transparent">
                     <FlowPane fx:id="resultsGrid"
                               hgap="16" vgap="16"
-                              style="-fx-background-color: transparent;">
+                              styleClass="bg-transparent">
                         <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
                     </FlowPane>
                 </ScrollPane>
@@ -191,7 +173,7 @@
          (el toggle nunca dejó de hacer su trabajo), pero no se veía para
          poder pulsarlo y cerrar el menú. -->
     <StackPane fx:id="sideMenu" visible="false"
-               style="-fx-background-color: #1a1a2e;
+               style="-fx-background-color: #1c1730;
                       -fx-effect: dropshadow(gaussian, #000000cc, 20, 0, 4, 0);"
                prefWidth="270" maxWidth="270"
                StackPane.alignment="TOP_LEFT">
@@ -203,7 +185,7 @@
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <StackPane prefWidth="40" prefHeight="40"
                            maxWidth="40" maxHeight="40"
-                           style="-fx-background-color: #e94560; -fx-background-radius: 50;">
+                           style="-fx-background-color: #ec4d80; -fx-background-radius: 50;">
                     <ImageView fx:id="navProfilePicture"
                                fitWidth="40" fitHeight="40"
                                preserveRatio="true"
@@ -216,67 +198,67 @@
                 <Label fx:id="welcomeLabel"
                        text="Bienvenido a tu galaxia, Usuario"
                        wrapText="true"
-                       style="-fx-text-fill: #eaeaea; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                       styleClass="text-heading"/>
             </HBox>
 
             <Separator/>
 
             <Button text="🏠 Inicio"
                     onAction="#goHome"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav"/>
 
             <Button text="🔍 Buscar"
                     onAction="#goSearch"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav"/>
 
             <Button text="⭐ Favoritos"
                     onAction="#openFavorites"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav"/>
 
             <Button text="📺 Series vistas"
                     onAction="#openWatchedSeries"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-series"/>
 
             <Button text="▶️ Series viendo"
                     onAction="#openWatchingSeries"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-series"/>
 
             <Button text="🎌 Anime vistos"
                     onAction="#openWatchedAnime"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-anime"/>
 
             <Button text="🎌 Anime viendo"
                     onAction="#openWatchingAnime"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-anime"/>
 
             <Button text="🎬 Películas vistas"
                     onAction="#openWatchedMovies"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-movie"/>
 
             <Button text="🎮 Juegos jugados"
                     onAction="#openGames"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-game"/>
 
             <Button text="🎵 Música escuchada"
                     onAction="#openListenedMusic"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-music"/>
 
             <Separator/>
 
             <Button text="Cerrar sesión"
                     onAction="#logout"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 13px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"/>
 
         </VBox>
 
@@ -295,7 +277,7 @@
          fondo oscuro tapaba toda la app, aunque el contenido interno
          se viera centrado dentro de ese fondo gigante). -->
     <StackPane fx:id="profileMenu" visible="false" managed="false"
-               style="-fx-background-color: #1a1a2e;
+               style="-fx-background-color: #1c1730;
                       -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
                       -fx-background-radius: 12;"
                prefWidth="220" maxWidth="220"
@@ -309,7 +291,7 @@
             <StackPane prefWidth="64" prefHeight="64"
                        maxWidth="64" maxHeight="64"
                        onMouseClicked="#onChangeProfilePicture"
-                       style="-fx-background-color: #e94560;
+                       style="-fx-background-color: #ec4d80;
                               -fx-background-radius: 50;
                               -fx-cursor: hand;">
                 <ImageView fx:id="profilePicture"
@@ -330,19 +312,20 @@
 
             <Button text="Cambiar nombre de usuario"
                     onAction="#onChangeUsername"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"
+                    style="-fx-font-size: 12px;"/>
 
             <Button text="Cambiar contraseña"
                     onAction="#onChangePassword"
-                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #e94560; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"
+                    style="-fx-font-size: 12px;"/>
         </VBox>
     </StackPane>
 
     <!-- OVERLAY DE DETALLE (tercera capa, flota sobre todo, incluido el menú lateral) -->
-    <StackPane fx:id="detailOverlayContainer" visible="false"
-               style="-fx-background-color: #0f0f1a;">
+    <StackPane fx:id="detailOverlayContainer" visible="false" styleClass="bg-base">
         <!-- El contenido de DetailView.fxml se inyecta aquí dinámicamente -->
     </StackPane>
 

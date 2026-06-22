@@ -85,12 +85,32 @@ public class WatchlistViewController {
 
         if (titleLabel != null) {
             titleLabel.setText(displayTitle);
+            // El título se pinta con el color de acento de SU sección
+            // (violeta=Series, magenta=Anime, etc.), igual que ya hacemos
+            // en DetailView, para que cada una de las 6 listas del menú
+            // lateral se sienta visualmente parte de su propia sección.
+            titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 0 12; -fx-text-fill: " + sectionAccentHex(type) + ";");
         }
         if (statusLabel != null) {
             statusLabel.setText(emptyMessage);
         }
 
         refresh();
+    }
+
+    /**
+     * Devuelve el hex de acento de la sección, según la paleta
+     * "Constelaciones" de theme.css.
+     */
+    private String sectionAccentHex(MediaType type) {
+        if (type == null) return "#ec4d80";
+        return switch (type) {
+            case GAME -> "#4dd9ec";
+            case SERIES -> "#8b5cf6";
+            case ANIME -> "#ec4dc0";
+            case MUSIC -> "#4dec9e";
+            case MOVIE -> "#ecb14d";
+        };
     }
 
     @FXML
@@ -269,11 +289,11 @@ public class WatchlistViewController {
     private String typeLabel(MediaType type) {
         if (type == null) return "";
         return switch (type) {
-            case ANIME -> "🎌 Anime";
-            case SERIES -> "📺 Series";
-            case MOVIE -> "🎬 Película";
-            case MUSIC -> "🎵 Música";
-            case GAME -> "🎮 Juego";
+            case ANIME -> "🎌 ANIME";
+            case SERIES -> "📺 SERIES";
+            case MOVIE -> "🎬 PELÍCULA";
+            case MUSIC -> "🎵 MÚSICA";
+            case GAME -> "🎮 JUEGO";
         };
     }
 

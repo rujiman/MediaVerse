@@ -227,30 +227,52 @@ public class SearchController {
 
     /**
      * Actualiza el estilo visual de los botones de filtro: el seleccionado
-     * se pinta en rosa (color de marca), el resto en el fondo oscuro normal.
-     * Sin esto, el ToggleGroup cambia la selección lógica pero el color de
-     * fondo se queda igual, así que no se notaba visualmente qué filtro
-     * estaba activo.
+     * se pinta con el color de SU PROPIA sección (cian=Juegos, violeta=Series,
+     * magenta=Anime, menta=Música, ámbar=Películas; "Todo" usa el rosa de
+     * marca, al no representar una sección concreta), el resto en el fondo
+     * oscuro normal. Sin esto, el ToggleGroup cambia la selección lógica
+     * pero el color de fondo se queda igual, así que no se notaba
+     * visualmente qué filtro estaba activo.
      */
     private void updateFilterButtonStyles() {
-        ToggleButton[] allFilters = { filterAll, filterAnime, filterSeries, filterMovie, filterMusic, filterGame };
+        updateSingleFilterStyle(filterAll, "#ec4d80");
+        updateSingleFilterStyle(filterAnime, "#ec4dc0");
+        updateSingleFilterStyle(filterSeries, "#8b5cf6");
+        updateSingleFilterStyle(filterMovie, "#ecb14d");
+        updateSingleFilterStyle(filterMusic, "#4dec9e");
+        updateSingleFilterStyle(filterGame, "#4dd9ec");
+    }
 
-        for (ToggleButton btn : allFilters) {
-            boolean selected = btn.isSelected();
-            String bgColor = selected ? "#e94560" : "#16213e";
-            String textColor = selected ? "white" : "#eaeaea";
-            String fontWeight = selected ? "-fx-font-weight: bold;" : "";
+    private void updateSingleFilterStyle(ToggleButton btn, String accentHexWhenSelected) {
+        boolean selected = btn.isSelected();
+        String bgColor = selected ? accentHexWhenSelected : "#1c1730";
+        String textColor = selected ? "white" : "#f0eef5";
+        String fontWeight = selected ? "-fx-font-weight: bold;" : "";
 
-            btn.setStyle(
-                    "-fx-background-color: " + bgColor + ";" +
-                            "-fx-text-fill: " + textColor + ";" +
-                            "-fx-font-size: 11px;" +
-                            fontWeight +
-                            "-fx-background-radius: 14;" +
-                            "-fx-padding: 5 14 5 14;" +
-                            "-fx-cursor: hand;"
-            );
-        }
+        btn.setStyle(
+                "-fx-background-color: " + bgColor + ";" +
+                        "-fx-text-fill: " + textColor + ";" +
+                        "-fx-font-size: 11px;" +
+                        fontWeight +
+                        "-fx-background-radius: 14;" +
+                        "-fx-padding: 5 14 5 14;" +
+                        "-fx-cursor: hand;"
+        );
+    }
+
+    /**
+     * Devuelve el hex de acento de la sección, según la paleta
+     * "Constelaciones" de theme.css.
+     */
+    private String sectionAccentHex(MediaType type) {
+        if (type == null) return "#ec4d80";
+        return switch (type) {
+            case GAME -> "#4dd9ec";
+            case SERIES -> "#8b5cf6";
+            case ANIME -> "#ec4dc0";
+            case MUSIC -> "#4dec9e";
+            case MOVIE -> "#ecb14d";
+        };
     }
 
     /**
@@ -585,16 +607,10 @@ public class SearchController {
         imageContainer.getChildren().addAll(cover, favButton);
         StackPane.setMargin(favButton, new javafx.geometry.Insets(6));
 
-        // ---- Badge de tipo (esquina superior izquierda) ----
+        // ---- Badge de tipo (esquina superior izquierda), con el color
+        //      de acento de su propia sección ----
         Label typeBadge = new Label(typeLabel(item.getType()));
-        typeBadge.setStyle(
-                "-fx-background-color: #e94560;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 9px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-padding: 2 8 2 8;" +
-                        "-fx-background-radius: 10;"
-        );
+        typeBadge.getStyleClass().add(badgeClassFor(item.getType()));
         StackPane.setAlignment(typeBadge, Pos.TOP_LEFT);
         StackPane.setMargin(typeBadge, new javafx.geometry.Insets(6));
         imageContainer.getChildren().add(typeBadge);
@@ -637,11 +653,26 @@ public class SearchController {
     private String typeLabel(MediaType type) {
         if (type == null) return "";
         return switch (type) {
-            case ANIME -> "🎌 Anime";
-            case SERIES -> "📺 Series";
-            case MOVIE -> "🎬 Película";
-            case MUSIC -> "🎵 Música";
-            case GAME -> "🎮 Juego";
+            case ANIME -> "🎌 ANIME";
+            case SERIES -> "📺 SERIES";
+            case MOVIE -> "🎬 PELÍCULA";
+            case MUSIC -> "🎵 MÚSICA";
+            case GAME -> "🎮 JUEGO";
+        };
+    }
+
+    /**
+     * Clase CSS del badge de tipo, con el color de acento de su propia
+     * sección (ver theme.css), en vez de un rojo fijo para todos los tipos.
+     */
+    private String badgeClassFor(MediaType type) {
+        if (type == null) return "badge-series";
+        return switch (type) {
+            case GAME -> "badge-game";
+            case SERIES -> "badge-series";
+            case ANIME -> "badge-anime";
+            case MUSIC -> "badge-music";
+            case MOVIE -> "badge-movie";
         };
     }
 

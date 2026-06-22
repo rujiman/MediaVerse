@@ -253,6 +253,7 @@ public class HomeController {
         if (candidates.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             styleDialogDark(alert.getDialogPane());
+            darkenDialogWindow(alert.getDialogPane());
             alert.setHeaderText(null);
             alert.setContentText("Todavía no tienes favoritos de " + sectionDisplayName +
                     ".\nBusca contenido y añádelo a favoritos (⭐) para poder elegirlo aquí.");
@@ -289,12 +290,29 @@ public class HomeController {
         updateLimitState.run();
 
         VBox content = new VBox(0, limitLabel, grid);
+        content.setStyle("-fx-background-color: #1c1730;");
 
         ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
         scroll.setPrefSize(560, 420);
-        scroll.getStyleClass().add("bg-panel-flat");
-        scroll.setStyle("-fx-border-color: transparent;");
+        scroll.setStyle("-fx-background-color: #1c1730; -fx-background: #1c1730; -fx-border-color: transparent;");
+
+        // El .viewport interno de un ScrollPane es un nodo aparte que no
+        // hereda fondo del propio ScrollPane (mismo bug ya resuelto en
+        // HomeController.applyViewportBackground() y DetailViewController
+        // para los ScrollPane principales de la app) — aquí no existía
+        // hasta ahora porque este ScrollPane se crea por código en vez de
+        // venir de un FXML, así que nunca se le aplicó el mismo parche.
+        scroll.applyCss();
+        javafx.scene.Node viewport = scroll.lookup(".viewport");
+        if (viewport != null) {
+            viewport.setStyle("-fx-background-color: #1c1730;");
+        } else {
+            javafx.application.Platform.runLater(() -> {
+                javafx.scene.Node vp = scroll.lookup(".viewport");
+                if (vp != null) vp.setStyle("-fx-background-color: #1c1730;");
+            });
+        }
 
         dialog.getDialogPane().setContent(scroll);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -464,18 +482,42 @@ public class HomeController {
 
     /**
      * Fuerza la paleta oscura de la app en un DialogPane de JavaFX, que
-     * por defecto usa el tema claro del sistema (causaba texto blanco
-     * invisible sobre fondo claro en los selectores). Los Dialog/Alert
-     * de JavaFX no siempre heredan el CSS de la Scene padre de forma
-     * fiable, así que aquí se sigue forzando por código en vez de con
-     * una clase CSS aplicada desde el FXML.
+     * por defecto usa el tema claro del sistema. El problema real no es
+     * solo el DialogPane en sí, sino un "header-panel" interno que JavaFX
+     * añade automáticamente por encima del contenido cuando el Dialog
+     * tiene título (visible como una franja blanca entre la barra de
+     * título del sistema y el contenido real) — ese header-panel no se
+     * pinta con pane.setStyle() porque vive dentro del propio DialogPane
+     * como un nodo hijo, así que hay que buscarlo explícitamente con
+     * lookup() y forzar también su fondo.
      */
     private void styleDialogDark(DialogPane pane) {
+        pane.getStylesheets().add(
+                getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
+        );
+        pane.getStyleClass().add("bg-panel-flat");
         pane.setStyle(
                 "-fx-background-color: #1c1730;" +
                         "-fx-text-fill: #f0eef5;"
         );
+
+        // El header-panel (franja con el título grande/icono que JavaFX
+        // pinta automáticamente) y el content.label no heredan el fondo
+        // del DialogPane; hay que forzarlos aparte y, como no existen
+        // hasta que el Dialog se muestra, nos suscribimos a su aparición.
         pane.applyCss();
+        javafx.scene.Node headerPanel = pane.lookup(".header-panel");
+        if (headerPanel != null) {
+            headerPanel.setStyle("-fx-background-color: #1c1730;");
+        } else {
+            // Si el header-panel todavía no existe (Dialog recién creado,
+            // sin mostrar), reintentamos en el próximo pulso de layout.
+            javafx.application.Platform.runLater(() -> {
+                javafx.scene.Node hp = pane.lookup(".header-panel");
+                if (hp != null) hp.setStyle("-fx-background-color: #1c1730;");
+            });
+        }
+
         // El texto de contenido por defecto de un Alert vive anidado dentro
         // de un GridPane interno, no como hijo directo del DialogPane, así
         // que recorremos el árbol completo para no dejar texto invisible.

@@ -95,16 +95,34 @@ public class DetailViewController {
         }
     }
 
-    private static final String COLOR_PRIMARY = "#e94560";
-    private static final String COLOR_BG_CARD = "#1a1a2e";
-    private static final String COLOR_TEXT = "#eaeaea";
-    private static final String COLOR_TEXT_DIM = "#555577";
-    private static final String COLOR_GREEN = "#2ecc71";
+    private static final String COLOR_PRIMARY = "#ec4d80";
+    private static final String COLOR_BG_CARD = "#1c1730";
+    private static final String COLOR_TEXT = "#f0eef5";
+    private static final String COLOR_TEXT_DIM = "#756f94";
+    private static final String COLOR_GREEN = "#4dec9e";
+
+    /**
+     * Devuelve el hex de acento de la sección del item, según la paleta
+     * "Constelaciones" de theme.css. Se usa para colorear dinámicamente
+     * elementos del detalle (título, botón de favorito, tráiler, cabecera
+     * de episodios) según el tipo del item que se está viendo en cada
+     * momento, en vez de usar siempre el mismo color de marca para todo.
+     */
+    private String sectionAccentHex(MediaType type) {
+        if (type == null) return COLOR_PRIMARY;
+        return switch (type) {
+            case GAME -> "#4dd9ec";
+            case SERIES -> "#8b5cf6";
+            case ANIME -> "#ec4dc0";
+            case MUSIC -> "#4dec9e";
+            case MOVIE -> "#ecb14d";
+        };
+    }
 
     @FXML
     public void initialize() {
-        detailScroll.setStyle("-fx-background-color: #0f0f1a;");
-        detailContainer.setStyle("-fx-background-color: #0f0f1a;");
+        detailScroll.setStyle("-fx-background-color: #100c1c;");
+        detailContainer.setStyle("-fx-background-color: #100c1c;");
 
         // El viewport interno del ScrollPane no hereda el color de fondo por
         // CSS normal, y su Skin no existe hasta que el nodo está realmente
@@ -133,7 +151,7 @@ public class DetailViewController {
     private void applyViewportBackground() {
         javafx.scene.Node viewport = detailScroll.lookup(".viewport");
         if (viewport != null) {
-            viewport.setStyle("-fx-background-color: #0f0f1a;");
+            viewport.setStyle("-fx-background-color: #100c1c;");
         }
     }
 
@@ -161,6 +179,12 @@ public class DetailViewController {
 
         // Información básica
         detailTitle.setText(item.getTitle());
+        // El título se pinta con el color de acento de SU sección (cian
+        // para Juegos, violeta para Series, magenta para Anime, etc.),
+        // así el detalle "se siente" de esa sección concreta en vez de
+        // usar siempre el mismo rosa para todo tipo de contenido.
+        detailTitle.setStyle("-fx-text-fill: " + sectionAccentHex(item.getType()) + "; -fx-font-size: 24px; -fx-font-weight: bold;");
+
         detailYear.setText(item.getYear() != null ? String.valueOf(item.getYear()) : "—");
 
         // Puntuación
@@ -222,6 +246,14 @@ public class DetailViewController {
         trailerButton.setManaged(canHaveTrailer);
         trailerButton.setText("▶ Ver tráiler en YouTube");
         trailerButton.setDisable(false);
+
+        if (canHaveTrailer) {
+            trailerButton.setStyle(
+                    "-fx-background-color: " + sectionAccentHex(item.getType()) + ";" +
+                            "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;" +
+                            "-fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
+            );
+        }
     }
 
     /**
@@ -327,41 +359,7 @@ public class DetailViewController {
     @FXML
     private void onTogglePreview() {
         if (previewPlayer == null) {
-            previewKnownDuration = Duration.seconds(30);
-
-            previewPlayer = new MediaPlayer(new Media(currentItem.getPreviewUrl()));
-            previewPlayer.setVolume(0.4); // antes sonaba demasiado alto por defecto
-
-            // En cuanto el MediaPlayer conoce la duración real (puede no
-            // ser exactamente 30.000s), la fijamos como referencia estable
-            // para el resto de la reproducción.
-            previewPlayer.setOnReady(() -> {
-                Duration real = previewPlayer.getMedia().getDuration();
-                if (real != null && !real.isUnknown() && real.greaterThan(Duration.ZERO)) {
-                    previewKnownDuration = real;
-                }
-            });
-
-            previewPlayer.currentTimeProperty().addListener((obs, oldVal, newVal) -> {
-                double progress = newVal.toSeconds() / previewKnownDuration.toSeconds();
-                previewProgressBar.setProgress(Math.min(1.0, Math.max(0.0, progress)));
-                previewTimeLabel.setText(formatTime(newVal) + " / " + formatTime(previewKnownDuration));
-            });
-
-            previewPlayer.setOnEndOfMedia(() -> {
-                previewPlayer.stop();
-                previewButton.setText("▶ Escuchar preview (30s)");
-                previewProgressBar.setProgress(0);
-                previewTimeLabel.setText("0:00 / " + formatTime(previewKnownDuration));
-            });
-
-            previewPlayer.setOnError(() -> {
-                previewButton.setText("Error al reproducir");
-                previewButton.setDisable(true);
-            });
-
-            previewPlayer.play();
-            previewButton.setText("⏸ Pausar");
+            startPreviewPlayback(currentItem.getPreviewUrl(), false);
             return;
         }
 
@@ -372,6 +370,102 @@ public class DetailViewController {
             previewPlayer.play();
             previewButton.setText("⏸ Pausar");
         }
+    }
+
+    /**
+     * Crea el MediaPlayer y empieza a reproducir la URL dada.
+     *
+     * @param previewUrl     la URL de preview a reproducir
+     * @param isRetryWithFreshUrl true si esta llamada ya es un reintento
+     *                            con una URL recién pedida a Deezer (para
+     *                            no entrar en bucle si esa URL también falla)
+     */
+    private void startPreviewPlayback(String previewUrl, boolean isRetryWithFreshUrl) {
+        previewKnownDuration = Duration.seconds(30);
+
+        previewPlayer = new MediaPlayer(new Media(previewUrl));
+        previewPlayer.setVolume(0.4); // antes sonaba demasiado alto por defecto
+
+        // En cuanto el MediaPlayer conoce la duración real (puede no
+        // ser exactamente 30.000s), la fijamos como referencia estable
+        // para el resto de la reproducción.
+        previewPlayer.setOnReady(() -> {
+            Duration real = previewPlayer.getMedia().getDuration();
+            if (real != null && !real.isUnknown() && real.greaterThan(Duration.ZERO)) {
+                previewKnownDuration = real;
+            }
+        });
+
+        previewPlayer.currentTimeProperty().addListener((obs, oldVal, newVal) -> {
+            double progress = newVal.toSeconds() / previewKnownDuration.toSeconds();
+            previewProgressBar.setProgress(Math.min(1.0, Math.max(0.0, progress)));
+            previewTimeLabel.setText(formatTime(newVal) + " / " + formatTime(previewKnownDuration));
+        });
+
+        previewPlayer.setOnEndOfMedia(() -> {
+            previewPlayer.stop();
+            previewButton.setText("▶ Escuchar preview (30s)");
+            previewProgressBar.setProgress(0);
+            previewTimeLabel.setText("0:00 / " + formatTime(previewKnownDuration));
+        });
+
+        previewPlayer.setOnError(() -> {
+            // La previewUrl de Deezer es una URL firmada con caducidad
+            // (parámetro hdnea/exp): deja de funcionar pasado un tiempo
+            // aunque siga guardada en favoritos. Si esto es la primera
+            // vez que falla (no un reintento ya con URL fresca), pedimos
+            // una nueva a Deezer por título y reintentamos una sola vez,
+            // en vez de dejar el preview roto permanentemente.
+            if (isRetryWithFreshUrl) {
+                previewButton.setText("Error al reproducir");
+                previewButton.setDisable(true);
+                return;
+            }
+
+            stopAndDisposePreviewPlayer();
+            previewButton.setText("Actualizando preview...");
+            previewButton.setDisable(true);
+
+            final MediaItem itemAtRequestTime = currentItem;
+
+            new Thread(() -> {
+                String freshUrl = new com.rujiman.mediatracker.services.MusicService()
+                        .refreshPreviewUrl(itemAtRequestTime.getTitle());
+
+                Platform.runLater(() -> {
+                    // Si el usuario ya cambió de detalle mientras se
+                    // esperaba la respuesta, no tocamos nada.
+                    if (currentItem != itemAtRequestTime) return;
+
+                    previewButton.setDisable(false);
+
+                    if (freshUrl == null || freshUrl.isBlank()) {
+                        previewButton.setText("Sin preview disponible");
+                        previewButton.setDisable(true);
+                        return;
+                    }
+
+                    itemAtRequestTime.setPreviewUrl(freshUrl);
+
+                    // Si el item ya está en favoritos, guardamos también
+                    // la URL fresca ahí, para que la próxima vez no haga
+                    // falta este mismo reintento (aunque, al ser una URL
+                    // con caducidad, puede que vuelva a caducar más
+                    // adelante igualmente; esto solo reduce cuántas veces
+                    // hace falta el reintento, no lo elimina del todo).
+                    if (currentFavorite != null) {
+                        currentFavorite.setPreviewUrl(freshUrl);
+                        FavoritesService.updateFavorite(currentFavorite);
+                    }
+
+                    previewButton.setText("▶ Escuchar preview (30s)");
+                    startPreviewPlayback(freshUrl, true);
+                });
+            }).start();
+        });
+
+        previewPlayer.play();
+        previewButton.setText("⏸ Pausar");
     }
 
     /**
@@ -454,6 +548,8 @@ public class DetailViewController {
         MediaType type = item.getType();
 
         if (type == MediaType.ANIME || type == MediaType.SERIES) {
+            episodesHeaderLabel.setStyle("-fx-text-fill: " + sectionAccentHex(type) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
+
             Integer total = item.getEpisodes();
             if (total != null && total > 0) {
                 buildEpisodesList(total);
@@ -540,7 +636,7 @@ public class DetailViewController {
 
             CheckBox checkBox = new CheckBox("Episodio " + episodeNumber);
             checkBox.setStyle(
-                    "-fx-text-fill: #eaeaea; -fx-font-size: 12px;"
+                    "-fx-text-fill: #f0eef5; -fx-font-size: 12px;"
             );
 
             checkBox.setSelected(progress.watchedEpisodes.contains(episodeNumber));
@@ -656,6 +752,8 @@ public class DetailViewController {
      */
     private void checkIfFavorite() {
         boolean isFav = FavoritesService.isFavorite(currentItem.getTitle());
+        String accentHex = sectionAccentHex(currentItem.getType());
+
         if (isFav) {
             // Buscar el favorito para saber su estado
             currentFavorite = null;
@@ -667,11 +765,11 @@ public class DetailViewController {
                 }
             }
             favoriteButton.setText("❌ Eliminar de favoritos");
-            favoriteButton.setStyle("-fx-background-color: #e74c3c;");
+            favoriteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;");
         } else {
             currentFavorite = null;
             favoriteButton.setText("⭐ Agregar a favoritos");
-            favoriteButton.setStyle("-fx-background-color: " + COLOR_PRIMARY + ";");
+            favoriteButton.setStyle("-fx-background-color: " + accentHex + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;");
         }
     }
 

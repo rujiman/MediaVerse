@@ -84,6 +84,46 @@ public class MusicService {
         return results;
     }
 
+    /**
+     * Vuelve a buscar una canción suelta por su título completo (tal como
+     * se guarda en favoritos: "Canción - Artista") y devuelve una
+     * previewUrl fresca si encuentra una coincidencia razonable.
+     *
+     * Por qué hace falta esto: la previewUrl que da Deezer es una URL
+     * firmada con caducidad (parámetro hdnea/exp en la query string,
+     * típico de protección de CDN), que deja de funcionar pasado un
+     * tiempo (minutos/horas) aunque siga guardada en el JSON de
+     * favoritos. Cuando el MediaPlayer falla al reproducir una preview
+     * guardada, se llama aquí para conseguir una URL nueva, en vez de
+     * fallar permanentemente.
+     *
+     * @return la previewUrl fresca, o null si no se encontró ninguna
+     *         coincidencia válida.
+     */
+    public String refreshPreviewUrl(String fullTitle) {
+        if (fullTitle == null || fullTitle.isBlank()) return null;
+
+        List<MediaItem> tracks = searchTracks(fullTitle);
+
+        // Coincidencia exacta primero (mismo título completo "Canción - Artista")
+        for (MediaItem track : tracks) {
+            if (fullTitle.equalsIgnoreCase(track.getTitle()) && track.getPreviewUrl() != null) {
+                return track.getPreviewUrl();
+            }
+        }
+
+        // Si no hay coincidencia exacta, el primer resultado con preview
+        // disponible es la mejor aproximación razonable (la búsqueda ya
+        // viene ordenada por relevancia de Deezer).
+        for (MediaItem track : tracks) {
+            if (track.getPreviewUrl() != null && !track.getPreviewUrl().isBlank()) {
+                return track.getPreviewUrl();
+            }
+        }
+
+        return null;
+    }
+
     // ============================
     // PARSEAR TRACKS
     // ============================
