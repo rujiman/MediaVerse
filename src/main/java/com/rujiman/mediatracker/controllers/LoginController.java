@@ -184,6 +184,11 @@ public class LoginController {
             stage.setScene(scene);
             stage.setTitle("Mediaverse - Search");
 
+            // Maximizar al entrar: el login se queda en su tamaño normal,
+            // pero la app principal (SearchView) se abre ocupando toda la
+            // pantalla, en vez de la ventana pequeña de tamaño fijo de antes.
+            stage.setMaximized(true);
+
         } catch (Exception e) {
             System.err.println("❌ Error al abrir SearchView: " + e.getMessage());
             e.printStackTrace();
