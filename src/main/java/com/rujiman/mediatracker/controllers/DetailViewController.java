@@ -6,6 +6,8 @@ import com.rujiman.mediatracker.models.MediaType;
 import com.rujiman.mediatracker.services.FavoritesService;
 import com.rujiman.mediatracker.services.WatchProgressService;
 import com.rujiman.mediatracker.services.TMDBService;
+import com.rujiman.mediatracker.services.AnilistService;
+import com.rujiman.mediatracker.services.GameService;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -15,10 +17,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.util.List;
@@ -37,6 +41,12 @@ public class DetailViewController {
     @FXML private Label detailDescription;
     @FXML private FlowPane detailGenresBox;
     @FXML private Label descriptionHeaderLabel;
+
+    // Recomendaciones (cargadas bajo demanda)
+    @FXML private Separator recommendationsSeparator;
+    @FXML private VBox recommendationsSection;
+    @FXML private Label recommendationsHeaderLabel;
+    @FXML private FlowPane recommendationsGrid;
     @FXML private Label detailPlatforms;
     @FXML private Button viewedButton;
     @FXML private Button favoriteButton;
@@ -82,8 +92,21 @@ public class DetailViewController {
     /** Acción a ejecutar cuando se pulsa "Volver" (la define quien abre este detalle). */
     private Runnable onBackAction;
 
+    /**
+     * Acción a ejecutar al pinchar una tarjeta de recomendación: recibe
+     * el MediaItem recomendado y debe abrir un NUEVO detalle apilado
+     * encima de este (para que "Volver" desde la recomendación regrese
+     * aquí, no a la búsqueda). La define quien abre este detalle
+     * (SearchController), igual patrón que onBackAction.
+     */
+    private java.util.function.Consumer<MediaItem> onOpenDetailAction;
+
     public void setOnBackAction(Runnable onBackAction) {
         this.onBackAction = onBackAction;
+    }
+
+    public void setOnOpenDetailAction(java.util.function.Consumer<MediaItem> onOpenDetailAction) {
+        this.onOpenDetailAction = onOpenDetailAction;
     }
 
     @FXML
@@ -243,6 +266,12 @@ public class DetailViewController {
 
         // Preview de 30s (solo MUSIC, canciones sueltas con preview de Deezer)
         setupPreviewButton(item);
+
+        // Recomendaciones del mismo tipo, cargadas en segundo plano
+        // (TMDB para MOVIE/SERIES, AniList para ANIME, IGDB para GAME;
+        // MUSIC se queda sin esta sección, Deezer no da recomendaciones
+        // fiables por canción/álbum)
+        setupRecommendations(item);
     }
 
     /**
@@ -501,6 +530,163 @@ public class DetailViewController {
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
         return String.format("%d:%02d", minutes, seconds);
+    }
+
+    // ===========================================================
+    // RECOMENDACIONES
+    // ===========================================================
+
+    /**
+     * Muestra recomendaciones del mismo tipo que el item actual, cargadas
+     * en un hilo de fondo (no bloquean la apertura del detalle, igual que
+     * tráiler/episodios). La fuente depende del tipo:
+     * - MOVIE/SERIES: TMDB /recommendations (necesita tmdbId)
+     * - ANIME: AniList GraphQL recommendations (necesita anilistId)
+     * - GAME: IGDB similar_games (necesita igdbId)
+     * - MUSIC: sin soporte, la sección se queda oculta
+     *
+     * Si el item no tiene el ID nativo necesario (por ejemplo, favoritos
+     * guardados antes de que existiera este campo), la sección también
+     * se queda oculta en vez de fallar o mostrar nada vacío.
+     */
+    private void setupRecommendations(MediaItem item) {
+        recommendationsSection.setVisible(false);
+        recommendationsSection.setManaged(false);
+        recommendationsSeparator.setVisible(false);
+        recommendationsSeparator.setManaged(false);
+        recommendationsGrid.getChildren().clear();
+
+        MediaType type = item.getType();
+        if (type == MediaType.MUSIC) return; // sin soporte fiable en Deezer
+
+        boolean canFetch =
+                ((type == MediaType.MOVIE || type == MediaType.SERIES) && item.getTmdbId() != null) ||
+                        (type == MediaType.ANIME && item.getAnilistId() != null) ||
+                        (type == MediaType.GAME && item.getIgdbId() != null);
+
+        if (!canFetch) return;
+
+        final MediaItem itemAtRequestTime = item;
+
+        new Thread(() -> {
+            List<MediaItem> recommendations;
+
+            switch (type) {
+                case MOVIE -> recommendations = new TMDBService().getRecommendations(item.getTmdbId(), true);
+                case SERIES -> recommendations = new TMDBService().getRecommendations(item.getTmdbId(), false);
+                case ANIME -> recommendations = new AnilistService().getRecommendations(item.getAnilistId());
+                case GAME -> recommendations = new GameService().getSimilarGames(item.getIgdbId());
+                default -> recommendations = List.of();
+            }
+
+            final List<MediaItem> results = recommendations;
+
+            Platform.runLater(() -> {
+                // Si el usuario ya cerró este detalle o abrió otro mientras
+                // se esperaba la respuesta, no pintamos nada para evitar
+                // mezclar recomendaciones del item equivocado.
+                if (currentItem != itemAtRequestTime) return;
+                if (results == null || results.isEmpty()) return;
+
+                recommendationsHeaderLabel.setText("Si te gusta " + itemAtRequestTime.getTitle() + ", te recomendamos:");
+                recommendationsHeaderLabel.setStyle(
+                        "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + sectionAccentHex(type) + ";"
+                );
+
+                for (MediaItem rec : results) {
+                    recommendationsGrid.getChildren().add(buildRecommendationCard(rec));
+                }
+
+                recommendationsSeparator.setVisible(true);
+                recommendationsSeparator.setManaged(true);
+                recommendationsSection.setVisible(true);
+                recommendationsSection.setManaged(true);
+
+                FadeTransition fade = new FadeTransition(Duration.millis(250), recommendationsSection);
+                fade.setFromValue(0);
+                fade.setToValue(1);
+                fade.play();
+            });
+        }).start();
+    }
+
+    /**
+     * Tarjeta pequeña para una recomendación: imagen + título, clicable
+     * para abrir un nuevo detalle de ese item (apilado igual que cualquier
+     * otra navegación a detalle: "Volver" desde ahí regresa aquí mismo).
+     */
+    private VBox buildRecommendationCard(MediaItem rec) {
+        double width = 130, height = 180;
+
+        VBox card = new VBox(4);
+        card.setPrefWidth(width);
+        card.setMaxWidth(width);
+        card.getStyleClass().add("card-base");
+        card.setAlignment(Pos.TOP_LEFT);
+
+        StackPane imageContainer = new StackPane();
+        imageContainer.setPrefSize(width, height);
+        imageContainer.setMaxSize(width, height);
+
+        ImageView cover = new ImageView();
+        cover.setFitWidth(width);
+        cover.setFitHeight(height);
+        cover.setPreserveRatio(false);
+        cover.setSmooth(true);
+
+        Rectangle clip = new Rectangle(width, height);
+        clip.setArcWidth(10);
+        clip.setArcHeight(10);
+        cover.setClip(clip);
+
+        if (rec.getImageUrl() != null && !rec.getImageUrl().isBlank()) {
+            try {
+                cover.setImage(new Image(rec.getImageUrl(), width * 2, height * 2, false, true, true));
+            } catch (Exception ignored) {}
+        }
+
+        imageContainer.getChildren().add(cover);
+
+        Label titleLabel = new Label(rec.getTitle());
+        titleLabel.setWrapText(true);
+        titleLabel.setMaxWidth(width);
+        titleLabel.getStyleClass().add("text-heading");
+        titleLabel.setStyle("-fx-font-size: 11px;");
+
+        card.getChildren().addAll(imageContainer, titleLabel);
+
+        String hoverClass = cardHoverClassFor(rec.getType());
+        card.setOnMouseEntered(e -> card.getStyleClass().add(hoverClass));
+        card.setOnMouseExited(e -> card.getStyleClass().remove(hoverClass));
+
+        card.setOnMouseClicked(e -> {
+            if (onOpenDetailAction != null) {
+                onOpenDetailAction.accept(rec);
+            } else {
+                // Si no hay acción de navegación externa configurada
+                // (poco probable, pero por seguridad), al menos
+                // recargamos este mismo detalle con el nuevo item.
+                loadItem(rec);
+            }
+        });
+
+        return card;
+    }
+
+    /**
+     * Devuelve la clase CSS de hover (glow de color) correspondiente al
+     * tipo de contenido, según la paleta "Constelaciones" de theme.css
+     * (mismo patrón que HomeController.cardHoverClassFor()).
+     */
+    private String cardHoverClassFor(MediaType type) {
+        if (type == null) return "card-hover-series";
+        return switch (type) {
+            case GAME -> "card-hover-game";
+            case SERIES -> "card-hover-series";
+            case ANIME -> "card-hover-anime";
+            case MUSIC -> "card-hover-music";
+            case MOVIE -> "card-hover-movie";
+        };
     }
 
     /**

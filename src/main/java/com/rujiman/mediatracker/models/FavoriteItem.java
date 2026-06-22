@@ -29,6 +29,8 @@ public class FavoriteItem {
     private Integer tmdbId;
     private String trailerKey;
     private String previewUrl;
+    private Integer anilistId;
+    private Integer igdbId;
 
     public FavoriteItem() {}
 
@@ -50,6 +52,8 @@ public class FavoriteItem {
         this.tmdbId = item.getTmdbId();
         this.trailerKey = item.getTrailerKey();
         this.previewUrl = item.getPreviewUrl();
+        this.anilistId = item.getAnilistId();
+        this.igdbId = item.getIgdbId();
     }
 
     private String generateId() {
@@ -121,6 +125,12 @@ public class FavoriteItem {
     public String getPreviewUrl() { return previewUrl; }
     public void setPreviewUrl(String previewUrl) { this.previewUrl = previewUrl; }
 
+    public Integer getAnilistId() { return anilistId; }
+    public void setAnilistId(Integer anilistId) { this.anilistId = anilistId; }
+
+    public Integer getIgdbId() { return igdbId; }
+    public void setIgdbId(Integer igdbId) { this.igdbId = igdbId; }
+
     /**
      * Reconstruye un MediaItem equivalente a partir de este favorito,
      * para poder reutilizar la misma tarjeta visual y la misma pantalla
@@ -141,6 +151,8 @@ public class FavoriteItem {
         item.setTmdbId(this.tmdbId);
         item.setTrailerKey(this.trailerKey);
         item.setPreviewUrl(this.previewUrl);
+        item.setAnilistId(this.anilistId);
+        item.setIgdbId(this.igdbId);
         return item;
     }
 }

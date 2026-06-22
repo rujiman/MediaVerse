@@ -23,27 +23,29 @@ public class MediaItem {
     private Integer score;
     private String status;
 
-
     // ===== Datos extra series/peliculas =====
     private List<String> platforms;
 
     // ID en TMDB, necesario para consultar datos extra (episodios) bajo
-// demanda al abrir el detalle, sin tener que pedirlos en la búsqueda
+    // demanda al abrir el detalle, sin tener que pedirlos en la búsqueda
     private Integer tmdbId;
 
     // Clave de YouTube del tráiler, obtenida bajo demanda al abrir el
-// detalle (igual que tmdbId/episodes). null hasta que se consulte.
+    // detalle (igual que tmdbId/episodes). null hasta que se consulte.
     private String trailerKey;
 
     // URL del preview de 30s (mp3 público de Deezer), solo para canciones
-// sueltas de tipo MUSIC. Viene ya incluida en el resultado de búsqueda,
-// no requiere ninguna llamada extra.
+    // sueltas de tipo MUSIC. Viene ya incluida en el resultado de búsqueda,
+    // no requiere ninguna llamada extra.
     private String previewUrl;
 
+    // ID en AniList, necesario para pedir recomendaciones de anime
+    // (GraphQL "recommendations") bajo demanda al abrir el detalle.
+    private Integer anilistId;
 
-
-
-
+    // ID en IGDB, necesario para pedir juegos similares ("similar_games")
+    // bajo demanda al abrir el detalle.
+    private Integer igdbId;
 
     // ===== Getters y Setters =====
 
@@ -100,4 +102,10 @@ public class MediaItem {
 
     public String getPreviewUrl() { return previewUrl; }
     public void setPreviewUrl(String previewUrl) { this.previewUrl = previewUrl; }
+
+    public Integer getAnilistId() { return anilistId; }
+    public void setAnilistId(Integer anilistId) { this.anilistId = anilistId; }
+
+    public Integer getIgdbId() { return igdbId; }
+    public void setIgdbId(Integer igdbId) { this.igdbId = igdbId; }
 }

@@ -321,4 +321,77 @@ public class TMDBService {
             return new ArrayList<>();
         }
     }
+
+    /**
+     * Pide hasta 10 recomendaciones para una película o serie, usando el
+     * endpoint /recommendations de TMDB (basado en qué otros usuarios
+     * reales de TMDB vieron/valoraron juntos, NO el endpoint /similar,
+     * que solo compara género/keywords y da resultados de peor calidad).
+     * Se llama bajo demanda al abrir el detalle, igual que tráiler/
+     * episodios, para no ralentizar la búsqueda.
+     */
+    public List<MediaItem> getRecommendations(int tmdbId, boolean isMovie) {
+        String url = API_URL + (isMovie ?
+                "/movie/" + tmdbId + "/recommendations?api_key=" + getKey() :
+                "/tv/" + tmdbId + "/recommendations?api_key=" + getKey()
+        );
+
+        Request request = new Request.Builder().url(url).build();
+        List<MediaItem> results = new ArrayList<>();
+
+        try (Response response = client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) {
+                throw new IOException("Error TMDB recommendations: " + response);
+            }
+
+            String json = response.body().string();
+            JsonObject root = gson.fromJson(json, JsonObject.class);
+
+            if (!root.has("results")) return results;
+            JsonArray items = root.getAsJsonArray("results");
+
+            int limit = Math.min(items.size(), 10);
+            for (int i = 0; i < limit; i++) {
+                JsonObject obj = items.get(i).getAsJsonObject();
+
+                MediaItem item = new MediaItem();
+                item.setType(isMovie ? MediaType.MOVIE : MediaType.SERIES);
+                item.setTmdbId(obj.get("id").getAsInt());
+
+                // El campo de título cambia de nombre entre película/serie
+                String titleField = isMovie ? "title" : "name";
+                if (obj.has(titleField) && !obj.get(titleField).isJsonNull()) {
+                    item.setTitle(obj.get(titleField).getAsString());
+                }
+
+                if (obj.has("poster_path") && !obj.get("poster_path").isJsonNull()) {
+                    item.setImageUrl(IMAGE_BASE + obj.get("poster_path").getAsString());
+                }
+
+                String dateField = isMovie ? "release_date" : "first_air_date";
+                if (obj.has(dateField) && !obj.get(dateField).isJsonNull()) {
+                    String date = obj.get(dateField).getAsString();
+                    if (!date.isEmpty()) {
+                        item.setYear(Integer.parseInt(date.substring(0, 4)));
+                    }
+                }
+
+                if (obj.has("vote_average") && !obj.get("vote_average").isJsonNull()) {
+                    item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
+                }
+
+                item.setExternalUrl(
+                        "https://www.themoviedb.org/" + (isMovie ? "movie/" : "tv/") + obj.get("id").getAsInt()
+                );
+
+                results.add(item);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
 }

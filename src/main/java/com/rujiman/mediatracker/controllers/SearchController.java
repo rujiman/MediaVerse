@@ -703,7 +703,24 @@ public class SearchController {
      * del StackPane raíz), sin crear una ventana nueva y sin perder
      * los resultados de búsqueda actuales.
      */
+    /**
+     * Abre el detalle de un item, apilado sobre lo que hubiera debajo
+     * (búsqueda/home por defecto). Si desde aquí se pincha una tarjeta de
+     * recomendación, se abre un NUEVO detalle apilado encima de ESTE: el
+     * "Volver" del detalle de la recomendación reabre este mismo detalle
+     * (no la búsqueda directamente), igual patrón que favoritos -> detalle.
+     */
     private void openDetailView(MediaItem item) {
+        openDetailView(item, this::closeOverlay);
+    }
+
+    /**
+     * Variante interna que permite especificar a dónde regresa "Volver"
+     * desde este detalle. Se usa tanto para la apertura normal (vuelve
+     * a cerrar el overlay) como para encadenar detalle -> recomendación
+     * -> nueva recomendación sin perder nunca el camino de vuelta.
+     */
+    private void openDetailView(MediaItem item, Runnable onBack) {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
@@ -711,7 +728,11 @@ public class SearchController {
             javafx.scene.Parent detailRoot = loader.load();
 
             DetailViewController controller = loader.getController();
-            controller.setOnBackAction(this::closeOverlay);
+            controller.setOnBackAction(onBack);
+            // Al pinchar una recomendación desde este detalle, se abre un
+            // nuevo detalle apilado, cuyo "Volver" reabre ESTE detalle
+            // (con su propio onBack ya correcto), no la búsqueda.
+            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended, () -> openDetailView(item, onBack)));
             controller.loadItem(item);
 
             openOverlay(detailRoot);
@@ -766,6 +787,9 @@ public class SearchController {
             DetailViewController controller = loader.getController();
             // Al volver desde este detalle, reabrimos la vista de favoritos actualizada
             controller.setOnBackAction(this::openFavorites);
+            // Las recomendaciones se apilan como cualquier otro detalle:
+            // su "Volver" reabre ESTE detalle (no favoritos directamente).
+            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended, () -> openDetailViewFromFavorites(item)));
             controller.loadItem(item);
 
             openOverlay(detailRoot);
@@ -1116,6 +1140,10 @@ public class SearchController {
 
             DetailViewController controller = loader.getController();
             controller.setOnBackAction(() -> openWatchlist(type, progressFilter, displayTitle, emptyMessage));
+            // Mismo patrón de encadenado: las recomendaciones se apilan
+            // sobre este detalle, no directamente sobre la watchlist.
+            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended,
+                    () -> openDetailViewFromWatchlist(item, type, progressFilter, displayTitle, emptyMessage)));
             controller.loadItem(item);
 
             openOverlay(detailRoot);

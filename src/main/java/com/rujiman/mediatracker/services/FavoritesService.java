@@ -76,9 +76,19 @@ public class FavoritesService {
                 JsonArray favArray = root.getAsJsonArray("favorites");
 
                 for (JsonElement el : favArray) {
-                    JsonObject obj = el.getAsJsonObject();
-                    FavoriteItem item = parseFavoriteItem(obj);
-                    favoritesList.add(item);
+                    try {
+                        JsonObject obj = el.getAsJsonObject();
+                        FavoriteItem item = parseFavoriteItem(obj);
+                        favoritesList.add(item);
+                    } catch (Exception e) {
+                        // Un solo favorito con datos corruptos/inesperados
+                        // no debe impedir cargar el resto: se salta ESE
+                        // item y se sigue con los demás, en vez de que
+                        // toda la lista de favoritos quede vacía (lo que
+                        // antes provocaba que Inicio y Favoritos dejaran
+                        // de funcionar por completo).
+                        System.err.println("⚠️ Favorito corrupto omitido: " + e.getMessage());
+                    }
                 }
 
                 System.out.println("✅ Cargados " + favoritesList.size() + " favoritos");
@@ -249,6 +259,14 @@ public class FavoritesService {
                     obj.addProperty("previewUrl", fav.getPreviewUrl());
                 }
 
+                if (fav.getAnilistId() != null) {
+                    obj.addProperty("anilistId", fav.getAnilistId());
+                }
+
+                if (fav.getIgdbId() != null) {
+                    obj.addProperty("igdbId", fav.getIgdbId());
+                }
+
                 favArray.add(obj);
             }
 
@@ -268,20 +286,30 @@ public class FavoritesService {
     // ============================
     private static FavoriteItem parseFavoriteItem(JsonObject obj) {
         FavoriteItem item = new FavoriteItem();
-        item.setId(obj.get("id").getAsString());
-        item.setType(MediaType.valueOf(obj.get("type").getAsString()));
-        item.setTitle(obj.get("title").getAsString());
-        item.setDescription(obj.get("description").getAsString());
-        item.setImageUrl(obj.get("imageUrl").getAsString());
+
+        // Campos "obligatorios" en teoría, pero blindados con valores por
+        // defecto razonables: un favorito guardado por una versión anterior
+        // de la app, o un item cuya API de origen no devolvió algún campo
+        // (ej. un juego de IGDB sin "summary"), puede llegar aquí sin ese
+        // campo. Antes esto lanzaba NullPointerException y tiraba abajo
+        // TODA la carga de favoritos (Inicio y Favoritos dejaban de
+        // funcionar por completo, no solo para ese item concreto).
+        item.setId(safeGetString(obj, "id", "sin_id_" + System.nanoTime()));
+        item.setType(safeGetMediaType(obj, "type"));
+        item.setTitle(safeGetString(obj, "title", "Sin título"));
+        item.setDescription(safeGetString(obj, "description", ""));
+        item.setImageUrl(safeGetString(obj, "imageUrl", ""));
+
         if (obj.has("year") && !obj.get("year").isJsonNull()) {
             item.setYear(obj.get("year").getAsInt());
         }
         if (obj.has("score") && !obj.get("score").isJsonNull()) {
             item.setScore(obj.get("score").getAsInt());
         }
-        item.setExternalUrl(obj.get("externalUrl").getAsString());
-        item.setViewed(obj.get("viewed").getAsBoolean());
-        item.setAddedDate(obj.get("addedDate").getAsLong());
+
+        item.setExternalUrl(safeGetString(obj, "externalUrl", ""));
+        item.setViewed(obj.has("viewed") && !obj.get("viewed").isJsonNull() && obj.get("viewed").getAsBoolean());
+        item.setAddedDate(obj.has("addedDate") && !obj.get("addedDate").isJsonNull() ? obj.get("addedDate").getAsLong() : System.currentTimeMillis());
 
         if (obj.has("totalEpisodes") && !obj.get("totalEpisodes").isJsonNull()) {
             item.setTotalEpisodes(obj.get("totalEpisodes").getAsInt());
@@ -323,6 +351,51 @@ public class FavoritesService {
             item.setPreviewUrl(obj.get("previewUrl").getAsString());
         }
 
+        if (obj.has("anilistId") && !obj.get("anilistId").isJsonNull()) {
+            item.setAnilistId(obj.get("anilistId").getAsInt());
+        }
+
+        if (obj.has("igdbId") && !obj.get("igdbId").isJsonNull()) {
+            item.setIgdbId(obj.get("igdbId").getAsInt());
+        }
+
         return item;
+    }
+
+    /**
+     * Lee un campo String de un JsonObject de forma segura: si el campo
+     * no existe, es JSON null, o no es una cadena válida, devuelve el
+     * valor por defecto en vez de lanzar NullPointerException. Evita que
+     * un solo favorito con datos incompletos (por ejemplo, guardado por
+     * una versión anterior de la app, o un item cuya API de origen no
+     * devolvió ese campo) tire abajo la carga de TODOS los favoritos.
+     */
+    private static String safeGetString(JsonObject obj, String key, String defaultValue) {
+        if (obj.has(key) && !obj.get(key).isJsonNull()) {
+            try {
+                return obj.get(key).getAsString();
+            } catch (Exception ignored) {
+                // El campo existe pero no es una cadena válida (tipo inesperado)
+            }
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Lee el MediaType de un favorito de forma segura: si el valor
+     * guardado no coincide con ningún valor del enum (por ejemplo, si
+     * en el futuro se renombra o elimina un tipo), devuelve SERIES como
+     * valor de respaldo razonable en vez de lanzar una excepción que
+     * tiraría abajo la carga de todos los favoritos.
+     */
+    private static MediaType safeGetMediaType(JsonObject obj, String key) {
+        String raw = safeGetString(obj, key, null);
+        if (raw == null) return MediaType.SERIES;
+        try {
+            return MediaType.valueOf(raw);
+        } catch (IllegalArgumentException e) {
+            System.err.println("⚠️ MediaType desconocido en favorito: '" + raw + "', usando SERIES como respaldo");
+            return MediaType.SERIES;
+        }
     }
 }

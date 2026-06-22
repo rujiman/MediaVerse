@@ -123,6 +123,28 @@
                     </VBox>
                 </HBox>
 
+                <!-- Recomendaciones (MOVIE/SERIES vía TMDB, ANIME vía AniList,
+                     GAME vía IGDB; MUSIC sin soporte fiable, se queda fuera).
+                     Cargadas bajo demanda en segundo plano al abrir el detalle,
+                     igual que tráiler/episodios — no se piden en la búsqueda.
+                     El color de la cabecera se fija dinámicamente según la
+                     sección del item, igual que el título y "Descripción".
+                     Va justo debajo de la cabecera (imagen+título), antes
+                     de Descripción/Episodios, para que se vea de un vistazo
+                     sin tener que bajar hasta el final del detalle. -->
+                <VBox fx:id="recommendationsSection" spacing="10" visible="false" managed="false">
+                    <Label fx:id="recommendationsHeaderLabel"
+                           text="Si te gusta esto, te recomendamos:"
+                           wrapText="true"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <FlowPane fx:id="recommendationsGrid" hgap="14" vgap="14"/>
+                </VBox>
+
+                <!-- Separador antes de recomendaciones (se muestra incluso
+                     si no hay recomendaciones, como separador general entre
+                     la cabecera y la descripción) -->
+                <Separator fx:id="recommendationsSeparator" styleClass="separator-line" visible="false" managed="false"/>
+
                 <!-- Separador -->
                 <Separator styleClass="separator-line"/>
 

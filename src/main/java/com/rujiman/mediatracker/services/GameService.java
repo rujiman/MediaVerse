@@ -181,6 +181,10 @@ public class GameService {
                 MediaItem item = new MediaItem();
                 item.setType(MediaType.GAME);
 
+                if (obj.has("id") && !obj.get("id").isJsonNull()) {
+                    item.setIgdbId(obj.get("id").getAsInt());
+                }
+
                 // Título
                 item.setTitle(safeString(obj, "name"));
 
@@ -273,6 +277,106 @@ public class GameService {
         }
 
         return results;
+    }
+
+    /**
+     * Pide hasta 10 juegos similares a uno concreto, usando el campo
+     * "similar_games" de IGDB (curado editorialmente por IGDB, no solo
+     * por género). Primero se pide ese campo en el juego de origen (solo
+     * devuelve IDs), y luego se piden los detalles completos de esos IDs
+     * en una segunda llamada, igual patrón que TMDB/AniList: bajo demanda
+     * al abrir el detalle, no en la búsqueda.
+     */
+    public List<MediaItem> getSimilarGames(int igdbId) {
+        List<Integer> similarIds = fetchSimilarGameIds(igdbId);
+        if (similarIds.isEmpty()) return new ArrayList<>();
+
+        String idsList = similarIds.stream().map(String::valueOf).reduce((a, b) -> a + "," + b).orElse("");
+
+        String igdbQuery = String.format(
+                "fields id, name, summary, cover.image_id, rating, platforms.name, genres.name; " +
+                        "where id = (%s);",
+                idsList
+        );
+
+        RequestBody body = RequestBody.create(igdbQuery, okhttp3.MediaType.get("text/plain"));
+
+        try {
+            String accessToken = getAccessToken();
+            String clientId = getClientId();
+
+            Request request = new Request.Builder()
+                    .url(API_URL + "/games")
+                    .post(body)
+                    .header("Client-ID", clientId)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Error IGDB similar_games: " + response.code());
+                }
+                String json = response.body().string();
+                return parseGames(json);
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al pedir juegos similares: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Primera llamada del flujo de getSimilarGames(): pide solo los IDs
+     * de los juegos similares al juego de origen (similar_games es un
+     * array de IDs, no de objetos completos en IGDB).
+     */
+    private List<Integer> fetchSimilarGameIds(int igdbId) {
+        String igdbQuery = String.format(
+                "fields similar_games; where id = %d;",
+                igdbId
+        );
+
+        RequestBody body = RequestBody.create(igdbQuery, okhttp3.MediaType.get("text/plain"));
+        List<Integer> ids = new ArrayList<>();
+
+        try {
+            String accessToken = getAccessToken();
+            String clientId = getClientId();
+
+            Request request = new Request.Builder()
+                    .url(API_URL + "/games")
+                    .post(body)
+                    .header("Client-ID", clientId)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Error IGDB similar_games (ids): " + response.code());
+                }
+
+                String json = response.body().string();
+                JsonArray root = gson.fromJson(json, JsonArray.class);
+                if (root == null || root.size() == 0) return ids;
+
+                JsonObject obj = root.get(0).getAsJsonObject();
+                if (obj.has("similar_games") && obj.get("similar_games").isJsonArray()) {
+                    JsonArray similar = obj.getAsJsonArray("similar_games");
+                    int limit = Math.min(similar.size(), 10);
+                    for (int i = 0; i < limit; i++) {
+                        ids.add(similar.get(i).getAsInt());
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al pedir IDs de juegos similares: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return ids;
     }
 
     // ============================
