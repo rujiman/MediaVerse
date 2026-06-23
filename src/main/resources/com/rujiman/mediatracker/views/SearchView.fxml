@@ -65,7 +65,8 @@
                     <Button fx:id="searchButton"
                             text="Buscar"
                             onAction="#onSearch"
-                            styleClass="btn-pill-brand"/>
+                            styleClass="btn-pill-brand"
+                            style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
                 </HBox>
 
                 <HBox HBox.hgrow="ALWAYS"/>
