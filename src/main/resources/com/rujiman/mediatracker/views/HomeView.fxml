@@ -14,7 +14,13 @@
     <VBox fx:id="homeRoot" spacing="16" alignment="TOP_CENTER" styleClass="bg-base">
         <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-        <Label text="✨ Mi MediaVerse" styleClass="text-title"/>
+        <!-- "Mi MediaVerse" con el mismo degradado multicolor de la
+             identidad de marca (Login, header, bordes...), en vez del
+             rosa de marca plano (.text-title). -fx-text-fill admite
+             linear-gradient igual que -fx-background-color en JavaFX CSS. -->
+        <Label text="✨ Mi MediaVerse"
+               style="-fx-font-size: 22px; -fx-font-weight: bold;
+                      -fx-text-fill: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
         <Label text="Lo que más te gusta, elegido por ti" styleClass="text-dim"/>
 
         <!-- ===================== FILA SUPERIOR: 3 COLUMNAS DE TAMAÑO FIJO =====================

@@ -32,7 +32,14 @@
                             <Image url="@icons/mediaverse_logo.png"/>
                         </image>
                     </ImageView>
-                    <Label text="Mediaverse" styleClass="text-title" style="-fx-font-size: 20px;"/>
+                    <!-- "Mediaverse" con el mismo degradado multicolor que
+                         el resto de la identidad de marca (Login, bordes,
+                         etc.), en vez del rosa de marca plano (.text-title).
+                         -fx-text-fill SÍ admite linear-gradient en JavaFX
+                         CSS, igual sintaxis que -fx-background-color. -->
+                    <Label text="Mediaverse"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                  -fx-text-fill: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
 
                     <Button fx:id="backToHomeButton"
                             text="← Volver"
@@ -45,11 +52,16 @@
                 <HBox HBox.hgrow="ALWAYS"/>
 
                 <HBox fx:id="searchBarBox" spacing="8" alignment="CENTER" visible="false" managed="false">
+                    <!-- Borde multicolor (mismo degradado de la paleta
+                         Constelaciones que ya usamos en Login), en vez
+                         del rosa de marca plano de antes. -->
                     <TextField fx:id="searchField"
                                promptText="Buscar anime, series, pelis , música o videojuegos..."
                                prefWidth="340"
                                styleClass="text-field-base"
-                               style="-fx-border-color: #ec4d80; -fx-border-radius: 20;"/>
+                               style="-fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
+                                      -fx-border-width: 2;
+                                      -fx-border-radius: 20;"/>
                     <Button fx:id="searchButton"
                             text="Buscar"
                             onAction="#onSearch"

@@ -25,8 +25,11 @@
                             <Image url="@icons/mediaverse_logo.png"/>
                         </image>
                     </ImageView>
+                    <!-- "Mediaverse" con el mismo degradado multicolor que
+                         el header/Inicio, en vez del rosa de marca plano. -->
                     <Label text="Mediaverse"
-                           style="-fx-text-fill: #ec4d80; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+                           style="-fx-font-size: 36px; -fx-font-weight: bold;
+                                  -fx-text-fill: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
                     <Label text="Tu gestor de media favorito"
                            style="-fx-text-fill: #756f94; -fx-font-size: 14px;"/>
                 </VBox>
@@ -111,8 +114,10 @@
                             <Image url="@icons/mediaverse_logo.png"/>
                         </image>
                     </ImageView>
+                    <!-- "Crear Cuenta" con el mismo degradado multicolor -->
                     <Label text="Crear Cuenta"
-                           style="-fx-text-fill: #ec4d80; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+                           style="-fx-font-size: 36px; -fx-font-weight: bold;
+                                  -fx-text-fill: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
                     <Label text="Únete a Mediaverse"
                            style="-fx-text-fill: #756f94; -fx-font-size: 14px;"/>
                 </VBox>
