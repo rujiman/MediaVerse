@@ -5,7 +5,6 @@ import com.rujiman.mediatracker.models.MediaType;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,12 +36,9 @@ public class WatchProgressService {
     private static boolean loaded = false;
     private static String loadedForUser = null;
 
-    private static String getProgressFile() {
+    private static java.nio.file.Path getProgressFile() {
         String user = AuthService.getCurrentUser();
-        if (user == null || user.isBlank()) {
-            return "progress.json";
-        }
-        return "progress_" + user + ".json";
+        return AppPaths.userFile(user, AppPaths.DIR_PROGRESS, "progress.json");
     }
 
     private static void ensureCorrectUserLoaded() {
@@ -58,16 +54,16 @@ public class WatchProgressService {
     private static void loadProgress() {
         if (loaded) return;
 
-        String file = getProgressFile();
+        java.nio.file.Path file = getProgressFile();
 
         try {
-            if (!Files.exists(Paths.get(file))) {
+            if (!Files.exists(file)) {
                 loaded = true;
                 loadedForUser = AuthService.getCurrentUser();
                 return;
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(file)));
+            String json = new String(Files.readAllBytes(file));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
             if (root != null) {
@@ -107,7 +103,7 @@ public class WatchProgressService {
     }
 
     private static void saveProgress() {
-        String file = getProgressFile();
+        java.nio.file.Path file = getProgressFile();
         try {
             JsonObject root = new JsonObject();
 
@@ -130,7 +126,7 @@ public class WatchProgressService {
             }
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(file), json.getBytes());
+            Files.write(file, json.getBytes());
 
         } catch (IOException e) {
             System.err.println("❌ Error al guardar progreso: " + e.getMessage());

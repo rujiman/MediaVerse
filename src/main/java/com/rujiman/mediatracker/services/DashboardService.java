@@ -6,7 +6,6 @@ import com.rujiman.mediatracker.models.MediaType;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,12 +44,9 @@ public class DashboardService {
     private static boolean loaded = false;
     private static String loadedForUser = null;
 
-    private static String getDashboardFile() {
+    private static java.nio.file.Path getDashboardFile() {
         String user = AuthService.getCurrentUser();
-        if (user == null || user.isBlank()) {
-            return "dashboard.json";
-        }
-        return "dashboard_" + user + ".json";
+        return AppPaths.userFile(user, AppPaths.DIR_DASHBOARD, "dashboard.json");
     }
 
     private static void ensureCorrectUserLoaded() {
@@ -68,16 +64,16 @@ public class DashboardService {
 
         initEmptySections();
 
-        String file = getDashboardFile();
+        java.nio.file.Path file = getDashboardFile();
 
         try {
-            if (!Files.exists(Paths.get(file))) {
+            if (!Files.exists(file)) {
                 loaded = true;
                 loadedForUser = AuthService.getCurrentUser();
                 return;
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(file)));
+            String json = new String(Files.readAllBytes(file));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
             if (root != null && root.has("sections")) {
@@ -113,7 +109,7 @@ public class DashboardService {
     }
 
     private static void saveDashboard() {
-        String file = getDashboardFile();
+        java.nio.file.Path file = getDashboardFile();
         try {
             JsonObject root = new JsonObject();
             JsonObject sectionsObj = new JsonObject();
@@ -127,7 +123,7 @@ public class DashboardService {
             root.add("sections", sectionsObj);
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(file), json.getBytes());
+            Files.write(file, json.getBytes());
             System.out.println("💾 dashboard.json actualizado");
 
         } catch (IOException e) {

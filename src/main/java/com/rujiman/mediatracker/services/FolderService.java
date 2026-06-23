@@ -5,7 +5,6 @@ import com.rujiman.mediatracker.models.PlanFolder;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +40,9 @@ public class FolderService {
     private static final Map<String, Boolean> loadedFlags = new HashMap<>();
     private static String loadedForUser = null;
 
-    private static String getFile(String namespace) {
+    private static java.nio.file.Path getFile(String namespace) {
         String user = AuthService.getCurrentUser();
-        if (user == null || user.isBlank()) {
-            return "folders_" + namespace + ".json";
-        }
-        return "folders_" + namespace + "_" + user + ".json";
+        return AppPaths.userFile(user, AppPaths.DIR_FOLDERS, "folders_" + namespace + ".json");
     }
 
     private static void ensureLoaded(String namespace) {
@@ -64,15 +60,15 @@ public class FolderService {
         foldersCache.put(namespace, new ArrayList<>());
         assignmentsCache.put(namespace, new HashMap<>());
 
-        String file = getFile(namespace);
+        java.nio.file.Path file = getFile(namespace);
 
         try {
-            if (!Files.exists(Paths.get(file))) {
+            if (!Files.exists(file)) {
                 loadedFlags.put(namespace, true);
                 return;
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(file)));
+            String json = new String(Files.readAllBytes(file));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
             if (root != null && root.has("folders") && root.get("folders").isJsonArray()) {
@@ -109,7 +105,7 @@ public class FolderService {
     }
 
     private static void save(String namespace) {
-        String file = getFile(namespace);
+        java.nio.file.Path file = getFile(namespace);
         try {
             JsonObject root = new JsonObject();
 
@@ -130,7 +126,7 @@ public class FolderService {
             root.add("assignments", assignmentsObj);
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(file), json.getBytes());
+            Files.write(file, json.getBytes());
 
         } catch (IOException e) {
             System.err.println("❌ Error al guardar " + file + ": " + e.getMessage());

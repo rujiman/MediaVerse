@@ -1,0 +1,24 @@
+{
+  "folders": [],
+  "items": [
+    {
+      "id": "1782226609097_5644",
+      "type": "SERIES",
+      "title": "Fallout",
+      "description": "The story of haves and have-nots in a world in which there\u0027s almost nothing left to have. 200 years after the apocalypse, the gentle denizens of luxury fallout shelters are forced to return to the irradiated hellscape their ancestors left behind — and are shocked to discover an incredibly complex, gleefully weird, and highly violent universe waiting for them.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/c15BtJxCXMrISLVmysdsnZUPQft.jpg",
+      "year": 2024,
+      "score": 81,
+      "externalUrl": "https://www.themoviedb.org/tv/106379",
+      "viewed": false,
+      "addedDate": 1782226609097,
+      "totalEpisodes": 16,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Amazon Prime Video",
+        "Amazon Prime Video with Ads"
+      ],
+      "tmdbId": 106379
+    }
+  ]
+}

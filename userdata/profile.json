@@ -2,7 +2,7 @@
   "profiles": {
     "Rujiman": {
       "displayName": "Rujiman",
-      "photoPath": "userdata\\Rujiman_profile.jpg"
+      "photoPath": "userdata\\Rujiman\\Rujiman_profile.jpg"
     }
   }
 }

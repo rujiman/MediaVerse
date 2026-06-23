@@ -964,7 +964,11 @@ public class SearchController {
             String name = file.getName();
             String extension = name.contains(".") ? name.substring(name.lastIndexOf('.')) : ".png";
 
-            File dest = new File("userdata/" + loginUser + "_profile" + extension);
+            // La foto vive ahora dentro de la carpeta del propio usuario
+            // (userdata/<user>/<user>_profile.<ext>), junto a sus JSON,
+            // en vez de suelta en userdata/. getParentFile().mkdirs()
+            // crea esa carpeta de usuario si aún no existe.
+            File dest = new File("userdata/" + loginUser + "/" + loginUser + "_profile" + extension);
             dest.getParentFile().mkdirs();
 
             try {

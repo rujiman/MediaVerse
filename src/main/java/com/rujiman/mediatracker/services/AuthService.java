@@ -5,7 +5,6 @@ import com.rujiman.mediatracker.models.User;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +14,11 @@ import java.util.List;
  */
 public class AuthService {
 
-    private static final String USERS_FILE = "users.json";
     private static final Gson gson = new Gson();
+
+    private static java.nio.file.Path usersFile() {
+        return AppPaths.global("users.json");
+    }
 
     private static String currentUser = null;
 
@@ -66,12 +68,12 @@ public class AuthService {
         List<User> users = new ArrayList<>();
 
         try {
-            if (!Files.exists(Paths.get(USERS_FILE))) {
+            if (!Files.exists(usersFile())) {
                 System.out.println("⚠️ users.json no encontrado, creando con usuario por defecto...");
                 createDefaultUsersFile();
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(USERS_FILE)));
+            String json = new String(Files.readAllBytes(usersFile()));
             JsonObject root = gson.fromJson(json, JsonObject.class);
             JsonArray usersArray = root.getAsJsonArray("users");
 
@@ -230,7 +232,7 @@ public class AuthService {
             root.add("users", usersArray);
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(USERS_FILE), json.getBytes());
+            Files.write(usersFile(), json.getBytes());
             System.out.println("💾 users.json actualizado");
         } catch (IOException e) {
             System.err.println("❌ Error al guardar users.json: " + e.getMessage());
@@ -248,7 +250,7 @@ public class AuthService {
             root.add("users", users);
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(USERS_FILE), json.getBytes());
+            Files.write(usersFile(), json.getBytes());
             System.out.println("✅ users.json creado vacío (sin usuarios por defecto)");
         } catch (IOException e) {
             System.err.println("❌ Error al crear users.json: " + e.getMessage());

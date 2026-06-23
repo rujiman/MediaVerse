@@ -6,7 +6,6 @@ import com.rujiman.mediatracker.models.MediaType;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +28,9 @@ public class FavoritesService {
      * logueado (AuthService.getCurrentUser()). Si no hay sesión, usa un
      * archivo genérico de respaldo.
      */
-    private static String getFavoritesFile() {
+    private static java.nio.file.Path getFavoritesFile() {
         String user = AuthService.getCurrentUser();
-        if (user == null || user.isBlank()) {
-            return "favorites.json";
-        }
-        return "favorites_" + user + ".json";
+        return AppPaths.userFile(user, AppPaths.DIR_FAVORITES, "favorites.json");
     }
 
     /**
@@ -58,18 +54,18 @@ public class FavoritesService {
     public static void loadFavorites() {
         if (loaded) return;
 
-        String file = getFavoritesFile();
+        java.nio.file.Path file = getFavoritesFile();
         System.out.println("📖 Cargando favoritos de: " + file);
 
         try {
-            if (!Files.exists(Paths.get(file))) {
+            if (!Files.exists(file)) {
                 System.out.println("✅ No hay favoritos previos para este usuario");
                 loaded = true;
                 loadedForUser = AuthService.getCurrentUser();
                 return;
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(file)));
+            String json = new String(Files.readAllBytes(file));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
             if (root != null && root.has("favorites")) {
@@ -207,7 +203,7 @@ public class FavoritesService {
     // GUARDAR FAVORITOS EN JSON
     // ============================
     private static void saveFavorites() {
-        String file = getFavoritesFile();
+        java.nio.file.Path file = getFavoritesFile();
         try {
             JsonObject root = new JsonObject();
             JsonArray favArray = new JsonArray();
@@ -273,7 +269,7 @@ public class FavoritesService {
             root.add("favorites", favArray);
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(file), json.getBytes());
+            Files.write(file, json.getBytes());
             System.out.println("💾 Favoritos guardados en " + file);
 
         } catch (IOException e) {

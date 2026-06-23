@@ -7,7 +7,6 @@ import com.rujiman.mediatracker.models.PlanItem;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,17 +48,14 @@ public class PlanService {
     private static final Map<ListKind, Boolean> loadedFlags = new HashMap<>();
     private static String loadedForUser = null;
 
-    private static String getFile(ListKind kind) {
+    private static java.nio.file.Path getFile(ListKind kind) {
         String user = AuthService.getCurrentUser();
         String suffix = switch (kind) {
             case WATCH -> "watch";
             case PLAY -> "play";
             case LISTEN -> "listen";
         };
-        if (user == null || user.isBlank()) {
-            return "plan_" + suffix + ".json";
-        }
-        return "plan_" + suffix + "_" + user + ".json";
+        return AppPaths.userFile(user, AppPaths.DIR_PLAN, "plan_" + suffix + ".json");
     }
 
     /**
@@ -87,15 +83,15 @@ public class PlanService {
         itemsCache.put(kind, new ArrayList<>());
         foldersCache.put(kind, new ArrayList<>());
 
-        String file = getFile(kind);
+        java.nio.file.Path file = getFile(kind);
 
         try {
-            if (!Files.exists(Paths.get(file))) {
+            if (!Files.exists(file)) {
                 loadedFlags.put(kind, true);
                 return;
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(file)));
+            String json = new String(Files.readAllBytes(file));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
             if (root != null && root.has("folders") && root.get("folders").isJsonArray()) {
@@ -127,7 +123,7 @@ public class PlanService {
     }
 
     private static void saveList(ListKind kind) {
-        String file = getFile(kind);
+        java.nio.file.Path file = getFile(kind);
         try {
             JsonObject root = new JsonObject();
 
@@ -148,7 +144,7 @@ public class PlanService {
             root.add("items", itemsArray);
 
             String json = gson.toJson(root);
-            Files.write(Paths.get(file), json.getBytes());
+            Files.write(file, json.getBytes());
 
         } catch (IOException e) {
             System.err.println("❌ Error al guardar " + file + ": " + e.getMessage());

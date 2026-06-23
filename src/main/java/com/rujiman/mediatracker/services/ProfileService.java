@@ -4,7 +4,6 @@ import com.google.gson.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Servicio para guardar y cargar datos de perfil (nombre visible y foto)
@@ -20,8 +19,11 @@ import java.nio.file.Paths;
  */
 public class ProfileService {
 
-    private static final String PROFILES_FILE = "profile.json";
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    private static java.nio.file.Path profilesFile() {
+        return AppPaths.global("profile.json");
+    }
 
     /**
      * Datos de perfil de un usuario concreto.
@@ -120,14 +122,14 @@ public class ProfileService {
     // ============================
     private static JsonObject loadRoot() {
         try {
-            if (!Files.exists(Paths.get(PROFILES_FILE))) {
+            if (!Files.exists(profilesFile())) {
                 JsonObject empty = new JsonObject();
                 empty.add("profiles", new JsonObject());
                 writeRoot(empty);
                 return empty;
             }
 
-            String json = new String(Files.readAllBytes(Paths.get(PROFILES_FILE)));
+            String json = new String(Files.readAllBytes(profilesFile()));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
             if (root == null) {
@@ -149,7 +151,7 @@ public class ProfileService {
     private static void writeRoot(JsonObject root) {
         try {
             String json = gson.toJson(root);
-            Files.write(Paths.get(PROFILES_FILE), json.getBytes());
+            Files.write(profilesFile(), json.getBytes());
         } catch (IOException e) {
             System.err.println("❌ Error al guardar profile.json: " + e.getMessage());
         }
