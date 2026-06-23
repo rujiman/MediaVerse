@@ -10,6 +10,7 @@ import com.rujiman.mediatracker.services.TMDBService;
 import com.rujiman.mediatracker.services.AnilistService;
 import com.rujiman.mediatracker.services.GameService;
 import com.rujiman.mediatracker.services.PlanService;
+import com.rujiman.mediatracker.services.StreamingLinkResolver;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -27,7 +28,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller para mostrar detalles de un MediaItem
@@ -299,6 +302,11 @@ public class DetailViewController {
 
         // Tráiler en YouTube (solo MOVIE/SERIES; se consulta bajo demanda al pulsar el botón)
         setupTrailerButton(item);
+
+        // Texto del botón "Abrir en navegador"/"Ver ahora": depende de si
+        // hay alguna plataforma de streaming reconocida para este item
+        // (ver detalle en el propio método).
+        setupOpenExternalButton(item);
 
         // Preview de 30s (solo MUSIC, canciones sueltas con preview de Deezer)
         setupPreviewButton(item);
@@ -1161,14 +1169,176 @@ public class DetailViewController {
         }
     }
 
+    /**
+     * Calcula, para SERIES/MOVIE/ANIME, las opciones de plataforma
+     * reconocidas para este item (nombre -> URL ya resuelta). Para
+     * GAME/MUSIC devuelve un mapa vacío, ya que esos tipos no pasan por
+     * el selector de plataformas en absoluto. Centraliza aquí la misma
+     * lógica que usan tanto el texto del botón (setupOpenExternalButton)
+     * como la acción de abrir (onOpenExternal), para no recalcularla de
+     * dos formas distintas que puedan desincronizarse.
+     */
+    private Map<String, String> resolvedStreamingOptions(MediaItem item) {
+        if (item.getType() == MediaType.SERIES || item.getType() == MediaType.MOVIE) {
+            return StreamingLinkResolver.resolveForPlatforms(item.getPlatforms(), item.getTitle());
+        }
+        if (item.getType() == MediaType.ANIME) {
+            return StreamingLinkResolver.resolveForAnime(item.getTitle());
+        }
+        return Map.of();
+    }
+
+    /**
+     * Texto del botón "Abrir en navegador"/"Ver ahora":
+     * - SERIES/MOVIE con al menos una plataforma reconocida -> "Ver ahora"
+     *   (sabemos que está realmente disponible en streaming).
+     * - ANIME siempre -> "Ver ahora" (opciones fijas de búsqueda, aunque
+     *   no hay disponibilidad confirmada por título).
+     * - SERIES/MOVIE sin ninguna plataforma reconocida, y GAME/MUSIC ->
+     *   "Abrir en navegador" (cae al externalUrl de siempre).
+     */
+    private void setupOpenExternalButton(MediaItem item) {
+        boolean showViewNow;
+        if (item.getType() == MediaType.ANIME) {
+            showViewNow = true;
+        } else if (item.getType() == MediaType.SERIES || item.getType() == MediaType.MOVIE) {
+            showViewNow = !resolvedStreamingOptions(item).isEmpty();
+        } else {
+            showViewNow = false;
+        }
+
+        openExternalButton.setText(showViewNow ? "▶ Ver ahora" : "Abrir en navegador");
+    }
+
+    /**
+     * "Abrir en navegador" / "Ver ahora": dónde aterriza el usuario
+     * depende del tipo de contenido.
+     *
+     * SERIES/MOVIE: TMDB nos da nombres de proveedor reales
+     * (item.getPlatforms()), pero no enlaces directos al título dentro
+     * de cada plataforma (JustWatch no los cede vía API). Cruzamos esos
+     * nombres contra un mapa fijo de URLs de búsqueda
+     * (StreamingLinkResolver): si solo hay una plataforma reconocida se
+     * abre directa, si hay varias se deja elegir con un ChoiceDialog, y
+     * si no se reconoce ninguna (o no hay platforms) caemos al
+     * externalUrl de siempre (la página de TMDB) como último recurso.
+     *
+     * ANIME: "platforms" en este tipo no es disponibilidad real (es
+     * estudio/formato), así que aquí no se consulta en absoluto; se
+     * ofrece siempre el mismo listado fijo de webs de anime.
+     *
+     * GAME/MUSIC: sin cambios respecto a la versión anterior, se abre
+     * directamente el externalUrl (página de IGDB/Deezer del item).
+     */
     @FXML
     private void onOpenExternal() {
-        if (currentItem.getExternalUrl() != null && !currentItem.getExternalUrl().isBlank()) {
+        if (currentItem == null) return;
+
+        MediaType type = currentItem.getType();
+
+        if (type == MediaType.SERIES || type == MediaType.MOVIE) {
+            openWithPlatformChoice(resolvedStreamingOptions(currentItem), true);
+            return;
+        }
+
+        if (type == MediaType.ANIME) {
+            openWithPlatformChoice(resolvedStreamingOptions(currentItem), false);
+            return;
+        }
+
+        // GAME / MUSIC: comportamiento original, sin selector.
+        openExternalUrlDirect(currentItem.getExternalUrl());
+    }
+
+    /**
+     * Decide qué hacer una vez resueltas las opciones de plataforma:
+     * 0 opciones -> fallback al externalUrl original (solo aplica a
+     * SERIES/MOVIE, donde fallbackToExternalUrl llega como true; ANIME
+     * siempre tiene opciones fijas, así que nunca debería caer aquí).
+     * 1 opción -> se abre directa, sin molestar con un diálogo de un
+     * solo botón. 2+ opciones -> ChoiceDialog para elegir.
+     */
+    private void openWithPlatformChoice(Map<String, String> options, boolean fallbackToExternalUrl) {
+        if (options.isEmpty()) {
+            if (fallbackToExternalUrl) {
+                openExternalUrlDirect(currentItem.getExternalUrl());
+            }
+            return;
+        }
+
+        if (options.size() == 1) {
+            openExternalUrlDirect(options.values().iterator().next());
+            return;
+        }
+
+        List<String> names = new ArrayList<>(options.keySet());
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(names.get(0), names);
+        dialog.setTitle("Abrir plataforma");
+        dialog.setHeaderText(null);
+        dialog.setContentText("¿Dónde quieres buscar \"" + currentItem.getTitle() + "\"?");
+        styleDialogDark(dialog.getDialogPane());
+        darkenDialogWindow(dialog.getDialogPane());
+
+        dialog.showAndWait().ifPresent(selection -> openExternalUrlDirect(options.get(selection)));
+    }
+
+    private void openExternalUrlDirect(String url) {
+        if (url != null && !url.isBlank()) {
             try {
-                java.awt.Desktop.getDesktop().browse(new java.net.URI(currentItem.getExternalUrl()));
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Mismo estilo oscuro ("Constelaciones") usado en los diálogos de
+     * carpetas (FavoritesViewController/WatchlistViewController). No es
+     * un helper compartido en una clase de utilidades común: se duplica
+     * aquí igual que en esos controllers.
+     */
+    private void styleDialogDark(DialogPane pane) {
+        pane.getStylesheets().add(
+                getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
+        );
+        pane.getStyleClass().add("bg-panel-flat");
+        pane.setStyle("-fx-background-color: #1c1730; -fx-text-fill: #f0eef5;");
+        pane.applyCss();
+
+        javafx.scene.Node headerPanel = pane.lookup(".header-panel");
+        if (headerPanel != null) {
+            headerPanel.setStyle("-fx-background-color: #1c1730;");
+        } else {
+            Platform.runLater(() -> {
+                javafx.scene.Node hp = pane.lookup(".header-panel");
+                if (hp != null) hp.setStyle("-fx-background-color: #1c1730;");
+            });
+        }
+
+        forceLabelColorRecursive(pane, "#f0eef5");
+    }
+
+    private void forceLabelColorRecursive(javafx.scene.Parent parent, String hexColor) {
+        for (javafx.scene.Node node : parent.getChildrenUnmodifiable()) {
+            if (node instanceof Label label) {
+                label.setStyle("-fx-text-fill: " + hexColor + ";");
+            }
+            if (node instanceof javafx.scene.Parent childParent) {
+                forceLabelColorRecursive(childParent, hexColor);
+            }
+        }
+    }
+
+    private void darkenDialogWindow(DialogPane pane) {
+        if (pane.getScene() != null) {
+            pane.getScene().setFill(Color.web("#100c1c"));
+        } else {
+            pane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    newScene.setFill(Color.web("#100c1c"));
+                }
+            });
         }
     }
 }

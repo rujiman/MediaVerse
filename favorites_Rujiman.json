@@ -944,18 +944,40 @@
       "igdbId": 348330
     },
     {
-      "id": "1782152035079_5528",
+      "id": "1782196806574_2449",
+      "type": "MUSIC",
+      "title": "Abyss (from Kaiju No. 8) - YUNGBLUD",
+      "description": "Canción de YUNGBLUD",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/062f06c1a91136ed145236516afcc701/1000x1000-000000-80-0-0.jpg",
+      "score": 69,
+      "externalUrl": "https://www.deezer.com/track/2716324032",
+      "viewed": false,
+      "addedDate": 1782196806576,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ],
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/6/8/c/0/68c553429b952f68e41906825f3c67c3.mp3?hdnea\u003dexp\u003d1782197694~acl\u003d/api/1/1/6/8/c/0/68c553429b952f68e41906825f3c67c3.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d32c9411c9762cc3d94e6d3a509139f0fa026bbc55c92ad05c5966542b48cc1e7"
+    },
+    {
+      "id": "1782197036971_3502",
       "type": "SERIES",
       "title": "Cyberpunk: Edgerunners",
+      "description": "In a dystopia riddled with corruption and cybernetic implants, a talented but reckless street kid strives to become a mercenary outlaw — an edgerunner.",
       "imageUrl": "https://image.tmdb.org/t/p/original/lqcDVZ8pyk08AVftMBildDR3QUK.jpg",
       "year": 2022,
       "score": 84,
       "externalUrl": "https://www.themoviedb.org/tv/105248",
       "viewed": false,
-      "addedDate": 1782152035080,
+      "addedDate": 1782197036974,
       "totalEpisodes": 10,
       "watchedEpisodes": [],
-      "tmdbId": 105248
+      "platforms": [
+        "Netflix",
+        "Netflix Standard with Ads"
+      ],
+      "tmdbId": 105248,
+      "trailerKey": "JtqIas3bYhg"
     }
   ]
 }
