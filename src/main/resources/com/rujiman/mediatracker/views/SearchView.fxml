@@ -273,7 +273,7 @@
                       -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
                       -fx-background-radius: 12;"
                prefWidth="220" maxWidth="220"
-               prefHeight="280" maxHeight="280"
+               prefHeight="340" maxHeight="340"
                StackPane.alignment="TOP_RIGHT">
         <StackPane.margin><Insets top="64" right="20"/></StackPane.margin>
 
@@ -310,6 +310,17 @@
 
             <Button text="Cambiar contraseña"
                     onAction="#onChangePassword"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"
+                    style="-fx-font-size: 12px;"/>
+
+            <Separator/>
+
+            <!-- Mismo botón "Cerrar sesión" que ya existe en el menú
+                 lateral (#logout), ahora también accesible desde aquí
+                 sin tener que abrir el menú grande solo para salir. -->
+            <Button text="Cerrar sesión"
+                    onAction="#logout"
                     maxWidth="Infinity"
                     styleClass="btn-flat-brand"
                     style="-fx-font-size: 12px;"/>

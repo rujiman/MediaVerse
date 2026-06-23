@@ -277,13 +277,12 @@ public class DetailViewController {
             detailGenresBox.setManaged(false);
         }
 
-        // Plataformas
-        if (item.getPlatforms() != null && !item.getPlatforms().isEmpty()) {
-            detailPlatforms.setText("Plataformas: " + String.join(", ", item.getPlatforms()));
-            detailPlatforms.setVisible(true);
-        } else {
-            detailPlatforms.setVisible(false);
-        }
+        // Plataformas: lo que ya venga en el item se pinta de inmediato.
+        // Para SERIES/MOVIE, si llega vacío (caso típico de abrir una
+        // recomendación, ver fetchPlatformsIfMissing), se completa
+        // aparte en segundo plano sin bloquear el resto del detalle.
+        renderPlatformsLabel(item);
+        fetchPlatformsIfMissing(item);
 
         // Botones según tipo
         updateButtons(item);
@@ -323,6 +322,69 @@ public class DetailViewController {
         // de loadItem() solo si el detalle viene de una de estas listas).
         setupPlanButton(item);
         updateMoveToFavoritesButtonVisibility();
+    }
+
+    /**
+     * Pinta (o esconde) el label "Plataformas: ...", según lo que el
+     * item tenga en ese momento en getPlatforms(). Separado de loadItem()
+     * porque también se vuelve a llamar desde fetchPlatformsIfMissing()
+     * una vez llega la respuesta de TMDB en segundo plano.
+     */
+    private void renderPlatformsLabel(MediaItem item) {
+        if (item.getPlatforms() != null && !item.getPlatforms().isEmpty()) {
+            detailPlatforms.setText("Plataformas: " + String.join(", ", item.getPlatforms()));
+            detailPlatforms.setVisible(true);
+        } else {
+            detailPlatforms.setVisible(false);
+        }
+    }
+
+    /**
+     * Las plataformas de SERIES/MOVIE normalmente ya llegan rellenas
+     * desde la búsqueda (TMDBService.parseSeries/parseMovies llaman a
+     * getWatchProviders() ahí mismo). Pero los MediaItem que llegan como
+     * tarjeta de "Recomendaciones" (TMDBService.getRecommendations) NO
+     * pasan por ese mismo parseo y se quedan con platforms=null —
+     * síntoma: al abrir una recomendación nunca aparece el label de
+     * plataformas ni el botón dice "Ver ahora", aunque la serie/película
+     * sí esté disponible en streaming según la propia web de TMDB.
+     *
+     * Aquí se completa ese hueco bajo demanda, igual que ya se hace con
+     * el tráiler o el número de episodios: si el item no trae platforms
+     * y sí tiene tmdbId, se pide en un hilo de fondo y, a la vuelta, se
+     * actualizan tanto el label como el texto del botón "Ver ahora"/
+     * "Abrir en navegador" (que dependen de este dato).
+     *
+     * No se repite la llamada si el item ya trae platforms (búsqueda
+     * directa) ni si no es SERIES/MOVIE (ANIME/GAME/MUSIC no usan
+     * getWatchProviders en absoluto).
+     */
+    private void fetchPlatformsIfMissing(MediaItem item) {
+        boolean alreadyHasPlatforms = item.getPlatforms() != null && !item.getPlatforms().isEmpty();
+        boolean canFetch = (item.getType() == MediaType.MOVIE || item.getType() == MediaType.SERIES)
+                && item.getTmdbId() != null;
+
+        if (alreadyHasPlatforms || !canFetch) return;
+
+        final MediaItem itemAtRequestTime = item;
+        boolean isMovie = item.getType() == MediaType.MOVIE;
+        int tmdbId = item.getTmdbId();
+
+        new Thread(() -> {
+            List<String> platforms = new TMDBService().getWatchProviders(tmdbId, isMovie);
+
+            Platform.runLater(() -> {
+                // Si el usuario ya cambió de detalle mientras esperábamos
+                // la respuesta, no pintamos nada sobre la pantalla actual.
+                if (currentItem != itemAtRequestTime) return;
+
+                if (platforms != null && !platforms.isEmpty()) {
+                    itemAtRequestTime.setPlatforms(platforms);
+                    renderPlatformsLabel(itemAtRequestTime);
+                    setupOpenExternalButton(itemAtRequestTime);
+                }
+            });
+        }).start();
     }
 
     /**
