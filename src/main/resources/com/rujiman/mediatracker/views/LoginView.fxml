@@ -9,18 +9,16 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.rujiman.mediatracker.controllers.LoginController"
-            style="-fx-background-color: #0f0f1a;">
+            style="-fx-background-color: #100c1c;">
 
     <center>
         <StackPane fx:id="mainStack" alignment="CENTER"
-                   style="-fx-background-color: #0f0f1a;">
+                   style="-fx-background-color: #100c1c;">
 
-            <!-- LOGIN PANEL -->
             <VBox fx:id="LoginPanel" alignment="CENTER" spacing="30"
-                  style="-fx-background-color: #0f0f1a;">
+                  style="-fx-background-color: #100c1c;">
                 <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
 
-                <!-- Logo -->
                 <VBox alignment="CENTER" spacing="15">
                     <ImageView fitWidth="80" fitHeight="80" preserveRatio="true">
                         <image>
@@ -28,57 +26,54 @@
                         </image>
                     </ImageView>
                     <Label text="Mediaverse"
-                           style="-fx-text-fill: #e94560; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+                           style="-fx-text-fill: #ec4d80; -fx-font-size: 36px; -fx-font-weight: bold;"/>
                     <Label text="Tu gestor de media favorito"
-                           style="-fx-text-fill: #555577; -fx-font-size: 14px;"/>
+                           style="-fx-text-fill: #756f94; -fx-font-size: 14px;"/>
                 </VBox>
 
-                <!-- Formulario Login -->
                 <VBox alignment="TOP_CENTER" spacing="16" prefWidth="300">
-                    <!-- Username -->
                     <VBox spacing="8">
                         <Label text="Usuario"
-                               style="-fx-text-fill: #eaeaea; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                         <TextField fx:id="usernameLoginField"
                                    promptText="Ingresa tu usuario"
-                                   style="-fx-background-color: #16213e;
-                                          -fx-text-fill: #eaeaea;
-                                          -fx-prompt-text-fill: #555577;
-                                          -fx-border-color: #e94560;
+                                   style="-fx-background-color: #1c1730;
+                                          -fx-text-fill: #f0eef5;
+                                          -fx-prompt-text-fill: #756f94;
+                                          -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
+                                          -fx-border-width: 2;
                                           -fx-border-radius: 8;
                                           -fx-background-radius: 8;
                                           -fx-padding: 12 16 12 16;
                                           -fx-font-size: 13px;"/>
                     </VBox>
 
-                    <!-- Password -->
                     <VBox spacing="8">
                         <Label text="Contraseña"
-                               style="-fx-text-fill: #eaeaea; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                         <PasswordField fx:id="passwordLoginField"
                                        promptText="Ingresa tu contraseña"
-                                       style="-fx-background-color: #16213e;
-                                              -fx-text-fill: #eaeaea;
-                                              -fx-prompt-text-fill: #555577;
-                                              -fx-border-color: #e94560;
+                                       style="-fx-background-color: #1c1730;
+                                              -fx-text-fill: #f0eef5;
+                                              -fx-prompt-text-fill: #756f94;
+                                              -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
+                                              -fx-border-width: 2;
                                               -fx-border-radius: 8;
                                               -fx-background-radius: 8;
                                               -fx-padding: 12 16 12 16;
                                               -fx-font-size: 13px;"/>
                     </VBox>
 
-                    <!-- Error Message -->
                     <Label fx:id="loginErrorLabel"
                            visible="false"
                            wrapText="true"
                            style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
 
-                    <!-- Login Button -->
                     <Button fx:id="loginButton"
                             text="Iniciar Sesión"
                             onAction="#onLogin"
                             prefWidth="300"
-                            style="-fx-background-color: #e94560;
+                            style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
                                    -fx-text-fill: white;
                                    -fx-font-weight: bold;
                                    -fx-font-size: 14px;
@@ -86,15 +81,14 @@
                                    -fx-background-radius: 8;
                                    -fx-cursor: hand;"/>
 
-                    <!-- Switch to Register -->
                     <HBox alignment="CENTER" spacing="5">
                         <Label text="¿No tienes cuenta?"
-                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                               style="-fx-text-fill: #756f94; -fx-font-size: 11px;"/>
                         <Button fx:id="switchToRegisterButton"
                                 text="Regístrate aquí"
                                 onAction="#switchToRegister"
                                 style="-fx-background-color: transparent;
-                                       -fx-text-fill: #e94560;
+                                       -fx-text-fill: #ec4d80;
                                        -fx-font-size: 11px;
                                        -fx-font-weight: bold;
                                        -fx-underline: true;
@@ -106,13 +100,11 @@
 
             </VBox>
 
-            <!-- REGISTER PANEL -->
             <VBox fx:id="RegisterPanel" alignment="CENTER" spacing="30"
-                  style="-fx-background-color: #0f0f1a;"
+                  style="-fx-background-color: #100c1c;"
                   visible="false">
                 <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
 
-                <!-- Logo -->
                 <VBox alignment="CENTER" spacing="15">
                     <ImageView fitWidth="80" fitHeight="80" preserveRatio="true">
                         <image>
@@ -120,73 +112,70 @@
                         </image>
                     </ImageView>
                     <Label text="Crear Cuenta"
-                           style="-fx-text-fill: #e94560; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+                           style="-fx-text-fill: #ec4d80; -fx-font-size: 36px; -fx-font-weight: bold;"/>
                     <Label text="Únete a Mediaverse"
-                           style="-fx-text-fill: #555577; -fx-font-size: 14px;"/>
+                           style="-fx-text-fill: #756f94; -fx-font-size: 14px;"/>
                 </VBox>
 
-                <!-- Formulario Register -->
                 <VBox alignment="TOP_CENTER" spacing="16" prefWidth="300">
-                    <!-- Username -->
                     <VBox spacing="8">
                         <Label text="Usuario"
-                               style="-fx-text-fill: #eaeaea; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                         <TextField fx:id="usernameRegisterField"
                                    promptText="Elige un usuario (3+ caracteres)"
-                                   style="-fx-background-color: #16213e;
-                                          -fx-text-fill: #eaeaea;
-                                          -fx-prompt-text-fill: #555577;
-                                          -fx-border-color: #e94560;
+                                   style="-fx-background-color: #1c1730;
+                                          -fx-text-fill: #f0eef5;
+                                          -fx-prompt-text-fill: #756f94;
+                                          -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
+                                          -fx-border-width: 2;
                                           -fx-border-radius: 8;
                                           -fx-background-radius: 8;
                                           -fx-padding: 12 16 12 16;
                                           -fx-font-size: 13px;"/>
                     </VBox>
 
-                    <!-- Password -->
                     <VBox spacing="8">
                         <Label text="Contraseña"
-                               style="-fx-text-fill: #eaeaea; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                         <PasswordField fx:id="passwordRegisterField"
                                        promptText="Contraseña (4+ caracteres)"
-                                       style="-fx-background-color: #16213e;
-                                              -fx-text-fill: #eaeaea;
-                                              -fx-prompt-text-fill: #555577;
-                                              -fx-border-color: #e94560;
+                                       style="-fx-background-color: #1c1730;
+                                              -fx-text-fill: #f0eef5;
+                                              -fx-prompt-text-fill: #756f94;
+                                              -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
+                                              -fx-border-width: 2;
                                               -fx-border-radius: 8;
                                               -fx-background-radius: 8;
                                               -fx-padding: 12 16 12 16;
                                               -fx-font-size: 13px;"/>
                     </VBox>
 
-                    <!-- Confirm Password -->
                     <VBox spacing="8">
                         <Label text="Confirmar Contraseña"
-                               style="-fx-text-fill: #eaeaea; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                         <PasswordField fx:id="confirmPasswordField"
                                        promptText="Confirma tu contraseña"
-                                       style="-fx-background-color: #16213e;
-                                              -fx-text-fill: #eaeaea;
-                                              -fx-prompt-text-fill: #555577;
-                                              -fx-border-color: #e94560;
+                                       style="-fx-background-color: #1c1730;
+                                              -fx-text-fill: #f0eef5;
+                                              -fx-prompt-text-fill: #756f94;
+                                              -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
+                                              -fx-border-width: 2;
                                               -fx-border-radius: 8;
                                               -fx-background-radius: 8;
                                               -fx-padding: 12 16 12 16;
                                               -fx-font-size: 13px;"/>
                     </VBox>
 
-                    <!-- Error/Success Message -->
                     <Label fx:id="registerErrorLabel"
                            visible="false"
                            wrapText="true"
                            style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
 
-                    <!-- Register Button -->
                     <Button fx:id="registerButton"
                             text="Crear Cuenta"
                             onAction="#onRegister"
                             prefWidth="300"
-                            style="-fx-background-color: #e94560;
+                            style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
                                    -fx-text-fill: white;
                                    -fx-font-weight: bold;
                                    -fx-font-size: 14px;
@@ -194,15 +183,14 @@
                                    -fx-background-radius: 8;
                                    -fx-cursor: hand;"/>
 
-                    <!-- Switch to Login -->
                     <HBox alignment="CENTER" spacing="5">
                         <Label text="¿Ya tienes cuenta?"
-                               style="-fx-text-fill: #555577; -fx-font-size: 11px;"/>
+                               style="-fx-text-fill: #756f94; -fx-font-size: 11px;"/>
                         <Button fx:id="switchToLoginButton"
                                 text="Inicia sesión"
                                 onAction="#switchToLogin"
                                 style="-fx-background-color: transparent;
-                                       -fx-text-fill: #e94560;
+                                       -fx-text-fill: #ec4d80;
                                        -fx-font-size: 11px;
                                        -fx-font-weight: bold;
                                        -fx-underline: true;

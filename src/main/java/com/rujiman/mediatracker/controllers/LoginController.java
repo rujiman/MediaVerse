@@ -32,9 +32,9 @@ public class LoginController {
     @FXML private Label registerErrorLabel;
     @FXML private Button switchToLoginButton;
 
-    private static final String COLOR_PRIMARY = "#e94560";
+    private static final String COLOR_PRIMARY = "#ec4d80";
     private static final String COLOR_ERROR = "#e74c3c";
-    private static final String COLOR_SUCCESS = "#2ecc71";
+    private static final String COLOR_SUCCESS = "#4dec9e";
 
     @FXML
     public void initialize() {
@@ -227,9 +227,21 @@ public class LoginController {
         if (switchToLoginButton != null) setupButtonHover(switchToLoginButton);
     }
 
+    /**
+     * Hover para los botones principales (Iniciar sesión/Crear cuenta,
+     * con fondo de degradado multicolor) y los de "cambiar de panel"
+     * (texto plano #ec4d80). Antes esto buscaba COLOR_PRIMARY dentro del
+     * string de estilo y lo sustituía por un tono más claro — funcionaba
+     * mientras el fondo era un color plano, pero deja de tener sentido
+     * con un fondo linear-gradient(...) (la cadena ya no aparece en el
+     * estilo, así que el reemplazo no encontraría nada que cambiar, y el
+     * hover se quedaría sin efecto visible, sin lanzar ningún error).
+     * En su lugar, se aplica un leve aumento de opacidad al entrar el
+     * ratón, que funciona igual de bien sobre cualquier fondo, sea un
+     * color plano o un degradado.
+     */
     private void setupButtonHover(Button btn) {
-        String baseStyle = btn.getStyle();
-        btn.setOnMouseEntered(e -> btn.setStyle(baseStyle.replace(COLOR_PRIMARY, "#ff6b8a")));
-        btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
+        btn.setOnMouseEntered(e -> btn.setOpacity(0.85));
+        btn.setOnMouseExited(e -> btn.setOpacity(1.0));
     }
 }

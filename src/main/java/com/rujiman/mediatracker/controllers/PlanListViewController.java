@@ -107,9 +107,22 @@ public class PlanListViewController {
         speedUpScroll(scrollPane);
     }
 
+    /**
+     * "← Volver" del header: si estamos dentro de una carpeta, primero
+     * vuelve a la raíz de la lista (mismo comportamiento que
+     * backToRootButton), igual que esperarías en cualquier explorador de
+     * archivos. Solo si ya estamos en la raíz, sale de toda la pantalla
+     * (vuelve a quien la abrió — Inicio o Búsqueda). Antes este botón
+     * siempre saltaba directamente fuera, sin importar si había una
+     * carpeta abierta, perdiendo el "nivel" en el que estaba el usuario.
+     */
     @FXML
     private void onBack() {
-        if (onBackAction != null) onBackAction.run();
+        if (currentFolderId != null) {
+            onBackToRoot();
+        } else if (onBackAction != null) {
+            onBackAction.run();
+        }
     }
 
     /** Vuelve de dentro de una carpeta a la vista raíz de la lista. */
@@ -218,25 +231,28 @@ public class PlanListViewController {
         List<PlanItem> contents = PlanService.getItemsInFolder(listKind, folder.getId());
         int count = contents.size();
 
-        VBox card = new VBox(6);
-        card.setPrefWidth(140);
+        VBox card = new VBox(8);
+        card.setPrefWidth(220);
         card.getStyleClass().add("card-base");
         card.setAlignment(Pos.CENTER);
-        card.setStyle("-fx-padding: 16 10 16 10; -fx-cursor: hand;");
+        card.setStyle("-fx-padding: 18 14 16 14; -fx-cursor: hand;");
 
         // Preview tipo "explorador de Windows": un mini-grid 2x2 con las
         // portadas de hasta 4 items que contiene la carpeta, en vez de un
         // icono genérico siempre igual. Si la carpeta tiene menos de 4
         // items (o está vacía), los huecos restantes se rellenan con un
         // icono 📁 tenue, para que el grid siempre se vea completo y
-        // simétrico sin importar cuántos items tenga dentro.
+        // simétrico sin importar cuántos items tenga dentro. Tamaño
+        // ampliado respecto a la primera versión: las 4 portadas deben
+        // poder reconocerse a simple vista, no quedarse como manchas de
+        // color diminutas.
         javafx.scene.layout.GridPane previewGrid = new javafx.scene.layout.GridPane();
-        previewGrid.setHgap(3);
-        previewGrid.setVgap(3);
-        previewGrid.setPrefSize(110, 110);
-        previewGrid.setMaxSize(110, 110);
+        previewGrid.setHgap(4);
+        previewGrid.setVgap(4);
+        previewGrid.setPrefSize(190, 190);
+        previewGrid.setMaxSize(190, 190);
 
-        double cellSize = 53.5;
+        double cellSize = 93;
         for (int i = 0; i < 4; i++) {
             int row = i / 2;
             int col = i % 2;
@@ -266,7 +282,7 @@ public class PlanListViewController {
                 cell.getChildren().add(thumb);
             } else {
                 Label placeholder = new Label("📁");
-                placeholder.setStyle("-fx-font-size: 18px; -fx-opacity: 0.25;");
+                placeholder.setStyle("-fx-font-size: 32px; -fx-opacity: 0.25;");
                 cell.getChildren().add(placeholder);
             }
 
@@ -275,8 +291,8 @@ public class PlanListViewController {
 
         Label nameLabel = new Label(folder.getName());
         nameLabel.setWrapText(true);
-        nameLabel.setMaxWidth(120);
-        nameLabel.setStyle("-fx-text-fill: #f0eef5; -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-alignment: center;");
+        nameLabel.setMaxWidth(195);
+        nameLabel.setStyle("-fx-text-fill: #f0eef5; -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-alignment: center;");
         nameLabel.setAlignment(Pos.CENTER);
 
         Label countLabel = new Label(count + (count == 1 ? " elemento" : " elementos"));
@@ -288,17 +304,15 @@ public class PlanListViewController {
         HBox actionsRow = new HBox(8);
         actionsRow.setAlignment(Pos.CENTER);
 
-        Button renameBtn = new Button("✏️ Renombrar");
-        renameBtn.getStyleClass().add("filter-toggle");
-        renameBtn.setStyle("-fx-font-size: 10px; -fx-padding: 4 10 4 10;");
+        Button renameBtn = new Button("Renombrar");
+        renameBtn.getStyleClass().add("chip-action-neutral");
         renameBtn.setOnAction(e -> {
             e.consume();
             onRenameFolder(folder);
         });
 
-        Button deleteBtn = new Button("🗑️ Eliminar");
-        deleteBtn.getStyleClass().add("filter-toggle");
-        deleteBtn.setStyle("-fx-font-size: 10px; -fx-padding: 4 10 4 10; -fx-text-fill: #e74c3c;");
+        Button deleteBtn = new Button("Eliminar");
+        deleteBtn.getStyleClass().add("chip-action-danger");
         deleteBtn.setOnAction(e -> {
             e.consume();
             onDeleteFolder(folder);

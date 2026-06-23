@@ -883,7 +883,7 @@
       "platforms": [
         "Deezer"
       ],
-      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3?hdnea\u003dexp\u003d1782146714~acl\u003d/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d73b30a63e9afd89f013b398503d574bd84122658a05a9f565e3160cce3fb4d18"
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3?hdnea\u003dexp\u003d1782153656~acl\u003d/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003ddb2f802658ce5525f7a3b38e707344762d75773e789ddb99db12cc28eecb7ca1"
     },
     {
       "id": "1782147562216_9315",
@@ -942,6 +942,20 @@
         "Arcade"
       ],
       "igdbId": 348330
+    },
+    {
+      "id": "1782152035079_5528",
+      "type": "SERIES",
+      "title": "Cyberpunk: Edgerunners",
+      "imageUrl": "https://image.tmdb.org/t/p/original/lqcDVZ8pyk08AVftMBildDR3QUK.jpg",
+      "year": 2022,
+      "score": 84,
+      "externalUrl": "https://www.themoviedb.org/tv/105248",
+      "viewed": false,
+      "addedDate": 1782152035080,
+      "totalEpisodes": 10,
+      "watchedEpisodes": [],
+      "tmdbId": 105248
     }
   ]
 }

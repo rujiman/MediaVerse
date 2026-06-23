@@ -284,6 +284,36 @@
     -fx-background-radius: 14;
 }
 
+/* Chips de acción sólidos (renombrar/eliminar carpeta, y cualquier botón
+   pequeño de acción que deba sentirse "vivo" como las etiquetas de
+   género o los badges de tipo, en vez de la cápsula apagada de
+   .filter-toggle en su estado no seleccionado). */
+.chip-action-neutral {
+    -fx-background-color: -accent-series;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-padding: 5 14 5 14;
+    -fx-background-radius: 16;
+    -fx-cursor: hand;
+}
+.chip-action-neutral:hover {
+    -fx-background-color: derive(-accent-series, 15%);
+}
+
+.chip-action-danger {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-padding: 5 14 5 14;
+    -fx-background-radius: 16;
+    -fx-cursor: hand;
+}
+.chip-action-danger:hover {
+    -fx-background-color: derive(#e74c3c, 15%);
+}
+
 /* Badge de tipo en la esquina de una tarjeta (búsqueda/favoritos/watchlist).
    Cápsula muy redondeada con degradado sutil del color de su sección,
    glow a su alrededor (dropshadow del mismo tono) y un borde interior
@@ -366,6 +396,9 @@
     -fx-background-radius: 14;
     -fx-padding: 5 14 5 14;
     -fx-cursor: hand;
+}
+.filter-toggle:hover {
+    -fx-background-color: -bg-panel-hover;
 }
 .filter-toggle:selected {
     -fx-background-color: -brand;

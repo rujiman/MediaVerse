@@ -153,10 +153,15 @@
     "viewed": false,
     "totalEpisodes": 25,
     "watchedEpisodes": [
+      1,
+      2,
+      3,
+      4,
       5,
       6,
       7
-    ]
+    ],
+    "userRating": 4
   },
   "horizon forbidden west": {
     "viewed": false,
@@ -315,6 +320,11 @@
     ],
     "userRating": 5
   },
+  "avatar: fire and ash": {
+    "viewed": true,
+    "watchedEpisodes": [],
+    "userRating": 4
+  },
   "re:zero -starting life in another world | opening 2 (paradisus-paradoxum) - just let that sh*t go": {
     "viewed": true,
     "watchedEpisodes": [],
@@ -356,11 +366,21 @@
     "totalEpisodes": 6,
     "watchedEpisodes": [
       1
-    ]
+    ],
+    "userRating": 4
   },
   "forza horizon 6": {
     "viewed": false,
     "watchedEpisodes": [],
     "userRating": 5
+  },
+  "cyberpunk: edgerunners": {
+    "viewed": false,
+    "watchedEpisodes": [],
+    "userRating": 5
+  },
+  "the last of us: left behind - remastered": {
+    "viewed": true,
+    "watchedEpisodes": []
   }
 }
