@@ -16,6 +16,48 @@ public class TMDBService {
     private static final String API_URL = "https://api.themoviedb.org/3";
     private static final String IMAGE_BASE = "https://image.tmdb.org/t/p/original";
 
+    /**
+     * Mapa fijo de TMDB genre_id -> nombre en español. Los IDs son
+     * estables en TMDB (no cambian), así que este mapa es válido
+     * indefinidamente. Se usa para convertir los genre_ids que vienen
+     * en las respuestas de search/tv y search/movie (que solo traen IDs,
+     * no nombres) a nombres legibles.
+     *
+     * Fuente: https://www.themoviedb.org/settings/languages
+     * (aunque TMDB no documenta estos IDs públicamente, son conocidos
+     * por la comunidad y estables desde hace años).
+     */
+    private static final java.util.Map<Integer, String> GENRE_MAP = new java.util.HashMap<>();
+    static {
+        // Series y películas comparten los mismos IDs de género en TMDB
+        GENRE_MAP.put(10759, "Acción & Aventura");
+        GENRE_MAP.put(16, "Animación");
+        GENRE_MAP.put(35, "Comedia");
+        GENRE_MAP.put(80, "Crimen");
+        GENRE_MAP.put(99, "Documental");
+        GENRE_MAP.put(18, "Drama");
+        GENRE_MAP.put(10751, "Familia");
+        GENRE_MAP.put(10762, "Infantil");
+        GENRE_MAP.put(9648, "Misterio");
+        GENRE_MAP.put(10763, "Noticias");
+        GENRE_MAP.put(10764, "Reality");
+        GENRE_MAP.put(10765, "Ciencia Ficción");
+        GENRE_MAP.put(10766, "Telenovela");
+        GENRE_MAP.put(10767, "Talk Show");
+        GENRE_MAP.put(10768, "Guerra & Política");
+        GENRE_MAP.put(37, "Western");
+        GENRE_MAP.put(27, "Horror");
+        GENRE_MAP.put(10402, "Música");
+        GENRE_MAP.put(10404, "Película de TV");
+        GENRE_MAP.put(10405, "Película de Acción");
+        GENRE_MAP.put(14, "Fantasía");
+        GENRE_MAP.put(36, "Historia");
+        GENRE_MAP.put(10749, "Romance");
+        GENRE_MAP.put(878, "Ciencia Ficción");
+        GENRE_MAP.put(10770, "Película de TV");
+        GENRE_MAP.put(53, "Thriller");
+    }
+
     // Timeouts cortos: si TMDB no responde rápido, mejor fallar pronto y
     // seguir con el resto de resultados que quedarse esperando minutos
     // (con los valores por defecto de OkHttp, 10s, una búsqueda con muchos
@@ -117,6 +159,21 @@ public class TMDBService {
                 item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
             }
 
+            // Géneros: TMDB devuelve solo IDs (genre_ids), hay que convertirlos a nombres
+            if (obj.has("genre_ids") && obj.get("genre_ids").isJsonArray()) {
+                List<String> genres = new ArrayList<>();
+                for (JsonElement genreIdEl : obj.getAsJsonArray("genre_ids")) {
+                    Integer genreId = genreIdEl.getAsInt();
+                    String genreName = GENRE_MAP.getOrDefault(genreId, null);
+                    if (genreName != null) {
+                        genres.add(genreName);
+                    }
+                }
+                if (!genres.isEmpty()) {
+                    item.setGenres(genres);
+                }
+            }
+
             // URL externa
             item.setExternalUrl("https://www.themoviedb.org/tv/" + obj.get("id").getAsInt());
             item.setTmdbId(obj.get("id").getAsInt());
@@ -172,6 +229,21 @@ public class TMDBService {
             // Puntuación (0–100)
             if (!obj.get("vote_average").isJsonNull()) {
                 item.setScore((int) (obj.get("vote_average").getAsDouble() * 10));
+            }
+
+            // Géneros: TMDB devuelve solo IDs (genre_ids), hay que convertirlos a nombres
+            if (obj.has("genre_ids") && obj.get("genre_ids").isJsonArray()) {
+                List<String> genres = new ArrayList<>();
+                for (JsonElement genreIdEl : obj.getAsJsonArray("genre_ids")) {
+                    Integer genreId = genreIdEl.getAsInt();
+                    String genreName = GENRE_MAP.getOrDefault(genreId, null);
+                    if (genreName != null) {
+                        genres.add(genreName);
+                    }
+                }
+                if (!genres.isEmpty()) {
+                    item.setGenres(genres);
+                }
             }
 
             // URL externa

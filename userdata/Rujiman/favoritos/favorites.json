@@ -1,134 +1,152 @@
 {
   "favorites": [
     {
-      "id": "1782226348623_702",
-      "type": "ANIME",
-      "title": "Shingeki no Kyojin",
-      "description": "Several hundred years ago, humans were nearly exterminated by titans. Titans are typically several stories tall, seem to have no intelligence, devour human beings and, worst of all, seem to do it for the pleasure rather than as a food source. A small percentage of humanity survived by walling themselves in a city protected by extremely high walls, even taller than the biggest of titans.\u003cbr\u003e\u003cbr\u003e\r\nFlash forward to the present and the city has not seen a titan in over 100 years. Teenage boy Eren and his foster sister Mikasa witness something horrific as the city walls are destroyed by a colossal titan that appears out of thin air. As the smaller titans flood the city, the two kids watch in horror as their mother is eaten alive. Eren vows that he will murder every single titan and take revenge for all of mankind.\u003cbr\u003e\u003cbr\u003e\r\n(Source: MangaHelpers) ",
-      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg",
-      "year": 2013,
-      "score": 85,
-      "externalUrl": "https://anilist.co/anime/16498",
+      "id": "1782229688162_2564",
+      "type": "MOVIE",
+      "title": "The Fast and the Furious: Tokyo Drift",
+      "description": "In order to avoid a jail sentence, Sean Boswell heads to Tokyo to live with his military father. In a low-rent section of the city, Sean gets caught up in the underground world of drift racing",
+      "imageUrl": "https://image.tmdb.org/t/p/original/46xqGOwHbh2TH2avWSw3SMXph4E.jpg",
+      "year": 2006,
+      "score": 65,
+      "externalUrl": "https://www.themoviedb.org/movie/9615",
       "viewed": false,
-      "addedDate": 1782226348623,
+      "addedDate": 1782229688164,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Movistar Plus+",
+        "Movistar Plus+ Ficción Total ",
+        "SkyShowtime"
+      ],
+      "genres": [
+        "Crimen",
+        "Drama",
+        "Thriller"
+      ],
+      "tmdbId": 9615
+    },
+    {
+      "id": "1782229718118_1045",
+      "type": "MOVIE",
+      "title": "Demon Slayer: Kimetsu no Yaiba Infinity Castle",
+      "description": "The Demon Slayer Corps are drawn into the Infinity Castle, where Tanjiro, Nezuko, and the Hashira face terrifying Upper Rank demons in a desperate fight as the final battle against Muzan Kibutsuji begins.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/fWVSwgjpT2D78VUh6X8UBd2rorW.jpg",
+      "year": 2025,
+      "score": 77,
+      "externalUrl": "https://www.themoviedb.org/movie/1311031",
+      "viewed": false,
+      "addedDate": 1782229718118,
+      "watchedEpisodes": [],
+      "tmdbId": 1311031
+    },
+    {
+      "id": "1782229721626_9325",
+      "type": "MOVIE",
+      "title": "Demon Slayer -Kimetsu no Yaiba- The Movie: Mugen Train",
+      "description": "Tanjiro Kamado, joined with Inosuke Hashibira, a boy raised by boars who wears a boar\u0027s head, and Zenitsu Agatsuma, a scared boy who reveals his true power when he sleeps, boards the Infinity Train on a new mission with the Fire Hashira, Kyojuro Rengoku, to defeat a demon who has been tormenting the people and killing the demon slayers who oppose it!",
+      "imageUrl": "https://image.tmdb.org/t/p/original/h8Rb9gBr48ODIwYUttZNYeMWeUU.jpg",
+      "year": 2020,
+      "score": 82,
+      "externalUrl": "https://www.themoviedb.org/movie/635302",
+      "viewed": false,
+      "addedDate": 1782229721626,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Amazon Prime Video",
+        "Amazon Prime Video with Ads"
+      ],
+      "tmdbId": 635302
+    },
+    {
+      "id": "1782229747492_4179",
+      "type": "ANIME",
+      "title": "Re:Zero kara Hajimeru Isekai Seikatsu",
+      "description": "In the story, Subaru Natsuki is an ordinary high school student who is lost in an alternate world, where he is rescued by a beautiful, silver-haired girl. He stays near her to return the favor, but the destiny she is burdened with is more than Subaru can imagine. Enemies attack one by one, and both of them are killed. He then finds out he has the power to rewind death, back to the time he first came to this world. But only he remembers what has happened since.\u003cbr\u003e\n\u003cbr\u003e\n(Source: Anime News Network)\n\u003cbr\u003e\u003cbr\u003e\n\u003ci\u003eNotes:\u003cbr\u003e\n- The first episode aired with a runtime of ~50 minutes as opposed to the standard 25 minute long episode.\u003cbr\u003e\n- In the Winter 2020 season, Re:ZERO was rebroadcast and re-edited to fit into an hour time-slot. This edit included the first OVA and added slight modifications to certain scenes throughout. It also added an additional scene at the end of the final episode.\u003c/i\u003e",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21355-wRVUrGxpvIQQ.jpg",
+      "year": 2016,
+      "score": 81,
+      "externalUrl": "https://anilist.co/anime/21355",
+      "viewed": false,
+      "addedDate": 1782229747492,
+      "totalEpisodes": 25,
+      "watchedEpisodes": [],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Drama",
+        "Fantasy",
+        "Psychological",
+        "Romance",
+        "Thriller"
+      ],
+      "anilistId": 21355
+    },
+    {
+      "id": "1782229775611_5056",
+      "type": "ANIME",
+      "title": "Boku dake ga Inai Machi",
+      "description": "Satoru Fujinuma is a 29 year old manga artist struggling to make a name for himself following his debut. But, that was not the only thing in his life that Satoru was feeling frustrated about… He has a unique supernatural ability of being forced to prevent deaths and catastrophes by being sent back in time before the incident occurred, repeating time until the accident is prevented. One day, he gets involved in an accident that has him framed as a murderer. Desperate to save the victim, he sends himself back in time only to find himself as a grade-schooler one month before fellow classmate Kayo Hinazuki went missing. Satoru now embarks on a new quest: to save Kayo and solve the mystery behind her disappearance.\n",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21234-XmqW39aQ9o7O.jpg",
+      "year": 2016,
+      "score": 81,
+      "externalUrl": "https://anilist.co/anime/21234",
+      "viewed": false,
+      "addedDate": 1782229775611,
+      "totalEpisodes": 12,
+      "watchedEpisodes": [],
+      "genres": [
+        "Drama",
+        "Mystery",
+        "Psychological",
+        "Supernatural",
+        "Thriller"
+      ],
+      "anilistId": 21234
+    },
+    {
+      "id": "1782229781341_6528",
+      "type": "ANIME",
+      "title": "DEATH NOTE",
+      "description": "Light Yagami is a genius high school student who is about to learn about life through a book of death. When a bored shinigami, a God of Death, named Ryuk drops a black notepad called a \u003ci\u003eDeath Note\u003c/i\u003e, Light receives power over life and death with the stroke of a pen. Determined to use this dark gift for the best, Light sets out to rid the world of evil… namely, the people he believes to be evil. Should anyone hold such power?\u003cbr\u003e\n\u003cbr\u003e\nThe consequences of Light’s actions will set the world ablaze.\u003cbr\u003e\n\u003cbr\u003e\n(Source: VIZ Media)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1535-kUgkcrfOrkUM.jpg",
+      "year": 2006,
+      "score": 84,
+      "externalUrl": "https://anilist.co/anime/1535",
+      "viewed": false,
+      "addedDate": 1782229781341,
+      "totalEpisodes": 37,
+      "watchedEpisodes": [],
+      "genres": [
+        "Mystery",
+        "Psychological",
+        "Supernatural",
+        "Thriller"
+      ],
+      "anilistId": 1535
+    },
+    {
+      "id": "1782229787147_4602",
+      "type": "ANIME",
+      "title": "Code Geass: Hangyaku no Lelouch",
+      "description": "On August 10th of the year 2010 the Holy Empire of Britannia began a campaign of conquest, its sights set on Japan. Operations were completed in one month thanks to Britannia\u0027s deployment of new mobile humanoid armor vehicles dubbed Knightmare Frames. Japan\u0027s rights and identity were stripped away, the once proud nation now referred to as Area 11. Its citizens, Elevens, are forced to scratch out a living while the Britannian aristocracy lives comfortably within their settlements. Pockets of resistance appear throughout Area 11, working towards independence for Japan.\u003cbr\u003e\u003cbr\u003e\n Lelouch, an exiled Imperial Prince of Britannia posing as a student, finds himself in the heart of the ongoing conflict for the island nation. Through a chance meeting with a mysterious girl named C.C., Lelouch gains his Geass, the power of the king. Now endowed with absolute dominance over any person, Lelouch may finally realize his goal of bringing down Britannia from within!\u003cbr\u003e\u003cbr\u003e\n(Source: Bandai Entertainment)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1575-hsmWM2ydNm1m.jpg",
+      "year": 2006,
+      "score": 85,
+      "externalUrl": "https://anilist.co/anime/1575",
+      "viewed": false,
+      "addedDate": 1782229787147,
       "totalEpisodes": 25,
       "watchedEpisodes": [],
       "genres": [
         "Action",
         "Drama",
-        "Fantasy",
-        "Mystery"
+        "Mecha",
+        "Sci-Fi",
+        "Thriller"
       ],
-      "anilistId": 16498
+      "anilistId": 1575
     },
     {
-      "id": "1782226377658_8125",
-      "type": "ANIME",
-      "title": "Tokyo Ghoul",
-      "description": "The suspense horror/dark fantasy story is set in Tokyo, which is haunted by mysterious \"ghouls\" who are devouring humans. People are gripped by the fear of these ghouls whose identities are masked in mystery. An ordinary college student named Kaneki encounters Rize, a girl who is an avid reader like him, at the café he frequents. Little does he realize that his fate will change overnight.\n\u003cbr\u003e\u003cbr\u003e\n(Source: Anime News Network)",
-      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b20605-k665mVkSug8D.jpg",
-      "year": 2014,
-      "score": 76,
-      "externalUrl": "https://anilist.co/anime/20605",
-      "viewed": false,
-      "addedDate": 1782226377658,
-      "totalEpisodes": 12,
-      "watchedEpisodes": [],
-      "genres": [
-        "Action",
-        "Drama",
-        "Horror",
-        "Mystery",
-        "Psychological",
-        "Supernatural"
-      ],
-      "anilistId": 20605
-    },
-    {
-      "id": "1782226383645_9488",
-      "type": "ANIME",
-      "title": "Shingeki no Kyojin Season 2",
-      "description": "Eren Jaeger swore to wipe out every last Titan, but in a battle for his life he wound up becoming the thing he hates most. With his new powers, he fights for humanity\u0027s freedom facing the monsters that threaten his home. After a bittersweet victory against the Female Titan, Eren finds no time to rest—a horde of Titans is approaching Wall Rose and the battle for humanity continues!\u003cbr\u003e\u003cbr\u003e\n\n(Source: Funimation)",
-      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx20958-HuFJyr54Mmir.jpg",
-      "year": 2017,
-      "score": 85,
-      "externalUrl": "https://anilist.co/anime/20958",
-      "viewed": false,
-      "addedDate": 1782226383645,
-      "totalEpisodes": 12,
-      "watchedEpisodes": [],
-      "genres": [
-        "Action",
-        "Drama",
-        "Fantasy",
-        "Mystery"
-      ],
-      "anilistId": 20958
-    },
-    {
-      "id": "1782226406558_8740",
-      "type": "ANIME",
-      "title": "HUNTER×HUNTER (2011)",
-      "description": "A new adaption of the manga of the same name by Togashi Yoshihiro.\u003cbr\u003e\u003cbr\u003e\nA Hunter is one who travels the world doing all sorts of dangerous tasks. From capturing criminals to searching deep within uncharted lands for any lost treasures. Gon is a young boy whose father disappeared long ago, being a Hunter. He believes if he could also follow his father\u0027s path, he could one day reunite with him.\u003cbr\u003e\u003cbr\u003e\nAfter becoming 12, Gon leaves his home and takes on the task of entering the Hunter exam, notorious for its low success rate and high probability of death to become an official Hunter. He befriends the revenge-driven Kurapika, the doctor-to-be Leorio and the rebellious ex-assassin Killua in the exam, with their friendship prevailing throughout the many trials and threats they come upon taking on the dangerous career of a Hunter.",
-      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx11061-y5gsT1hoHuHw.png",
-      "year": 2011,
-      "score": 89,
-      "externalUrl": "https://anilist.co/anime/11061",
-      "viewed": false,
-      "addedDate": 1782226406558,
-      "totalEpisodes": 148,
-      "watchedEpisodes": [],
-      "genres": [
-        "Action",
-        "Adventure",
-        "Fantasy"
-      ],
-      "anilistId": 11061
-    },
-    {
-      "id": "1782226480137_6411",
-      "type": "SERIES",
-      "title": "Vinland Saga",
-      "description": "For a thousand years, the Vikings have made quite a name and reputation for themselves as the strongest families with a thirst for violence. Thorfinn, the son of one of the Vikings\u0027 greatest warriors, spends his boyhood in a battlefield enhancing his skills in his adventure to redeem his most-desired revenge after his father was murdered.",
-      "imageUrl": "https://image.tmdb.org/t/p/original/vUHlpA5c1NXkds59reY3HMb4Abs.jpg",
-      "year": 2019,
-      "score": 85,
-      "externalUrl": "https://www.themoviedb.org/tv/88803",
-      "viewed": false,
-      "addedDate": 1782226480137,
-      "totalEpisodes": 48,
-      "watchedEpisodes": [],
-      "platforms": [
-        "Netflix",
-        "Amazon Prime Video",
-        "Netflix Standard with Ads",
-        "Crunchyroll",
-        "Crunchyroll Amazon Channel",
-        "Amazon Prime Video with Ads"
-      ],
-      "tmdbId": 88803
-    },
-    {
-      "id": "1782226489847_8887",
-      "type": "SERIES",
-      "title": "Re:ZERO -Starting Life in Another World-",
-      "description": "Natsuki Subaru, an ordinary high school  student, is on his way home from the convenience store when he finds  himself transported to another world. As he\u0027s lost and confused in a new  world where he doesn\u0027t even know left from right, the only person to  reach out to him was a beautiful girl with silver hair. Determined to  repay her somehow for saving him from his own despair, Subaru agrees to  help the girl find something she\u0027s looking for.",
-      "imageUrl": "https://image.tmdb.org/t/p/original/5MrRCj7z92YLWMXHeWKp19eJPYv.jpg",
-      "year": 2016,
-      "score": 79,
-      "externalUrl": "https://www.themoviedb.org/tv/65942",
-      "viewed": false,
-      "addedDate": 1782226489847,
-      "totalEpisodes": 85,
-      "watchedEpisodes": [],
-      "platforms": [
-        "Crunchyroll",
-        "Crunchyroll Amazon Channel"
-      ],
-      "tmdbId": 65942
-    },
-    {
-      "id": "1782226513496_372",
+      "id": "1782229833227_2292",
       "type": "MOVIE",
       "title": "Re:ZERO -Starting Life in Another World- Memory Snow",
       "description": "Subaru finally gets to take a breather, but he does not waste any time as he prepares for a date with his beloved Emilia. He scouts the nearby village for the right dating spot, and with the help of the village children, he finds a wonderful location. With that, he is well prepared for his date! Unfortunately for Subaru, cold weather suddenly sweeps across Roswaal\u0027s mansion on his important day, leaving him with no choice but to postpone the date. Overnight, it becomes even colder and unbearable. Subaru must get to the bottom of this because, at this rate, his date will be the least of his worries.",
@@ -137,65 +155,19 @@
       "score": 72,
       "externalUrl": "https://www.themoviedb.org/movie/532321",
       "viewed": false,
-      "addedDate": 1782226513496,
+      "addedDate": 1782229833227,
       "watchedEpisodes": [],
       "platforms": [
         "Crunchyroll Amazon Channel"
       ],
+      "genres": [
+        "Animación",
+        "Fantasía"
+      ],
       "tmdbId": 532321
     },
     {
-      "id": "1782226519141_2435",
-      "type": "MOVIE",
-      "title": "Fate/stay night: Heaven\u0027s Feel II. Lost Butterfly",
-      "description": "Shirou has lost his Servant, Saber, and is no longer a Master in the Holy Grail War. Despite this, he refuses to leave the battle, determined to protect Sakura. Meanwhile, a mysterious shadow engulfs the city, killing Masters and Servants one by one. As Shirou faces new dangers, Sakura is drawn deeper into her own destiny as a mage.",
-      "imageUrl": "https://image.tmdb.org/t/p/original/4tS0iyKQBDFqVpVcH21MSJwXZdq.jpg",
-      "year": 2019,
-      "score": 70,
-      "externalUrl": "https://www.themoviedb.org/movie/390634",
-      "viewed": false,
-      "addedDate": 1782226519141,
-      "watchedEpisodes": [],
-      "tmdbId": 390634
-    },
-    {
-      "id": "1782226555888_3758",
-      "type": "MUSIC",
-      "title": "Unravel - TK from Ling tosite sigure",
-      "description": "Canción de TK from Ling tosite sigure",
-      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/61405c13e00050dd0aed08aa92199d98/1000x1000-000000-80-0-0.jpg",
-      "score": 69,
-      "externalUrl": "https://www.deezer.com/track/975968052",
-      "viewed": false,
-      "addedDate": 1782226555888,
-      "watchedEpisodes": [],
-      "platforms": [
-        "Deezer"
-      ],
-      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3?hdnea\u003dexp\u003d1782227441~acl\u003d/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d4fd545927013c2b8606b55dc0ebd6ae22bee32cda82a53eef5d918a6c3e5a4cc"
-    },
-    {
-      "id": "1782226599982_9625",
-      "type": "SERIES",
-      "title": "The Last of Us",
-      "description": "Twenty years after modern civilization has been destroyed, Joel, a hardened survivor, is hired to smuggle Ellie, a 14-year-old girl, out of an oppressive quarantine zone. What starts as a small job soon becomes a brutal, heartbreaking journey, as they both must traverse the United States and depend on each other for survival.",
-      "imageUrl": "https://image.tmdb.org/t/p/original/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg",
-      "year": 2023,
-      "score": 84,
-      "externalUrl": "https://www.themoviedb.org/tv/100088",
-      "viewed": false,
-      "addedDate": 1782226599982,
-      "totalEpisodes": 16,
-      "watchedEpisodes": [],
-      "platforms": [
-        "Movistar Plus+ Ficción Total ",
-        "HBO Max",
-        "HBO Max Amazon Channel"
-      ],
-      "tmdbId": 100088
-    },
-    {
-      "id": "1782226620737_3630",
+      "id": "1782229862153_7251",
       "type": "GAME",
       "title": "The Last of Us Part I",
       "description": "Experience the emotional storytelling and unforgettable characters of Joel and Ellie in The Last of Us, winner of over 200 Game of the Year awards and now rebuilt for PlayStation 5.\n\nEnjoy a total overhaul of the original experience, faithfully reproduced but incorporating modernized gameplay, improved controls and expanded accessibility options. Plus, feel immersed with improved effects and enhanced exploration and combat.\n\nIt also includes the Left Behind story DLC.",
@@ -203,7 +175,7 @@
       "score": 92,
       "externalUrl": "https://www.igdb.com/games/the-last-of-us-part-i",
       "viewed": false,
-      "addedDate": 1782226620738,
+      "addedDate": 1782229862153,
       "watchedEpisodes": [],
       "platforms": [
         "PC (Microsoft Windows)",
@@ -216,7 +188,7 @@
       "igdbId": 204350
     },
     {
-      "id": "1782226628460_4646",
+      "id": "1782229862941_1646",
       "type": "GAME",
       "title": "The Last of Us Part II",
       "description": "The Last of Us Part II is an action-adventure game set five years after the events of The Last of Us. The player traverses post-apocalyptic environments such as buildings and forests to advance the story. They can use firearms, improvised weapons, and stealth to defend against hostile humans and cannibalistic creatures infected by a mutated strain of the Cordyceps fungus. The game intermittently switches control between Ellie and Abby, and also briefly Joel in the opening sequence. The nimble nature of the player character introduces platforming elements, allowing the player to jump and climb to traverse environments and gain advantages during combat.",
@@ -224,7 +196,7 @@
       "score": 90,
       "externalUrl": "https://www.igdb.com/games/the-last-of-us-part-ii",
       "viewed": false,
-      "addedDate": 1782226628460,
+      "addedDate": 1782229862941,
       "watchedEpisodes": [],
       "platforms": [
         "PlayStation 4",
@@ -237,17 +209,42 @@
       "igdbId": 26192
     },
     {
-      "id": "1782226648774_2639",
+      "id": "1782229888114_5236",
       "type": "GAME",
-      "title": "Horizon Zero Dawn Remastered",
-      "description": "Experience the critically acclaimed Horizon Zero Dawn with stunning new visuals and upgraded features. In a far future where colossal machines roam the Earth, pockets of humanity survive in unique tribes among the lush, overgrown ruins of our long-lost civilization.",
-      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co90ti.jpg",
-      "score": 89,
-      "externalUrl": "https://www.igdb.com/games/horizon-zero-dawn-remastered",
+      "title": "Forza Horizon 6",
+      "description": "Discover the breathtaking landscapes of Japan in over 550 real-world cars and become a racing Legend at the Horizon Festival. Start your journey as a tourist and explore a world full of hit music and Japanese culture. Build a Valley Estate, acquire awe-inspiring homes, and display your prized car collection in fully Customizable Garages. Cruise the roads with your friends and join Car Meets around Japan, unleash your imagination with EventLab and build together in Horizon CoLab.",
+      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobc5n.jpg",
+      "score": 80,
+      "externalUrl": "https://www.igdb.com/games/forza-horizon-6",
       "viewed": false,
-      "addedDate": 1782226648774,
+      "addedDate": 1782229888114,
       "watchedEpisodes": [],
       "platforms": [
+        "Xbox Series X|S",
+        "PC (Microsoft Windows)",
+        "PlayStation 5"
+      ],
+      "genres": [
+        "Racing",
+        "Simulator",
+        "Sport",
+        "Arcade"
+      ],
+      "igdbId": 348330
+    },
+    {
+      "id": "1782229902876_3787",
+      "type": "GAME",
+      "title": "Horizon Zero Dawn",
+      "description": "Welcome to a vibrant world rich with the beauty of nature – but inhabited by awe-inspiring, highly advanced machines. As a young machine hunter named Aloy, you must unravel the mysteries of this world and find your own destiny.",
+      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2una.jpg",
+      "score": 87,
+      "externalUrl": "https://www.igdb.com/games/horizon-zero-dawn",
+      "viewed": false,
+      "addedDate": 1782229902876,
+      "watchedEpisodes": [],
+      "platforms": [
+        "PlayStation 4",
         "PC (Microsoft Windows)",
         "PlayStation 5"
       ],
@@ -256,29 +253,105 @@
         "Role-playing (RPG)",
         "Adventure"
       ],
-      "igdbId": 317103
+      "igdbId": 11156
     },
     {
-      "id": "1782226666417_7313",
+      "id": "1782229912205_7002",
       "type": "GAME",
-      "title": "Horizon Forbidden West",
-      "description": "Horizon Forbidden West continues Aloy’s story as she moves west to a far-future America to brave a majestic, but dangerous frontier where she’ll face awe-inspiring machines and mysterious new threats.",
-      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2gvu.jpg",
-      "score": 85,
-      "externalUrl": "https://www.igdb.com/games/horizon-forbidden-west",
+      "title": "Uncharted 4: A Thief\u0027s End",
+      "description": "Several years after his last adventure, retired fortune hunter, Nathan Drake, is forced back into the world of thieves. With the stakes much more personal, Drake embarks on a globe-trotting journey in pursuit of a historical conspiracy behind a fabled pirate treasure. His greatest adventure will test his physical limits, his resolve, and ultimately what he\u0027s willing to sacrifice to save the ones he loves.",
+      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7h.jpg",
+      "score": 90,
+      "externalUrl": "https://www.igdb.com/games/uncharted-4:-a-thief\u0027s-end",
       "viewed": false,
-      "addedDate": 1782226666417,
+      "addedDate": 1782229912205,
       "watchedEpisodes": [],
       "platforms": [
-        "PlayStation 4",
-        "PC (Microsoft Windows)",
-        "PlayStation 5"
+        "PlayStation 4"
       ],
       "genres": [
-        "Role-playing (RPG)",
+        "Shooter",
         "Adventure"
       ],
-      "igdbId": 112874
+      "igdbId": 7331
+    },
+    {
+      "id": "1782229919497_3194",
+      "type": "GAME",
+      "title": "The Legend of Zelda: Breath of the Wild",
+      "description": "The Legend of Zelda: Breath of the Wild is the first 3D open-world game in the Zelda series. Link can travel anywhere and be equipped with weapons and armor found throughout the world to grant him various bonuses. Unlike many games in the series, Breath of the Wild does not impose a specific order in which quests or dungeons must be completed. While the game still has environmental obstacles such as weather effects, inhospitable lands, or powerful enemies, many of them can be overcome using the right method. A lot of critics ranked Breath of the Wild as one of the best video games of all time.",
+      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.jpg",
+      "score": 92,
+      "externalUrl": "https://www.igdb.com/games/the-legend-of-zelda:-breath-of-the-wild",
+      "viewed": false,
+      "addedDate": 1782229919497,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Wii U",
+        "Nintendo Switch"
+      ],
+      "genres": [
+        "Puzzle",
+        "Adventure"
+      ],
+      "igdbId": 7346
+    },
+    {
+      "id": "1782229969499_4675",
+      "type": "SERIES",
+      "title": "INVINCIBLE",
+      "description": "Mark Grayson is a normal teenager except for the fact that his father is the most powerful superhero on the planet. Shortly after his seventeenth birthday, Mark begins to develop powers of his own and enters into his father\u0027s tutelage.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/4tblBrslcKSifMVZ3TmtT2ukMor.jpg",
+      "year": 2021,
+      "score": 86,
+      "externalUrl": "https://www.themoviedb.org/tv/95557",
+      "viewed": false,
+      "addedDate": 1782229969499,
+      "totalEpisodes": 32,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Amazon Prime Video",
+        "Amazon Prime Video with Ads"
+      ],
+      "genres": [
+        "Animación",
+        "Drama",
+        "Ciencia Ficción",
+        "Acción \u0026 Aventura"
+      ],
+      "tmdbId": 95557
+    },
+    {
+      "id": "1782229993551_380",
+      "type": "MUSIC",
+      "title": "Unravel - TK from Ling tosite sigure",
+      "description": "Canción de TK from Ling tosite sigure",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/61405c13e00050dd0aed08aa92199d98/1000x1000-000000-80-0-0.jpg",
+      "score": 69,
+      "externalUrl": "https://www.deezer.com/track/975968052",
+      "viewed": false,
+      "addedDate": 1782229993551,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ],
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3?hdnea\u003dexp\u003d1782227441~acl\u003d/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d4fd545927013c2b8606b55dc0ebd6ae22bee32cda82a53eef5d918a6c3e5a4cc"
+    },
+    {
+      "id": "1782229997646_1797",
+      "type": "MUSIC",
+      "title": "Juegos del Sacrificio. Jujutsu Kaisen - Kballero Rap",
+      "description": "Canción de Kballero Rap",
+      "imageUrl": "https://cdn-images.dzcdn.net/images/cover/0f2af8c519ab705f10174d2f13fca33d/1000x1000-000000-80-0-0.jpg",
+      "score": 63,
+      "externalUrl": "https://www.deezer.com/track/3143069091",
+      "viewed": false,
+      "addedDate": 1782229997646,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Deezer"
+      ],
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/9/f/6/0/9f67c65ff59478a093b1453c34b1c402.mp3?hdnea\u003dexp\u003d1782228057~acl\u003d/api/1/1/9/f/6/0/9f67c65ff59478a093b1453c34b1c402.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003dc2480b9c47955bfa7bb4be9cb68be77006563eb42c1501c1730f395338d99846"
     }
   ]
 }

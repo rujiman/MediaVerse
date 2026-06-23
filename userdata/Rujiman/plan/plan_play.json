@@ -52,6 +52,29 @@
       ],
       "igdbId": 112874,
       "folderId": "folder_1782226677442_553"
+    },
+    {
+      "id": "1782229903982_4518",
+      "type": "GAME",
+      "title": "Horizon Zero Dawn",
+      "description": "Welcome to a vibrant world rich with the beauty of nature – but inhabited by awe-inspiring, highly advanced machines. As a young machine hunter named Aloy, you must unravel the mysteries of this world and find your own destiny.",
+      "imageUrl": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2una.jpg",
+      "score": 87,
+      "externalUrl": "https://www.igdb.com/games/horizon-zero-dawn",
+      "viewed": false,
+      "addedDate": 1782229903982,
+      "watchedEpisodes": [],
+      "platforms": [
+        "PlayStation 4",
+        "PC (Microsoft Windows)",
+        "PlayStation 5"
+      ],
+      "genres": [
+        "Shooter",
+        "Role-playing (RPG)",
+        "Adventure"
+      ],
+      "igdbId": 11156
     }
   ]
 }
