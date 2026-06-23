@@ -1,46 +1,7 @@
 {
-  "mushoku tensei ii: isekai ittara honki dasu": {
+  "re:zero kara hajimeru isekai seikatsu": {
     "viewed": true,
-    "totalEpisodes": 13,
-    "watchedEpisodes": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13
-    ]
-  },
-  "horizon forbidden west: complete edition": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 4
-  },
-  "bridgerton": {
-    "viewed": false,
-    "watchedEpisodes": [],
-    "userRating": 4
-  },
-  "baile inolvidable - bad bunny": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 5
-  },
-  "the last of us part i": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 4
-  },
-  "re:zero -starting life in another world-": {
-    "viewed": true,
-    "totalEpisodes": 85,
+    "totalEpisodes": 25,
     "watchedEpisodes": [
       1,
       2,
@@ -66,77 +27,13 @@
       22,
       23,
       24,
-      25,
-      26,
-      27,
-      28,
-      29,
-      30,
-      31,
-      32,
-      33,
-      34,
-      35,
-      36,
-      37,
-      38,
-      39,
-      40,
-      41,
-      42,
-      43,
-      44,
-      45,
-      46,
-      47,
-      48,
-      49,
-      50,
-      51,
-      52,
-      53,
-      54,
-      55,
-      56,
-      57,
-      58,
-      59,
-      60,
-      61,
-      62,
-      63,
-      64,
-      65,
-      66,
-      67,
-      68,
-      69,
-      70,
-      71,
-      72,
-      73,
-      74,
-      75,
-      76,
-      77,
-      78,
-      79,
-      80,
-      81,
-      82,
-      83,
-      84,
-      85
+      25
     ],
     "userRating": 5
   },
-  "the last of us part ii": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 4
-  },
-  "mushoku tensei season 2 (opening | spiral) - dimension anime": {
+  "marvel\u0027s agents of s.h.i.e.l.d.": {
     "viewed": false,
+    "totalEpisodes": 136,
     "watchedEpisodes": []
   },
   "unravel - tk from ling tosite sigure": {
@@ -144,42 +41,9 @@
     "watchedEpisodes": [],
     "userRating": 5
   },
-  "the last of us part ii remastered": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 4
-  },
-  "shingeki no kyojin": {
+  "akame ga kill!": {
     "viewed": false,
-    "totalEpisodes": 25,
-    "watchedEpisodes": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7
-    ],
-    "userRating": 4
-  },
-  "horizon forbidden west": {
-    "viewed": false,
-    "watchedEpisodes": [],
-    "userRating": 5
-  },
-  "mushoku tensei: jobless reincarnation": {
-    "viewed": true,
-    "watchedEpisodes": []
-  },
-  "re:zero -starting life in another world- memory snow": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 5
-  },
-  "death note": {
-    "viewed": true,
-    "totalEpisodes": 37,
+    "totalEpisodes": 24,
     "watchedEpisodes": [
       1,
       2,
@@ -189,202 +53,18 @@
       6,
       7,
       8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23,
-      24,
-      25,
-      26,
-      27,
-      28,
-      29,
-      30,
-      31,
-      32,
-      33,
-      34,
-      35,
-      36,
-      37
-    ],
-    "userRating": 5
-  },
-  "snow fairy - funkist": {
-    "viewed": false,
-    "watchedEpisodes": [],
-    "userRating": 5
-  },
-  "attack on titan": {
-    "viewed": true,
-    "totalEpisodes": 87,
-    "watchedEpisodes": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23,
-      24,
-      25,
-      26,
-      27,
-      28,
-      29,
-      30,
-      31,
-      32,
-      33,
-      34,
-      35,
-      36,
-      37,
-      38,
-      39,
-      40,
-      41,
-      42,
-      43,
-      44,
-      45,
-      46,
-      47,
-      48,
-      49,
-      50,
-      51,
-      52,
-      53,
-      54,
-      55,
-      56,
-      57,
-      58,
-      59,
-      60,
-      61,
-      62,
-      63,
-      64,
-      65,
-      66,
-      67,
-      68,
-      69,
-      70,
-      71,
-      72,
-      73,
-      74,
-      75,
-      76,
-      77,
-      78,
-      79,
-      80,
-      81,
-      82,
-      83,
-      84,
-      85,
-      86,
-      87
-    ],
-    "userRating": 5
-  },
-  "avatar: fire and ash": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 4
-  },
-  "re:zero -starting life in another world | opening 2 (paradisus-paradoxum) - just let that sh*t go": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 4
-  },
-  "avatar 4": {
-    "viewed": false,
-    "watchedEpisodes": []
-  },
-  "hollow knight: silksong": {
-    "viewed": true,
-    "watchedEpisodes": [],
-    "userRating": 5
-  },
-  "re:zero kara hajimeru isekai seikatsu": {
-    "viewed": false,
-    "totalEpisodes": 25,
-    "watchedEpisodes": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6
+      9
     ],
     "userRating": 4
   },
-  "hollow knight": {
-    "viewed": true,
-    "watchedEpisodes": []
-  },
-  "darling in the franxx": {
-    "viewed": false,
-    "watchedEpisodes": []
-  },
-  "the last of us": {
-    "viewed": false,
-    "totalEpisodes": 16,
-    "watchedEpisodes": []
-  },
-  "queen charlotte: a bridgerton story": {
-    "viewed": false,
-    "totalEpisodes": 6,
-    "watchedEpisodes": [
-      1
-    ],
-    "userRating": 4
-  },
-  "forza horizon 6": {
+  "the boys": {
     "viewed": false,
     "watchedEpisodes": [],
     "userRating": 5
   },
-  "cyberpunk: edgerunners": {
-    "viewed": false,
-    "watchedEpisodes": [],
-    "userRating": 5
-  },
-  "the last of us: left behind - remastered": {
+  "metro exodus": {
     "viewed": true,
-    "watchedEpisodes": []
+    "watchedEpisodes": [],
+    "userRating": 3
   }
 }

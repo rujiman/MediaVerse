@@ -1,54 +1,68 @@
 {
-  "folders": [
-    {
-      "id": "folder_1782152610558_5560",
-      "name": "nouh",
-      "createdDate": 1782152610558
-    }
-  ],
+  "folders": [],
   "items": [
     {
-      "id": "1782151891865_8178",
-      "type": "SERIES",
-      "title": "Queen Charlotte: A Bridgerton Story",
-      "description": "Young Queen Charlotte\u0027s marriage to King George of England sparks an epic love story and transforms high society in this \"Bridgerton\" universe prequel.",
-      "imageUrl": "https://image.tmdb.org/t/p/original/kFSaVIlBRycGNfrLzJZX7dgSQ1o.jpg",
-      "year": 2023,
-      "score": 80,
-      "externalUrl": "https://www.themoviedb.org/tv/196454",
+      "id": "1782200343116_7466",
+      "type": "ANIME",
+      "title": "Akame ga Kill!",
+      "description": "In a land where corruption rules and a ruthless Prime Minister has turned the puppet Emperor\u0027s armies of soldiers, assassins and secret police against the people, only one force dares to stand against them: Night Raid, an elite team of relentless killers, each equipped with an Imperial Arm - legendary weapons with unique and incredible powers created in the distant past.\u003cbr\u003e\n\u003cbr\u003e\nRescued from a fate worse than death by Night Raid, young Tatsumi is offered the chance to join their lethal ranks… but it\u0027s a deadly choice, as few can master an Imperial Arm and even fewer survive when two Arms go against each other in combat. The battle is on, and only the strongest will make it out alive.\n\u003cbr\u003e\u003cbr\u003e\n(Source: Sentai Filmworks)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx20613-HXHpec4bemk5.jpg",
+      "year": 2014,
+      "score": 73,
+      "externalUrl": "https://anilist.co/anime/20613",
       "viewed": false,
-      "addedDate": 1782151891866,
-      "totalEpisodes": 6,
+      "addedDate": 1782200343116,
+      "totalEpisodes": 24,
       "watchedEpisodes": [],
-      "platforms": [
-        "Netflix",
-        "Netflix Standard with Ads"
+      "genres": [
+        "Action",
+        "Adventure",
+        "Drama",
+        "Fantasy",
+        "Horror",
+        "Psychological",
+        "Thriller"
       ],
-      "tmdbId": 196454,
-      "trailerKey": "oLtnNw0KT78"
+      "anilistId": 20613
     },
     {
-      "id": "1782151925477_9862",
+      "id": "1782208938123_3529",
       "type": "SERIES",
-      "title": "Death Note",
-      "description": "Light Yagami is an ace student with great prospects—and he’s bored out of his mind. But all that changes when he finds the Death Note, a notebook dropped by a rogue Shinigami death god. Any human whose name is written in the notebook dies, and Light has vowed to use the power of the Death Note to rid the world of evil. But will Light succeed in his noble goal, or will the Death Note turn him into the very thing he fights against?",
-      "imageUrl": "https://image.tmdb.org/t/p/original/tCZFfYTIwrR7n94J6G14Y4hAFU6.jpg",
-      "year": 2006,
-      "score": 86,
-      "externalUrl": "https://www.themoviedb.org/tv/13916",
+      "title": "The Boys",
+      "description": "A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/in1R2dDc421JxsoRWaIIAqVI2KE.jpg",
+      "year": 2019,
+      "score": 84,
+      "externalUrl": "https://www.themoviedb.org/tv/76479",
       "viewed": false,
-      "addedDate": 1782151925477,
-      "totalEpisodes": 37,
+      "addedDate": 1782208938123,
+      "totalEpisodes": 40,
       "watchedEpisodes": [],
       "platforms": [
-        "Netflix",
-        "Netflix Standard with Ads",
-        "Crunchyroll",
-        "Crunchyroll Amazon Channel"
+        "Amazon Prime Video",
+        "Amazon Prime Video with Ads"
       ],
-      "tmdbId": 13916,
-      "trailerKey": "NlJZ-YgAt-c",
-      "folderId": "folder_1782152610558_5560"
+      "tmdbId": 76479
+    },
+    {
+      "id": "1782209127075_2658",
+      "type": "SERIES",
+      "title": "The Last of Us",
+      "description": "Twenty years after modern civilization has been destroyed, Joel, a hardened survivor, is hired to smuggle Ellie, a 14-year-old girl, out of an oppressive quarantine zone. What starts as a small job soon becomes a brutal, heartbreaking journey, as they both must traverse the United States and depend on each other for survival.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg",
+      "year": 2023,
+      "score": 84,
+      "externalUrl": "https://www.themoviedb.org/tv/100088",
+      "viewed": false,
+      "addedDate": 1782209127075,
+      "totalEpisodes": 16,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Movistar Plus+ Ficción Total ",
+        "HBO Max",
+        "HBO Max Amazon Channel"
+      ],
+      "tmdbId": 100088
     }
   ]
 }

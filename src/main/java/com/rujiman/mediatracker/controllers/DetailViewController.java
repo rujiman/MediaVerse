@@ -340,6 +340,20 @@ public class DetailViewController {
     }
 
     /**
+     * Estado intermedio mientras fetchPlatformsIfMissing() espera la
+     * respuesta de TMDB: en vez de dejar el label oculto (lo que da la
+     * sensación de que la recomendación "no tiene" plataformas durante
+     * ese par de segundos), se muestra un aviso de carga, visualmente
+     * igual al label final pero en gris/atenuado para distinguirlo del
+     * resultado real.
+     */
+    private void renderPlatformsLoading() {
+        detailPlatforms.setText("Plataformas: buscando...");
+        detailPlatforms.setStyle("-fx-text-fill: " + COLOR_TEXT_DIM + ";");
+        detailPlatforms.setVisible(true);
+    }
+
+    /**
      * Las plataformas de SERIES/MOVIE normalmente ya llegan rellenas
      * desde la búsqueda (TMDBService.parseSeries/parseMovies llaman a
      * getWatchProviders() ahí mismo). Pero los MediaItem que llegan como
@@ -353,7 +367,10 @@ public class DetailViewController {
      * el tráiler o el número de episodios: si el item no trae platforms
      * y sí tiene tmdbId, se pide en un hilo de fondo y, a la vuelta, se
      * actualizan tanto el label como el texto del botón "Ver ahora"/
-     * "Abrir en navegador" (que dependen de este dato).
+     * "Abrir en navegador" (que dependen de este dato). Mientras se
+     * espera la respuesta, el label muestra "buscando..." en vez de
+     * quedarse oculto, para que no parezca que el dato simplemente no
+     * existe (ver renderPlatformsLoading()).
      *
      * No se repite la llamada si el item ya trae platforms (búsqueda
      * directa) ni si no es SERIES/MOVIE (ANIME/GAME/MUSIC no usan
@@ -365,6 +382,8 @@ public class DetailViewController {
                 && item.getTmdbId() != null;
 
         if (alreadyHasPlatforms || !canFetch) return;
+
+        renderPlatformsLoading();
 
         final MediaItem itemAtRequestTime = item;
         boolean isMovie = item.getType() == MediaType.MOVIE;
@@ -378,10 +397,20 @@ public class DetailViewController {
                 // la respuesta, no pintamos nada sobre la pantalla actual.
                 if (currentItem != itemAtRequestTime) return;
 
+                // Quitamos el estilo gris de "buscando..." tanto si hay
+                // resultado como si no, para no dejarlo aplicado por
+                // error sobre un futuro label con datos reales.
+                detailPlatforms.setStyle(null);
+
                 if (platforms != null && !platforms.isEmpty()) {
                     itemAtRequestTime.setPlatforms(platforms);
                     renderPlatformsLabel(itemAtRequestTime);
                     setupOpenExternalButton(itemAtRequestTime);
+                } else {
+                    // TMDB no tiene ninguna plataforma para este título:
+                    // ocultamos el label en vez de dejar "buscando..."
+                    // colgado para siempre.
+                    detailPlatforms.setVisible(false);
                 }
             });
         }).start();

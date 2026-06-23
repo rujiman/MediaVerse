@@ -365,6 +365,10 @@ public class TMDBService {
                     item.setTitle(obj.get(titleField).getAsString());
                 }
 
+                if (obj.has("overview") && !obj.get("overview").isJsonNull()) {
+                    item.setDescription(obj.get("overview").getAsString());
+                }
+
                 if (obj.has("poster_path") && !obj.get("poster_path").isJsonNull()) {
                     item.setImageUrl(IMAGE_BASE + obj.get("poster_path").getAsString());
                 }

@@ -216,6 +216,10 @@ public class AnilistService {
                 item.setAnilistId(obj.get("id").getAsInt());
                 item.setTitle(obj.getAsJsonObject("title").get("romaji").getAsString());
 
+                if (obj.has("description") && !obj.get("description").isJsonNull()) {
+                    item.setDescription(obj.get("description").getAsString());
+                }
+
                 if (obj.has("coverImage") && !obj.get("coverImage").isJsonNull()) {
                     JsonObject cover = obj.getAsJsonObject("coverImage");
                     if (cover.has("extraLarge") && !cover.get("extraLarge").isJsonNull()) {
@@ -228,6 +232,25 @@ public class AnilistService {
                     if (startDate.has("year") && !startDate.get("year").isJsonNull()) {
                         item.setYear(startDate.get("year").getAsInt());
                     }
+                }
+
+                if (obj.has("format") && !obj.get("format").isJsonNull()) {
+                    item.setFormat(obj.get("format").getAsString());
+                }
+
+                if (obj.has("episodes") && !obj.get("episodes").isJsonNull()) {
+                    item.setEpisodes(obj.get("episodes").getAsInt());
+                }
+
+                if (obj.has("genres") && !obj.get("genres").isJsonNull()) {
+                    JsonArray genres = obj.getAsJsonArray("genres");
+                    List<String> genreList = new ArrayList<>();
+                    for (JsonElement g : genres) genreList.add(g.getAsString());
+                    item.setGenres(genreList);
+                }
+
+                if (obj.has("status") && !obj.get("status").isJsonNull()) {
+                    item.setStatus(obj.get("status").getAsString());
                 }
 
                 if (obj.has("averageScore") && !obj.get("averageScore").isJsonNull()) {
