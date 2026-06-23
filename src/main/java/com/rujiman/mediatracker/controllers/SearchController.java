@@ -214,6 +214,8 @@ public class SearchController {
         if (homeController != null) {
             homeController.refreshAll();
         }
+
+        setWindowTitle("Mediaverse - Inicio");
     }
 
     /**
@@ -236,6 +238,22 @@ public class SearchController {
         backToHomeButton.setManaged(true);
 
         searchField.requestFocus();
+
+        setWindowTitle("Mediaverse - Buscar");
+    }
+
+    /**
+     * Actualiza el título de la ventana (la barra de Windows) para que
+     * refleje en qué pantalla está realmente el usuario, en vez de
+     * quedarse fijo en "Mediaverse - Search" desde el login. Defensivo
+     * ante el caso de que la Scene/Stage no esté disponible todavía
+     * (por ejemplo, la primera llamada desde initialize()).
+     */
+    private void setWindowTitle(String title) {
+        if (searchField != null && searchField.getScene() != null
+                && searchField.getScene().getWindow() != null) {
+            ((javafx.stage.Stage) searchField.getScene().getWindow()).setTitle(title);
+        }
     }
 
     /**
@@ -753,6 +771,7 @@ public class SearchController {
             controller.loadItem(item);
 
             openOverlay(detailRoot);
+            setWindowTitle("Mediaverse - " + item.getTitle());
 
         } catch (Exception e) {
             System.err.println("❌ Error al abrir DetailView: " + e.getMessage());
@@ -782,6 +801,7 @@ public class SearchController {
             controller.setOnOpenDetailAction(this::openDetailViewFromFavorites);
 
             openOverlay(favoritesRoot);
+            setWindowTitle("Mediaverse - Mis favoritos");
 
         } catch (Exception e) {
             System.err.println("❌ Error al abrir Favoritos: " + e.getMessage());
@@ -810,6 +830,7 @@ public class SearchController {
             controller.loadItem(item);
 
             openOverlay(detailRoot);
+            setWindowTitle("Mediaverse - " + item.getTitle());
 
         } catch (Exception e) {
             System.err.println("❌ Error al abrir DetailView desde favoritos: " + e.getMessage());
@@ -856,6 +877,16 @@ public class SearchController {
         fade.setOnFinished(e -> {
             detailOverlayContainer.setVisible(false);
             detailOverlayContainer.getChildren().clear();
+
+            // Al cerrar cualquier overlay (detalle, favoritos, watchlist,
+            // plan...), restauramos el título de lo que queda visible
+            // debajo, en vez de dejar el título del último overlay
+            // abierto (por ejemplo, el nombre de un item de detalle).
+            if (homeContainer.isVisible()) {
+                setWindowTitle("Mediaverse - Inicio");
+            } else if (searchContentBox.isVisible()) {
+                setWindowTitle("Mediaverse - Buscar");
+            }
         });
         fade.play();
     }
@@ -1093,6 +1124,13 @@ public class SearchController {
 
             openOverlay(planRoot);
 
+            String listLabel = switch (kind) {
+                case WATCH -> "Pienso ver";
+                case PLAY -> "Pienso jugar";
+                case LISTEN -> "Pienso escuchar";
+            };
+            setWindowTitle("Mediaverse - " + listLabel);
+
         } catch (Exception e) {
             System.err.println("❌ Error al abrir lista de plan: " + e.getMessage());
             e.printStackTrace();
@@ -1128,6 +1166,7 @@ public class SearchController {
             controller.setPlanContext(kind, planItemId);
 
             openOverlay(detailRoot);
+            setWindowTitle("Mediaverse - " + item.getTitle());
 
         } catch (Exception e) {
             System.err.println("❌ Error al abrir DetailView desde plan: " + e.getMessage());
@@ -1217,11 +1256,24 @@ public class SearchController {
             controller.setFilter(type, progressFilter, displayTitle, emptyMessage);
 
             openOverlay(watchlistRoot);
+            setWindowTitle("Mediaverse - " + stripLeadingEmoji(displayTitle));
 
         } catch (Exception e) {
             System.err.println("❌ Error al abrir lista de seguimiento: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Quita el emoji y espacio inicial de un texto tipo "📺 Series vistas",
+     * dejando solo "Series vistas". Se usa para componer títulos de
+     * ventana más limpios, ya que algunos emojis no se renderizan bien
+     * en la barra de título nativa de Windows (aparecen como un
+     * cuadrado de carácter no soportado).
+     */
+    private String stripLeadingEmoji(String text) {
+        if (text == null) return "";
+        return text.replaceFirst("^[^a-zA-Z0-9¡¿]+\\s*", "").trim();
     }
 
     /**
@@ -1249,6 +1301,7 @@ public class SearchController {
             controller.loadItem(item);
 
             openOverlay(detailRoot);
+            setWindowTitle("Mediaverse - " + item.getTitle());
 
         } catch (Exception e) {
             System.err.println("❌ Error al abrir DetailView desde lista de seguimiento: " + e.getMessage());
@@ -1271,7 +1324,7 @@ public class SearchController {
 
             Stage stage = (Stage) searchField.getScene().getWindow();
             stage.setScene(scene);
-            stage.setTitle("Mediaverse - Login");
+            stage.setTitle("Mediaverse - Iniciar sesión");
             stage.setWidth(800);
             stage.setHeight(600);
             stage.centerOnScreen();

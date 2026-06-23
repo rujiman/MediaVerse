@@ -63,6 +63,7 @@ public class LoginController {
             LoginPanel.setVisible(true);
             fadeIn(LoginPanel, null);
         });
+        updateWindowTitle("Mediaverse - Iniciar sesión");
     }
 
     // MOSTRAR REGISTRO
@@ -78,6 +79,7 @@ public class LoginController {
             stage.centerOnScreen();
             fadeIn(RegisterPanel, null);
         });
+        updateWindowTitle("Mediaverse - Crear cuenta");
     }
 
 
@@ -203,6 +205,21 @@ public class LoginController {
     }
 
     // ANIMACIONES
+    /**
+     * Actualiza el título de la ventana (la barra de Windows) para que
+     * refleje en qué panel está realmente el usuario (Login o Registro),
+     * en vez de quedarse fijo en "Mediaverse - Login" sin importar a
+     * cuál de los dos paneles se cambie. Defensivo ante el caso de que
+     * la Scene/Stage todavía no exista (puede pasar la primera vez que
+     * se llama, desde initialize(), antes de que el nodo esté
+     * completamente insertado en el árbol de la escena).
+     */
+    private void updateWindowTitle(String title) {
+        if (mainStack.getScene() != null && mainStack.getScene().getWindow() != null) {
+            ((Stage) mainStack.getScene().getWindow()).setTitle(title);
+        }
+    }
+
     private void fadeOut(VBox vbox, Runnable onFinish) {
         FadeTransition fade = new FadeTransition(Duration.millis(200), vbox);
         fade.setFromValue(1);
