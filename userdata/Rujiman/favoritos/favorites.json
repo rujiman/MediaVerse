@@ -22,7 +22,8 @@
         "Drama",
         "Thriller"
       ],
-      "tmdbId": 9615
+      "tmdbId": 9615,
+      "trailerKey": "K6RWbKMSDcg"
     },
     {
       "id": "1782229718118_1045",
@@ -122,28 +123,6 @@
         "Thriller"
       ],
       "anilistId": 1535
-    },
-    {
-      "id": "1782229787147_4602",
-      "type": "ANIME",
-      "title": "Code Geass: Hangyaku no Lelouch",
-      "description": "On August 10th of the year 2010 the Holy Empire of Britannia began a campaign of conquest, its sights set on Japan. Operations were completed in one month thanks to Britannia\u0027s deployment of new mobile humanoid armor vehicles dubbed Knightmare Frames. Japan\u0027s rights and identity were stripped away, the once proud nation now referred to as Area 11. Its citizens, Elevens, are forced to scratch out a living while the Britannian aristocracy lives comfortably within their settlements. Pockets of resistance appear throughout Area 11, working towards independence for Japan.\u003cbr\u003e\u003cbr\u003e\n Lelouch, an exiled Imperial Prince of Britannia posing as a student, finds himself in the heart of the ongoing conflict for the island nation. Through a chance meeting with a mysterious girl named C.C., Lelouch gains his Geass, the power of the king. Now endowed with absolute dominance over any person, Lelouch may finally realize his goal of bringing down Britannia from within!\u003cbr\u003e\u003cbr\u003e\n(Source: Bandai Entertainment)",
-      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1575-hsmWM2ydNm1m.jpg",
-      "year": 2006,
-      "score": 85,
-      "externalUrl": "https://anilist.co/anime/1575",
-      "viewed": false,
-      "addedDate": 1782229787147,
-      "totalEpisodes": 25,
-      "watchedEpisodes": [],
-      "genres": [
-        "Action",
-        "Drama",
-        "Mecha",
-        "Sci-Fi",
-        "Thriller"
-      ],
-      "anilistId": 1575
     },
     {
       "id": "1782229833227_2292",
@@ -335,7 +314,7 @@
       "platforms": [
         "Deezer"
       ],
-      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3?hdnea\u003dexp\u003d1782227441~acl\u003d/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d4fd545927013c2b8606b55dc0ebd6ae22bee32cda82a53eef5d918a6c3e5a4cc"
+      "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3?hdnea\u003dexp\u003d1782231891~acl\u003d/api/1/1/a/9/7/0/a97dfb5909dac71eb634dc1d29972f84.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003d637290b5cb7211d2cd063129ecfbd78559bacb5b218899af2efb6a49345250d0"
     },
     {
       "id": "1782229997646_1797",
@@ -352,6 +331,59 @@
         "Deezer"
       ],
       "previewUrl": "https://cdnt-preview.dzcdn.net/api/1/1/9/f/6/0/9f67c65ff59478a093b1453c34b1c402.mp3?hdnea\u003dexp\u003d1782228057~acl\u003d/api/1/1/9/f/6/0/9f67c65ff59478a093b1453c34b1c402.mp3*~data\u003duser_id\u003d0,application_id\u003d42~hmac\u003dc2480b9c47955bfa7bb4be9cb68be77006563eb42c1501c1730f395338d99846"
+    },
+    {
+      "id": "1782231163766_3222",
+      "type": "ANIME",
+      "title": "Code Geass: Hangyaku no Lelouch",
+      "description": "On August 10th of the year 2010 the Holy Empire of Britannia began a campaign of conquest, its sights set on Japan. Operations were completed in one month thanks to Britannia\u0027s deployment of new mobile humanoid armor vehicles dubbed Knightmare Frames. Japan\u0027s rights and identity were stripped away, the once proud nation now referred to as Area 11. Its citizens, Elevens, are forced to scratch out a living while the Britannian aristocracy lives comfortably within their settlements. Pockets of resistance appear throughout Area 11, working towards independence for Japan.\u003cbr\u003e\u003cbr\u003e\n Lelouch, an exiled Imperial Prince of Britannia posing as a student, finds himself in the heart of the ongoing conflict for the island nation. Through a chance meeting with a mysterious girl named C.C., Lelouch gains his Geass, the power of the king. Now endowed with absolute dominance over any person, Lelouch may finally realize his goal of bringing down Britannia from within!\u003cbr\u003e\u003cbr\u003e\n(Source: Bandai Entertainment)",
+      "imageUrl": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1575-hsmWM2ydNm1m.jpg",
+      "year": 2006,
+      "score": 85,
+      "externalUrl": "https://anilist.co/anime/1575",
+      "viewed": false,
+      "addedDate": 1782231163766,
+      "totalEpisodes": 25,
+      "watchedEpisodes": [],
+      "genres": [
+        "Action",
+        "Drama",
+        "Mecha",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "anilistId": 1575
+    },
+    {
+      "id": "1782231766132_1884",
+      "type": "SERIES",
+      "title": "The Handmaid\u0027s Tale",
+      "description": "Set in a dystopian future, a woman is forced to live as a concubine under a fundamentalist theocratic dictatorship.",
+      "imageUrl": "https://image.tmdb.org/t/p/original/eGUT7j3n3rn5yGihlCgwUnD70HV.jpg",
+      "year": 2017,
+      "score": 81,
+      "externalUrl": "https://www.themoviedb.org/tv/69478",
+      "viewed": false,
+      "addedDate": 1782231766132,
+      "totalEpisodes": 66,
+      "watchedEpisodes": [],
+      "platforms": [
+        "Netflix",
+        "Amazon Prime Video",
+        "Disney Plus",
+        "Movistar Plus+ Ficción Total ",
+        "HBO Max",
+        "Netflix Standard with Ads",
+        "MGM Plus Amazon Channel",
+        "Amazon Prime Video with Ads",
+        "HBO Max Amazon Channel"
+      ],
+      "genres": [
+        "Drama",
+        "Ciencia Ficción",
+        "Acción \u0026 Aventura"
+      ],
+      "tmdbId": 69478
     }
   ]
 }

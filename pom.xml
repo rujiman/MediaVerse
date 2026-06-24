@@ -88,6 +88,22 @@
                     <mainClass>com.rujiman.mediatracker.Main</mainClass>
                 </configuration>
             </plugin>
+		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jpackage-plugin</artifactId>
+                <version>0.1.4</version>
+                <configuration>
+                    <mainClass>com.rujiman.mediatracker.Main</mainClass>
+                    <name>MediaVerse</name>
+                    <version>1.0.0</version>
+                    <vendor>Rujiman</vendor>
+                    <description>Tu universo de entretenimiento en una sola app</description>
+                    <winInstallDir>MediaVerse</winInstallDir>
+                    <winConsole>false</winConsole>
+                    <winMenu>true</winMenu>
+                    <winShortcut>true</winShortcut>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>

@@ -240,6 +240,14 @@
     ],
     "userRating": 5
   },
+  "the handmaid\u0027s tale": {
+    "viewed": false,
+    "totalEpisodes": 66,
+    "watchedEpisodes": [
+      1
+    ],
+    "userRating": 5
+  },
   "re:zero -starting life in another world- memory snow": {
     "viewed": false,
     "watchedEpisodes": [],
@@ -729,7 +737,12 @@
     "userRating": 5
   },
   "juegos del sacrificio. jujutsu kaisen - kballero rap": {
-    "viewed": false,
+    "viewed": true,
+    "watchedEpisodes": [],
+    "userRating": 5
+  },
+  "horizon zero dawn": {
+    "viewed": true,
     "watchedEpisodes": [],
     "userRating": 5
   },
