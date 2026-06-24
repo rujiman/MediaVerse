@@ -31,25 +31,40 @@
 
 ### Paso a Paso: Obtener API Key
 
-1. **Abre** [https://www.themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)
-   - Si no tienes cuenta, **"Create an Account"** (gratis)
-   - Completa email y contraseña
+1. **Crea cuenta en** [https://www.themoviedb.org](https://www.themoviedb.org)
+   - Click en **"Sign Up"** (arriba derecha)
+   - Email, contraseña, nombre
    - Verifica tu email
 
 2. **Login** en TMDB
 
-3. **Acepta los términos** de API (importante)
+3. **Ve a Settings** 
+   - Click en tu perfil → **Settings**
 
-4. **Busca "API Key"** en la página (sección arriba)
-   - Verás un botón **"Create"** o **"Generate API Key"**
+4. **Selecciona API** en el menú izquierdo
 
-5. **Selecciona "Developer"** como tipo de uso
-   - (si pide más detalles, di que es personal/educativo)
+5. **Haz clic en "Create"** o **"Request an API Key"**
 
-6. **Acepta términos nuevamente**
+6. **Selecciona "Developer"** (uso no comercial)
+   - Acepta términos
 
-7. **Copia tu API Key** — aparecerá como una larga cadena de caracteres
-   - Ejemplo: `abc123def456ghi789jkl012mno345pqr...`
+7. **Rellena el formulario:**
+
+```
+Application Name:        MediaVerse
+Application URL:         https://github.com/rujiman/mediaverse
+Application Summary:     Gestor de series, películas, anime, juegos y música
+Intended Use:           Personal / Educational
+
+Additional Notes:
+TFG Desarrollo Aplicaciones Multiplataforma.
+Aplicación educativa para gestionar entretenimiento personal.
+```
+
+8. **Submit/Envía**
+
+9. **Copia tu API Key**
+   - Aparecerá bajo "API Key (v3 auth)"
 
 ### Agregar a `.env`
 
@@ -85,23 +100,38 @@ Si ves **"TMDB_API_KEY no configurada"**:
 
 ### Paso a Paso: Obtener Credenciales
 
-1. **Abre** [https://api-docs.igdb.com/](https://api-docs.igdb.com/)
-
-2. **Busca el botón "Register"** (arriba a la derecha)
-   - Crea una cuenta con email y contraseña
+1. **Crea cuenta en** [https://www.igdb.com/signup](https://www.igdb.com/signup)
+   - Email y contraseña
    - Verifica tu email
 
-3. **Login** en IGDB
+2. **Login** en IGDB
 
-4. **Accede a tu Dashboard** (desde el perfil)
+3. **Ve a API**
+   - Ve a [https://api.igdb.com/](https://api.igdb.com/)
+   - Click en **"Manage Apps"** o **"Register your application"**
 
-5. **Busca "API Keys" o "Credentials"**
-   - Verás dos campos:
-     - `Client ID` — Cópialo
-     - `Client Secret` — Pulsa el ojo para revelar y cópialo
+4. **Rellena el formulario de aplicación:**
 
-6. **Nota**: IGDB puede tardar **5-10 minutos** en activar nuevas claves
-   - Paciencia, es normal
+```
+Application Name:      MediaVerse
+Description:          Videogame discovery and personal management
+Website URL:          https://github.com/rujiman/mediaverse
+Purpose:              Personal / Educational
+
+Additional Use Case:
+Aplicación educativa (TFG) para descubrir y organizar videojuegos personales.
+Sin propósitos comerciales.
+```
+
+5. **Envía la solicitud**
+   - IGDB pedirá confirmación
+
+6. **⏱️ Espera 24-48 horas** para aprobación
+   - Recibirás un email con tus credenciales
+
+7. **Copia tus credenciales:**
+   - `Client ID` — Cadena alfanumérica
+   - `Client Secret` — Otra cadena alfanumérica
 
 ### Agregar a `.env`
 
