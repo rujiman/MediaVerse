@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\rujim\Documents\Proyects\mediaTracker\target\mediaTracker-1.0-SNAPSHOT.jar</jar>
+  <jar>C:\Users\rujim\Documents\Proyects\mediaTracker\target\MediaVerse.jar</jar>
   <outfile>C:\Users\rujim\Documents\Proyects\mediaTracker\Mediaverse.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -18,9 +18,9 @@
     <mainClass>com.rujiman.mediatracker.Main</mainClass>
   </classPath>
   <jre>
-    <path>C:\Users\rujim\Desktop\jdk-25_windows-x64_bin\jdk-25</path>
+    <path>%JAVA_HOME%;%PATH%</path>
     <requiresJdk>false</requiresJdk>
-    <requires64Bit>true</requires64Bit>
+    <requires64Bit>false</requires64Bit>
     <minVersion></minVersion>
     <maxVersion></maxVersion>
   </jre>

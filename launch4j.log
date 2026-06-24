@@ -82,3 +82,133 @@ Java max ver:
 JRE paths:	C:\Users\rujim\Desktop\jdk-25_windows-x64_bin\jdk-25
 Check launcher:	C:\Users\rujim\Desktop\jdk-25_windows-x64_bin\jdk-25\bin\javaw.exe (not found)
 Error msg:	This application requires a Java Runtime Environment.
+
+
+Version:	3.50
+CmdLine:	C:\Users\rujim\Documents\Proyects\mediaTracker\Mediaverse.exe --l4j-debug
+JNI:		No
+WOW64:		Yes
+Working dir:	C:\Users\rujim\Documents\Proyects\mediaTracker\.
+Requires JDK:	No
+Requires 64-Bit: No
+Java min ver:	
+Java max ver:	
+Substitute:	JAVA_HOME = 
+Substitute:	PATH = C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\Ruben Jimenez Manzano\Desktop\apache-maven-3.9.16-bin\bin;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin
+JRE paths:	;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\Ruben Jimenez Manzano\Desktop\apache-maven-3.9.16-bin\bin;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin
+Check launcher:	C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\system32\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\Wbem\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\WindowsPowerShell\v1.0\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\OpenSSH\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Docker\Docker\resources\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\BaseX\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Git\cmd\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\komorebi\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\whkd\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\YASB\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\system32\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\Wbem\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\WindowsPowerShell\v1.0\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\OpenSSH\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Docker\Docker\resources\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\BaseX\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Git\cmd\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\komorebi\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\whkd\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\YASB\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\system32\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\Wbem\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\WindowsPowerShell\v1.0\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\OpenSSH\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Docker\Docker\resources\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\BaseX\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Git\cmd\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\komorebi\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\whkd\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\YASB\bin\javaw.exe (not found)
+Check launcher:	C:\Users\rujim\AppData\Local\Microsoft\WindowsApps\bin\javaw.exe (not found)
+Check launcher:	C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin\javaw.exe (OK)
+Version string: 1.025.000 / 64-Bit (OK)
+Main class:	com.rujiman.mediatracker.Main
+Info:		Classpath not defined.
+Launcher:	C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin\javaw.exe
+Launcher args:	-classpath "C:\Users\rujim\Documents\Proyects\mediaTracker\Mediaverse.exe" com.rujiman.mediatracker.Main
+Args length:	104/32768 chars
+Exit code:	0
+
+
+Version:	3.50
+CmdLine:	C:\Users\rujim\Documents\Proyects\mediaTracker\Mediaverse.exe --l4j-debug
+JNI:		No
+WOW64:		Yes
+Working dir:	C:\Users\rujim\Documents\Proyects\mediaTracker\.
+Requires JDK:	No
+Requires 64-Bit: No
+Java min ver:	
+Java max ver:	
+Substitute:	JAVA_HOME = 
+Substitute:	PATH = C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\Ruben Jimenez Manzano\Desktop\apache-maven-3.9.16-bin\bin;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin
+JRE paths:	;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\Ruben Jimenez Manzano\Desktop\apache-maven-3.9.16-bin\bin;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files (x86)\BaseX\bin;C:\Program Files\Git\cmd;C:\Program Files\komorebi\bin\;C:\Program Files\whkd\bin\;C:\Program Files\YASB\;C:\Users\rujim\AppData\Local\Microsoft\WindowsApps;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin;;C:\Users\rujim\AppData\Local\spicetify;C:\Users\rujim\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\bin;C:\Users\rujim\AppData\Local\Programs\Kiro\bin;C:\Users\rujim\AppData\Local\cava\;C:\Program Files\apache-maven-3.9.16\bin;C:\Users\rujim\Desktop\apache-maven-3.9.16-bin\bin;C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin
+Check launcher:	C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\system32\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\Wbem\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\WindowsPowerShell\v1.0\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\OpenSSH\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Docker\Docker\resources\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\BaseX\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Git\cmd\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\komorebi\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\whkd\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\YASB\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\system32\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\Wbem\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\WindowsPowerShell\v1.0\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\OpenSSH\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Docker\Docker\resources\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\BaseX\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Git\cmd\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\komorebi\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\whkd\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\YASB\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\system32\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\Wbem\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\WindowsPowerShell\v1.0\bin\javaw.exe (not found)
+Check launcher:	C:\WINDOWS\System32\OpenSSH\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Docker\Docker\resources\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files (x86)\BaseX\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\Git\cmd\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\komorebi\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\whkd\bin\bin\javaw.exe (not found)
+Check launcher:	C:\Program Files\YASB\bin\javaw.exe (not found)
+Check launcher:	C:\Users\rujim\AppData\Local\Microsoft\WindowsApps\bin\javaw.exe (not found)
+Check launcher:	C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin\javaw.exe (OK)
+Version string: 1.025.000 / 64-Bit (OK)
+Main class:	com.rujiman.mediatracker.Main
+Info:		Classpath not defined.
+Launcher:	C:\Users\rujim\Desktop\JDK\jdk-25_windows-x64_bin\jdk-25\bin\javaw.exe
+Launcher args:	-classpath "C:\Users\rujim\Documents\Proyects\mediaTracker\Mediaverse.exe" com.rujiman.mediatracker.Main
+Args length:	104/32768 chars
+Exit code:	0
