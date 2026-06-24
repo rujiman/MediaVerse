@@ -1,4 +1,4 @@
 @echo off
 cd /d "%~dp0"
-java -jar target\mediaTracker-1.0-SNAPSHOT.jar
+java --add-modules javafx.controls,javafx.fxml,javafx.media -jar target\MediaVerse.jar
 pause
