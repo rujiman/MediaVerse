@@ -11,12 +11,23 @@ Elige tu sistema operativo:
 
 ## Windows
 
+### ⚠️ IMPORTANTE: Ruta de Instalación
+
+**Durante la instalación, cambia la ruta a `C:\MediaVerse`** (en lugar de aceptar la ruta por defecto)
+
+Esto evita problemas de permisos de Windows. Si instalas en `C:\Program Files` o similar, Windows bloqueará ciertas operaciones.
+
+---
+
 ### Instalador Recomendado (Más Fácil)
 
-1. Descarga **`MediaVerse-1.0-Installer.exe`** desde [Releases](https://github.com/rujiman/mediaverse/releases)
+1. Descarga **`MediaVerse-1.0.0-Setup.exe`** desde [Releases](https://github.com/rujiman/mediaverse/releases)
 2. **Doble clic** para ejecutar
-3. Elige carpeta de instalación (por defecto: `C:\Program Files\MediaVerse`)
-4. El instalador incluye **Java 21 integrado** — sin necesidad de instalación previa
+3. **⚠️ En "Select Destination Location"**, cambia la ruta:
+   - **De**: `C:\Program Files (x86)\MediaVerse`
+   - **A**: `C:\MediaVerse`
+   - Pulsa "Browse" y selecciona raíz de C:\
+4. El instalador incluye **Java 25 + Maven integrados** — sin necesidad de instalación previa
 5. **Sigue el wizard** (Siguiente, Siguiente, Instalar)
 6. ¡Listo! Se creará un acceso directo en el escritorio
 
@@ -25,7 +36,7 @@ Elige tu sistema operativo:
 - **Desde el menú inicio**: Busca "MediaVerse"
 
 ### Configurar API Keys
-1. Abre la carpeta de instalación: `C:\Program Files\MediaVerse\`
+1. Abre la carpeta de instalación: `C:\MediaVerse\`
 2. Busca el archivo **`.env.example`**
 3. Cópialo y renómbralo a **`.env`**
 4. **Abre `.env` con Bloc de Notas**
@@ -35,7 +46,7 @@ Elige tu sistema operativo:
 
 ### Desinstalar
 - **Configuración** → Aplicaciones → Busca "MediaVerse" → Desinstalar
-- O ejecuta `uninstall.exe` en la carpeta de instalación
+- O ejecuta `uninstall.exe` en `C:\MediaVerse\`
 
 ---
 
