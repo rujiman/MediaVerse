@@ -31,18 +31,47 @@ import java.nio.file.Paths;
  * Ventaja principal: para hacer una copia de seguridad de un usuario basta
  * con copiar su carpeta entera, en vez de ir pescando archivos sueltos.
  *
- * La carpeta raíz es relativa al directorio desde el que se ejecuta la
- * app (igual que antes), apropiado para un proyecto que se prueba en
- * local. Todos los métodos crean las carpetas intermedias necesarias
- * antes de devolver la ruta, de modo que el primer Files.write() nunca
- * falle por carpeta inexistente.
+ * UBICACIÓN DE LA CARPETA RAÍZ
+ * -----------------------------
+ * La carpeta raíz NO es relativa al directorio desde el que se ejecuta
+ * la app. Antes lo era ("userdata" sin más), lo cual funcionaba bien
+ * en desarrollo (ejecutando con `mvn javafx:run` desde la raíz del
+ * proyecto), pero se rompía al empaquetar con jpackage: el directorio
+ * de trabajo del .exe empaquetado no es predecible, así que userdata/
+ * terminaba escondida dentro de la carpeta de instalación, donde el
+ * usuario no la encuentra y donde además Windows puede no dar permiso
+ * de escritura (Program Files está protegido para usuarios normales).
+ *
+ * Ahora ROOT es una ruta ABSOLUTA dentro de la carpeta personal del
+ * usuario (~/Documents/MediaVerse/userdata), igual en todos los modos
+ * de ejecución (IDE, jar suelto, o .exe empaquetado), y visible/
+ * localizable con el explorador de archivos — lo que permite, por
+ * ejemplo, meter esa carpeta dentro de Google Drive/OneDrive para
+ * tener copia de seguridad automática del historial del usuario.
+ *
+ * Todos los métodos crean las carpetas intermedias necesarias antes de
+ * devolver la ruta, de modo que el primer Files.write() nunca falle
+ * por carpeta inexistente.
  */
 public final class AppPaths {
 
     private AppPaths() {}
 
-    /** Carpeta raíz de todos los datos (y de las fotos de perfil). */
-    public static final String ROOT = "userdata";
+    /**
+     * Carpeta raíz de todos los datos (y de las fotos de perfil).
+     *
+     * System.getProperty("user.home") devuelve la carpeta personal del
+     * usuario del sistema operativo actual (en Windows, normalmente
+     * C:\Users\<usuario>; en Linux/Mac, /home/<usuario> o
+     * /Users/<usuario>), por lo que esta ruta es portable entre
+     * sistemas sin necesidad de detectar el SO manualmente.
+     */
+    public static final String ROOT = Paths.get(
+            System.getProperty("user.home"),
+            "Documents",
+            "MediaVerse",
+            "userdata"
+    ).toString();
 
     // Nombres de las subcarpetas por tipo dentro de cada usuario. Se
     // centralizan aquí como constantes para que un cambio de nombre sea
@@ -54,7 +83,7 @@ public final class AppPaths {
     public static final String DIR_FOLDERS   = "carpetas";
 
     /**
-     * Archivo global (no pertenece a ningún usuario): userdata/<fileName>.
+     * Archivo global (no pertenece a ningún usuario): <ROOT>/<fileName>.
      * Se usa para users.json y profile.json.
      */
     public static Path global(String fileName) {
@@ -65,7 +94,7 @@ public final class AppPaths {
 
     /**
      * Archivo de un usuario, dentro de una subcarpeta por tipo:
-     * userdata/<user>/<subDir>/<fileName>.
+     * <ROOT>/<user>/<subDir>/<fileName>.
      *
      * Si no hay usuario logueado (user null/vacío) se usa "_sin_usuario"
      * como carpeta de respaldo, equivalente a los nombres genéricos
