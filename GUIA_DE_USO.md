@@ -1,283 +1,152 @@
-# 📖 Guía de Uso — MediaVerse
+# 📖 Guía de uso — MediaVerse
 
-## Tabla de Contenidos
-1. [Primeros Pasos](#primeros-pasos)
-2. [Buscar Contenido](#buscar-contenido)
-3. [Sistema de Favoritos](#sistema-de-favoritos)
-4. [Listas de Seguimiento](#listas-de-seguimiento)
-5. [Mi MediaVerse (Dashboard)](#mi-mediaverse)
-6. [Ver Detalles](#ver-detalles)
-7. [Plataformas de Streaming](#plataformas-de-streaming)
-8. [FAQ](#faq)
+## Tabla de contenidos
+1. [Primeros pasos](#primeros-pasos)
+2. [Buscar contenido](#buscar-contenido)
+3. [Favoritos](#favoritos)
+4. [Listas de seguimiento](#listas-de-seguimiento)
+5. [Dashboard (Mi MediaVerse)](#mi-mediaverse)
+6. [Detalle de contenido](#detalle-de-contenido)
+7. [Plataformas de streaming](#plataformas-de-streaming)
+8. [Progreso y valoraciones](#progreso-y-valoraciones)
+9. [FAQ](#faq)
 
 ---
 
-## Primeros Pasos
+## Primeros pasos
 
-### Crear Cuenta
+### Crear cuenta
 1. Abre MediaVerse
-2. En la pantalla de login, haz clic en "¿No tienes cuenta?"
-3. Elige un **usuario** (3+ caracteres) y **contraseña** (4+ caracteres)
-4. Confirma la contraseña
-5. ¡Listo! Ya tienes acceso
+2. Haz clic en "¿No tienes cuenta?"
+3. Elige un usuario (mínimo 3 caracteres) y una contraseña (mínimo 4 caracteres)
+4. Confirma la contraseña y regístrate
 
-### Cambiar Contraseña
-1. Desde el menú (icono ☰ arriba a la derecha) → Perfil
-2. Pulsa "Cambiar Contraseña"
-3. Introduce la nueva contraseña
+### Cambiar contraseña o nombre de usuario
+Menú (☰ arriba a la derecha) → Perfil → Cambiar Contraseña / Cambiar Usuario
 
-### Agregar Foto de Perfil
-1. Menú (☰) → Perfil
-2. Haz clic sobre tu avatar
-3. Elige una imagen PNG o JPG
-4. ¡Tu foto se actualiza al instante!
+### Foto de perfil
+Menú (☰) → Perfil → haz clic sobre tu avatar → elige una imagen PNG o JPG
 
 ---
 
-## Buscar Contenido
+## Buscar contenido
 
-### Tipos de Búsqueda
-La app soporta 5 categorías:
+La app soporta 5 categorías de búsqueda:
 
-| Tipo | Fuente | Qué puedes encontrar |
-|------|--------|----------------------|
-| **Series** | TMDB | Telenovelas, series, documentales |
-| **Películas** | TMDB | Películas de todas las épocas y géneros |
-| **Anime** | AniList | Anime, manhwa, animes por temporada |
-| **Videojuegos** | IGDB | Juegos para PC, consolas, móviles |
-| **Música** | Deezer | Canciones individuales y álbumes |
+| Tipo | Fuente | Qué encuentras |
+|------|--------|----------------|
+| Series | TMDB | Series, documentales, miniseries |
+| Películas | TMDB | Cine de todos los géneros y épocas |
+| Anime | AniList | Anime y temporadas |
+| Videojuegos | IGDB | Juegos para PC, consolas y móvil |
+| Música | Deezer | Canciones y álbumes |
 
-### Cómo Buscar
-1. En la pestaña **Búsqueda** (lupa 🔍), escribe lo que buscas
-2. La app filtra automáticamente por tipo
-3. **Haz clic en un resultado** para ver detalles
-4. Desde el detalle, **agrégalo a favoritos** (⭐)
-
-### Filtros y Búsqueda Avanzada
-- Escribe el título exacto o parte del nombre
-- La búsqueda es **tolerante** (no necesita ser exacto)
-- Ordena resultados por relevancia (por defecto)
+Escribe en la barra de búsqueda y haz clic en cualquier resultado para ver su detalle completo.
 
 ---
 
-## Sistema de Favoritos
+## Favoritos
 
-### Agregar a Favoritos
-1. Abre el detalle de cualquier contenido
-2. Pulsa el botón **⭐ Agregar a Favoritos** (rojo)
-3. ¡Listo! Aparece en tu biblioteca personal
+### Agregar y eliminar
+Desde el detalle de cualquier contenido, pulsa **⭐ Agregar a Favoritos** o **❌ Eliminar de Favoritos**.
 
-### Ver Favoritos
-1. Pestaña **Favoritos** (corazón ❤️)
-2. Filtra por tipo (Series, Películas, Anime, Juegos, Música)
-3. Haz clic en cualquier tarjeta para ver detalles
+### Carpetas personalizadas
+1. En la pestaña Favoritos, pulsa **✏️ Editar**
+2. Pulsa **+ Crear Carpeta** y dale un nombre
+3. Desde el detalle de cualquier favorito, pulsa el icono de carpeta 📁 para asignarlo
 
-### Eliminar de Favoritos
-1. Desde el detalle, pulsa **❌ Eliminar de Favoritos**
-2. O desde la lista, haz clic derecho → eliminar
-
-### Crear Carpetas en Favoritos
-1. En la pestaña **Favoritos**, pulsa el botón **✏️ Editar**
-2. Pulsa **"+ Crear Carpeta"**
-3. Dale un nombre (ej: "Anime Vistos", "Películas Terror")
-4. Pulsa **Listo** para guardar
-
-### Agregar Contenido a Carpetas
-1. **Desde el detalle** de cualquier serie, película, anime, etc.
-2. Bajo el título, busca el **icono de carpeta** 📁
-3. Pulsa el icono → aparece un **selector con tus carpetas**
-4. **Elige la carpeta** donde quieres guardar
-5. Listo, se agrega automáticamente
-
-O desde la lista de Favoritos:
-1. Busca el contenido que quieres mover
-2. Pulsa el **icono de carpeta** 📁 en la tarjeta
-3. Selecciona la carpeta destino
-4. Se mueve al instante
+### Filtrar por tipo
+En la pestaña Favoritos puedes filtrar por Series, Películas, Anime, Juegos o Música.
 
 ---
 
-## Listas de Seguimiento
+## Listas de seguimiento
 
-### ¿Para Qué Sirven?
-Mantén un registro de lo que **planeas** consumir (distinto de favoritos):
-- **Pienso Ver** — Series y películas en lista de deseos
-- **Pienso Jugar** — Juegos que quieres probar
-- **Pienso Escuchar** — Música para descubrir
+Mantén un registro de lo que planeas consumir, separado de tus favoritos:
 
-### Agregar a una Lista
-1. Desde el detalle de cualquier contenido
-2. Pulsa **"+ Pienso Ver/Jugar/Escuchar"**
-3. Se agrega automáticamente a esa lista
+- **Pienso Ver** — series y películas pendientes
+- **Pienso Jugar** — juegos en lista de deseos
+- **Pienso Escuchar** — música por descubrir
 
-### Organizar con Carpetas
-1. En **Listas** (pestaña), pulsa **✏️ Editar**
-2. Crea carpetas (ej: "Diciembre 2025", "Trending Now")
-3. Mueve items entre carpetas
-4. Pulsa **Listo**
+Desde el detalle de cualquier contenido, pulsa **"+ Pienso Ver/Jugar/Escuchar"** para añadirlo.
 
-### Marcar como Completado
-1. Desde el item en la lista, pulsa **✓ Marcar como Visto**
-2. Se traslada a "Progreso" automáticamente
-3. Si quieres volver a la lista, pulsa **Mover a Pienso Ver**
+También puedes crear carpetas dentro de cada lista (ej: "Diciembre", "Trending") desde el botón ✏️ Editar.
 
 ---
 
 ## Mi MediaVerse
 
-### ¿Qué es?
-Tu **dashboard personalizado** con tus favoritos destacados. Aparece al abrir la app tras login.
+Tu dashboard personalizado que aparece al abrir la app tras login. Puedes elegir qué favoritos destacados aparecen en cada sección.
 
-### Secciones Disponibles
-- **Juegos** (columna izquierda, 12 slots)
-- **Series** (3x4 grid, 12 slots)
-- **Anime** (3x4 grid, 12 slots)
-- **Música** (fila inferior, 5 slots)
-- **Películas** (fila inferior, 5 slots)
+### Secciones disponibles
+- Juegos (12 slots)
+- Series (12 slots)
+- Anime (12 slots)
+- Música (5 slots)
+- Películas (5 slots)
 
-### Personalizar el Dashboard
-1. Desde **Mi MediaVerse**, pulsa **✏️** en la esquina superior derecha de cualquier sección
-2. Se abre un selector con **todos tus favoritos de ese tipo**
-3. **Haz clic** para marcar/desmarcar (máximo = límite de la sección)
-4. Pulsa **Listo** para guardar
+### Personalizar
+Pulsa **✏️** en la esquina de cualquier sección → selecciona qué favoritos mostrar → Listo.
 
-### Elegir Qué Mostrar
-- Las secciones **vacías se ocultan** automáticamente
-- Si quitas todos los items de una sección, desaparece
-- Agregando items nuevos, la sección reaparece
+Las secciones sin contenido se ocultan automáticamente.
 
 ---
 
-## Ver Detalles
+## Detalle de contenido
 
-Cuando abres el detalle de un contenido, ves:
+Al abrir el detalle de cualquier resultado verás:
 
-### Información Básica
-- **Imagen de portada** (doble resolución para claridad)
-- **Título** y **año de lanzamiento**
-- **Puntuación** (⭐ sobre 100)
-- **Géneros** (etiquetas: "Drama", "Ciencia Ficción", etc.)
-- **Descripción** completa
-
-### Para Series / Anime
-- **Total de episodios**
-- **Checkboxes para marcar episodios vistos** (1/1, 2/2, etc.)
-- Botones rápidos: **"Marcar todos", "Desmarcar todos", "Hasta el episodio X"**
-
-### Para Canciones / Álbumes
-- **Duración**
-- **Botón de reproducción** (previsualizaciones de 30s)
-- **Número de pistas** en álbumes
-
-### Acciones
-- **⭐ Agregar a Favoritos** / **❌ Eliminar**
-- **▶ Ver Ahora** (abre la plataforma de streaming)
-- **🎬 Ver Tráiler en YouTube** (series/películas)
-- **🌐 Abrir en Navegador** (página original del contenido)
-- **💬 Mi Valoración** (1-5 estrellas)
-
-### Recomendaciones
-Al final, la app sugiere contenido similar basado en los gustos.
+- Portada, título, año y puntuación
+- Géneros y descripción completa
+- Episodios (para series y anime) con checkboxes individuales
+- Duración y pistas (para música)
+- Plataformas de streaming disponibles (para series y películas)
+- Tráiler en YouTube (para series y películas)
+- Recomendaciones similares
+- Tu valoración personal (1-5 estrellas)
 
 ---
 
-## Plataformas de Streaming
+## Plataformas de streaming
 
-### Cómo Acceder
-1. Abre el detalle de una **serie o película**
-2. Si hay plataformas disponibles, verás **▶ Ver Ahora** (en azul)
-3. Si no hay, el botón dice **"Abrir en Navegador"**
+En el detalle de series y películas, si hay plataformas disponibles (Netflix, Prime, Disney+, Crunchyroll, etc.), aparece el botón **▶ Ver Ahora**. Si hay varias opciones, se abre un selector para elegir.
 
-### Elegir Plataforma
-- **Una sola opción** → Se abre directamente
-- **Varias opciones** → Selector para elegir (Netflix, Prime, etc.)
-- **Ninguna** → Fallback a la página de TMDB
-
-### Plataformas Soportadas
-Netflix, Prime Video, Disney+, Max, HBO Max, Movistar Plus+, Filmin, Apple TV, Apple TV+, SkyShowtime, Crunchyroll, y más.
-
-**Nota**: La búsqueda es dentro de cada plataforma; la app no simula reproducción.
+El botón abre una búsqueda directa dentro de esa plataforma en tu navegador.
 
 ---
 
-## Progreso y Valoraciones
+## Progreso y valoraciones
 
-### Marcar como Visto
-1. Abre el detalle
-2. **Marca los episodios** (checkbox individual) **O** pulsa **"Marcar como visto"** para items simples
-3. El progreso se guarda automáticamente
+### Marcar episodios
+En el detalle de una serie o anime, marca los episodios que has visto uno a uno, o usa los botones rápidos: **Marcar todos**, **Desmarcar todos**, o **Hasta el episodio X**.
 
-### Valorar (1-5 Estrellas)
-1. En el detalle, **haz clic en las estrellas** de "Mi Valoración"
-2. Tu puntuación es **independiente** de la puntuación de la app (TMDB/AniList)
-3. Se guarda al instante
-
-### Ver Historial
-Desde **Favoritos** o **Listas**, todos los items mostrados cuentan con indicadores de progreso.
+### Valorar
+Haz clic en las estrellas de "Mi Valoración" en el detalle. Es independiente de la puntuación de la comunidad (TMDB/AniList/IGDB).
 
 ---
 
 ## FAQ
 
-### ¿Dónde se guardan mis datos?
-Localmente, en carpetas dentro de tu ordenador bajo `userdata/<tu_usuario>/`. No se envía nada a servidores remotos.
+**¿Dónde se guardan mis datos?**
+En tu carpeta personal: `~/Documents/MediaVerse/userdata/<tu_usuario>/`. Puedes hacer backup o sincronizarla con Drive/OneDrive.
 
-### ¿Necesito conexión a Internet?
-**Sí**, para búsquedas iniciales (TMDB, AniList, IGDB, Deezer). Una vez guardado en favoritos, puedes ver detalles sin conexión (excepto imágenes).
+**¿Necesito conexión a Internet?**
+Sí, para las búsquedas. Una vez guardado en favoritos, puedes ver la información guardada sin conexión (excepto las imágenes).
 
-### ¿Cuántos favoritos puedo tener?
-**Ilimitados**. En el dashboard, el máximo es 12 por sección (series/anime/juegos) o 5 (música/películas).
+**¿Cuántos favoritos puedo tener?**
+Ilimitados. En el dashboard, el máximo por sección es 12 (juegos/series/anime) o 5 (música/películas).
 
-### ¿Puedo cambiar mi nombre de usuario?
-Sí. Menú (☰) → Perfil → Cambiar Usuario. Se renombran automáticamente tus datos locales.
+**¿Puedo cambiar mi nombre de usuario?**
+Sí, desde Menú → Perfil → Cambiar Usuario. Los datos se renombran automáticamente.
 
-### No veo géneros en mis películas/series
-Los géneros solo aparecen si los has buscado **desde la app** (búsqueda nueva). Si las guardaste de otra fuente, **busca la película/serie de nuevo en TMDB y vuelve a guardarla**.
+**Los géneros no aparecen en mis favoritos**
+Los géneros se obtienen al buscar desde la app. Si guardaste contenido de otra fuente, vuelve a buscarlo en MediaVerse y guárdalo de nuevo.
 
-### ¿Qué pasa si me equivoco en las API keys?
-Te lo dirá la app al iniciar. Ve a `.env` y corrige. Reinicia la app.
+**¿Puedo exportar mis datos?**
+Los JSON están en `~/Documents/MediaVerse/userdata/`. Puedes copiar esa carpeta completa como backup en cualquier momento.
 
-### ¿Puedo exportar mis datos?
-Los JSONs están en `userdata/<usuario>/`. Puedes hacer backup copiando esa carpeta completa.
+**¿Hay versión web o móvil?**
+Solo escritorio (Windows por ahora). Mac y Linux requieren compilar desde código fuente.
 
-### ¿Hay versión web o móvil?
-Solo desktop por ahora (Windows, macOS, Linux).
-
-### ¿La app funciona sin estar registrado?
-No. Debes crear una cuenta la primera vez (local, sin servidor remoto).
-
----
-
-## Atajos de Teclado
-
-| Atajo | Acción |
-|-------|--------|
-| `Enter` en búsqueda | Buscar |
-| `Esc` | Cerrar dialogs/detalle |
-| `Tab` | Navegar entre secciones |
-
----
-
-## Tips y Trucos
-
-✨ **Organiza por carpetas**: Usa carpetas en favoritos para separar series vistas, viendo, y planeadas.
-
-✨ **Usa listas de seguimiento**: "Pienso Ver" es ideal para no olvidar series trending.
-
-✨ **Marca episodios al ver**: Así sabes exactamente dónde parar.
-
-✨ **Valoraciones personales**: Ayudan a recordar cuáles te gustaron realmente (distinto de la puntuación de la comunidad).
-
-✨ **Dashboard minimalista**: No todas las secciones tienen que estar llenas. Usa solo las que necesites.
-
----
-
-**¿Necesitas más ayuda?** Abre un issue en [GitHub](https://github.com/rujiman/mediaverse/issues).
-
----
-
-## 👨‍💻 Autor
-
-**Ruben Jimenez Manzano** (Rujiman)
-
-Trabajo Final de Grado (TFG) en el ciclo DAM — 2025
+**La app no arranca**
+Comprueba que el fichero `.env` está en la carpeta `app\` con las claves de TMDB e IGDB rellenas. Ver [SETUP.md](./SETUP.md).

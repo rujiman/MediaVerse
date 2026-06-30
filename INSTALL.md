@@ -2,91 +2,88 @@
 
 ---
 
-## 🪟 Windows (Recomendado)
+## Opción 1: Portable (Recomendado para Windows)
 
-### ⚠️ IMPORTANTE: Ruta de Instalación
+Esta es la forma más sencilla. No hay que instalar nada.
 
-**Instala siempre en `C:\MediaVerse`** (cambia la ruta durante la instalación)
+### 1. Descarga el zip
 
-Esto evita problemas de permisos de Windows.
+Descarga **`MediaVerse-portable.zip`** desde [Releases](https://github.com/rujiman/MediaVerse/releases).
 
----
+### 2. Descomprime
 
-### 1. Descargar Instalador
+Descomprime el zip donde quieras: Escritorio, Documentos, un USB...
 
-Descarga **`MediaVerse-1.0.0-Setup.exe`** desde [Releases](https://github.com/rujiman/mediaverse/releases)
+La estructura que verás dentro:
 
-### 2. Ejecutar Instalador
-
-1. **Doble clic** en el `.exe`
-2. En **"Select Destination Location"**, cambia a `C:\MediaVerse`
-3. **Siguiente → Siguiente → Instalar**
-4. ¡Listo! Se crea acceso directo en el escritorio
-
-### 3. Configurar Claves
-
-1. Abre `C:\MediaVerse\`
-2. Copia `.env.example` → renómbralo a `.env`
-3. Abre `.env` con **Bloc de Notas**
-4. Rellena tus claves (ver [SETUP.md](./SETUP.md))
-5. **Guarda** (Ctrl+S) y **reinicia la app**
-
-### 4. Usar
-
-- **Doble clic** en el icono del escritorio
-- O busca "MediaVerse" en el menú inicio
-
----
-
-## 🐧 Linux / macOS
-
-### 1. Clona el Repositorio
-
-```bash
-git clone https://github.com/rujiman/mediaverse.git
-cd mediaverse
+```
+MediaVerse/
+├── MediaVerse.exe       ← el ejecutable
+├── app/
+│   ├── MediaVerse.jar
+│   └── .env             ← aquí va tu fichero .env
+└── runtime/             ← Java incluido, no tocar
 ```
 
-### 2. Configura Claves
+### 3. Configura tus claves de API
+
+1. Dentro de la carpeta descomprimida, entra en `app\`
+2. Crea un fichero llamado `.env` (copia el `.env.example` que hay en la raíz del zip)
+3. Ábrelo con el Bloc de Notas y rellena tus claves (ver [SETUP.md](./SETUP.md))
+4. Guarda el fichero
+
+### 4. Ejecuta
+
+Doble clic en `MediaVerse.exe`. Listo.
+
+> **No necesitas Java instalado.** El runtime de Java 25 va incluido dentro del zip en la carpeta `runtime\`.
+
+---
+
+## Opción 2: Desde código fuente (para desarrolladores)
+
+### Requisitos
+
+- Java 25
+- Maven 3.8+
+- Git
+
+### Pasos
 
 ```bash
+git clone https://github.com/rujiman/MediaVerse.git
+cd MediaVerse
 cp .env.example .env
-nano .env
 ```
 
-Rellena tus claves (ver [SETUP.md](./SETUP.md))
-
-Guarda: **Ctrl+X → Y → Enter**
-
-### 3. Ejecuta
+Rellena `.env` con tus claves (ver [SETUP.md](./SETUP.md)) y ejecuta:
 
 ```bash
 mvn javafx:run
 ```
 
-**Requisitos previos:**
-- Java 21+ → [Descarga aquí](https://jdk.java.net/21/)
-- Maven 3.8+ → [Descarga aquí](https://maven.apache.org/download.cgi)
+---
+
+## Dónde se guardan tus datos
+
+Independientemente de cómo ejecutes la app, los datos siempre se guardan en:
+
+```
+C:\Users\<tu_usuario>\Documents\MediaVerse\userdata\
+```
+
+Esto significa que:
+- Puedes mover o reinstalar el zip sin perder tus datos
+- Puedes hacer backup copiando esa carpeta
+- Puedes sincronizarla con Google Drive o OneDrive
 
 ---
 
-## ✅ Verificar que Funciona
-
-1. **Abre MediaVerse**
-2. **Busca una serie** (ej: "Breaking Bad")
-3. Si ves resultados → ¡**Listo!**
-
----
-
-## ❌ Problemas Comunes
+## Problemas comunes
 
 | Problema | Solución |
 |----------|----------|
-| "TMDB_API_KEY no configurada" | Falta crear/rellenar `.env` (ver [SETUP.md](./SETUP.md)) |
-| "Java no encontrado" | Instala [Java 21+](https://jdk.java.net/21/) |
-| "Maven no encontrado" | Instala [Maven](https://maven.apache.org/download.cgi) |
-| La app es lenta | Normal en primeras búsquedas (5-10 seg) |
-
----
-
-**¿Necesitas ayuda?** Consulta [SETUP.md](./SETUP.md) o abre un [issue en GitHub](https://github.com/rujiman/mediaverse/issues).
+| La app no abre | Comprueba que el `.env` está en `app\` con las claves rellenas |
+| "TMDB_API_KEY no configurada" | Falta crear o rellenar el `.env` (ver [SETUP.md](./SETUP.md)) |
+| Las búsquedas no funcionan | Verifica que tienes conexión a Internet y que las claves son válidas |
+| La app es lenta al arrancar | Normal la primera vez; las siguientes arranca más rápido |
