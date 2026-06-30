@@ -3,14 +3,7 @@ package com.rujiman.mediatracker.controllers;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
 import com.rujiman.mediatracker.models.FavoriteItem;
-import com.rujiman.mediatracker.services.AuthService;
-import com.rujiman.mediatracker.services.ProfileService;
-import com.rujiman.mediatracker.services.TMDBService;
-import com.rujiman.mediatracker.services.AnilistService;
-import com.rujiman.mediatracker.services.MusicService;
-import com.rujiman.mediatracker.services.GameService;
-import com.rujiman.mediatracker.services.FavoritesService;
-import com.rujiman.mediatracker.services.PlanService;
+import com.rujiman.mediatracker.services.*;
 import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -968,7 +961,7 @@ public class SearchController {
             // (userdata/<user>/<user>_profile.<ext>), junto a sus JSON,
             // en vez de suelta en userdata/. getParentFile().mkdirs()
             // crea esa carpeta de usuario si aún no existe.
-            File dest = new File("userdata/" + loginUser + "/" + loginUser + "_profile" + extension);
+            File dest = AppPaths.userFile(loginUser, "", loginUser + "_profile" + extension).toFile();
             dest.getParentFile().mkdirs();
 
             try {
