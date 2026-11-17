@@ -33,6 +33,7 @@ public class AuthService {
         for (User user : users) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 currentUser = username;
+                ServiceLocator.init(username); // inicializa todos los servicios de la sesión
                 System.out.println("✅ Login exitoso: " + username);
                 return true;
             }
@@ -48,6 +49,7 @@ public class AuthService {
     public static void logout() {
         System.out.println("🚪 Logout: " + currentUser);
         currentUser = null;
+        ServiceLocator.reset(); // invalida todos los servicios de la sesión
     }
 
     // ============================

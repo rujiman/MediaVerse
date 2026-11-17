@@ -270,6 +270,9 @@
 .card-hover-movie {
     -fx-effect: dropshadow(gaussian, #ecb14d99, 18, 0.35, 0, 0);
 }
+.card-hover-book {
+    -fx-effect: dropshadow(gaussian, #f9731699, 18, 0.35, 0, 0);
+}
 
 /* Chip de género (Acción, Aventura, Drama...) en la pantalla de detalle.
    Más discreto que los badges de tipo: gris-violeta neutro, sin glow ni
@@ -369,6 +372,16 @@
     -fx-padding: 4 11 4 9;
     -fx-background-radius: 20;
     -fx-effect: dropshadow(gaussian, #ecb14d99, 8, 0.4, 0, 1);
+}
+.badge-book {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f97316, #e05a05);
+    -fx-text-fill: white;
+    -fx-font-size: 9px;
+    -fx-font-weight: 800;
+    -fx-letter-spacing: 0.6px;
+    -fx-padding: 4 11 4 9;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, #f9731699, 8, 0.4, 0, 1);
 }
 
 /* ============================================================

@@ -587,6 +587,7 @@ public class FavoritesViewController {
             case MOVIE -> "🎬 PELÍCULA";
             case MUSIC -> "🎵 MÚSICA";
             case GAME -> "🎮 JUEGO";
+            case BOOK -> "📚 LIBRO";
         };
     }
 
@@ -598,6 +599,7 @@ public class FavoritesViewController {
             case ANIME -> "badge-anime";
             case MUSIC -> "badge-music";
             case MOVIE -> "badge-movie";
+            case BOOK -> "badge-book";
         };
     }
 

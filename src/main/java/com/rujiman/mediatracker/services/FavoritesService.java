@@ -6,392 +6,201 @@ import com.rujiman.mediatracker.models.MediaType;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.*;
 
 /**
- * Servicio para guardar y cargar favoritos en JSON, separados por usuario
- * logueado (cada cuenta tiene su propio archivo favorites_<usuario>.json).
+ * Gestiona la lista de favoritos del usuario, persistida en JSON.
+ *
+ * DISEÑO: los métodos públicos son estáticos (compatibilidad con todos
+ * los controllers existentes). La lógica real vive en métodos de instancia
+ * privados; ServiceLocator proporciona la instancia por sesión.
+ *
+ * FIX NPE: parseFavoriteItem() protege TODOS los campos con null-checks.
+ * Un favorito corrupto se omite y se loguea; el resto cargan correctamente.
  */
 public class FavoritesService {
 
-    private static final Gson gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static List<FavoriteItem> favoritesList = new ArrayList<>();
-    private static boolean loaded = false;
-    private static String loadedForUser = null; // qué usuario tiene cargado el caché actual
+    // ── Estado de instancia (un objeto por usuario/sesión) ─────────────
+    private final String username;
+    private final List<FavoriteItem> list = new ArrayList<>();
+    private boolean loaded = false;
 
-    /**
-     * Devuelve el nombre del archivo de favoritos del usuario actualmente
-     * logueado (AuthService.getCurrentUser()). Si no hay sesión, usa un
-     * archivo genérico de respaldo.
-     */
-    private static java.nio.file.Path getFavoritesFile() {
-        String user = AuthService.getCurrentUser();
-        return AppPaths.userFile(user, AppPaths.DIR_FAVORITES, "favorites.json");
+    FavoritesService(String username) {          // package-private: solo ServiceLocator
+        this.username = username;
     }
 
-    /**
-     * Si el usuario logueado ha cambiado desde la última carga
-     * (por ejemplo, tras un logout/login con otra cuenta), invalida
-     * el caché en memoria para no mezclar favoritos entre cuentas.
-     */
-    private static void ensureCorrectUserLoaded() {
-        String currentUser = AuthService.getCurrentUser();
-        if (loaded && java.util.Objects.equals(loadedForUser, currentUser)) {
-            return; // ya está cargado el usuario correcto
-        }
-        favoritesList.clear();
-        loaded = false;
-        loadFavorites();
+    // ── Ruta del archivo ───────────────────────────────────────────────
+    private Path file() {
+        return AppPaths.userFile(username, AppPaths.DIR_FAVORITES, "favorites.json");
     }
 
-    // ============================
-    // CARGAR FAVORITOS
-    // ============================
-    public static void loadFavorites() {
+    // ── Carga perezosa ─────────────────────────────────────────────────
+    private void ensureLoaded() {
         if (loaded) return;
-
-        java.nio.file.Path file = getFavoritesFile();
-        System.out.println("📖 Cargando favoritos de: " + file);
-
+        Path f = file();
+        System.out.println("📖 Cargando favoritos de: " + f);
         try {
-            if (!Files.exists(file)) {
-                System.out.println("✅ No hay favoritos previos para este usuario");
+            if (!Files.exists(f)) {
+                System.out.println("✅ No hay favoritos previos para " + username);
                 loaded = true;
-                loadedForUser = AuthService.getCurrentUser();
                 return;
             }
-
-            String json = new String(Files.readAllBytes(file));
-            JsonObject root = gson.fromJson(json, JsonObject.class);
-
+            String json = Files.readString(f);
+            JsonObject root = GSON.fromJson(json, JsonObject.class);
             if (root != null && root.has("favorites")) {
-                JsonArray favArray = root.getAsJsonArray("favorites");
-
-                for (JsonElement el : favArray) {
-                    try {
-                        JsonObject obj = el.getAsJsonObject();
-                        FavoriteItem item = parseFavoriteItem(obj);
-                        favoritesList.add(item);
-                    } catch (Exception e) {
-                        // Un solo favorito con datos corruptos/inesperados
-                        // no debe impedir cargar el resto: se salta ESE
-                        // item y se sigue con los demás, en vez de que
-                        // toda la lista de favoritos quede vacía (lo que
-                        // antes provocaba que Inicio y Favoritos dejaran
-                        // de funcionar por completo).
-                        System.err.println("⚠️ Favorito corrupto omitido: " + e.getMessage());
-                    }
+                for (JsonElement el : root.getAsJsonArray("favorites")) {
+                    try { list.add(parseFavoriteItem(el.getAsJsonObject())); }
+                    catch (Exception e) { System.err.println("⚠️ Favorito corrupto omitido: " + e.getMessage()); }
                 }
-
-                System.out.println("✅ Cargados " + favoritesList.size() + " favoritos");
             }
-
-            loaded = true;
-            loadedForUser = AuthService.getCurrentUser();
-
+            System.out.println("✅ Cargados " + list.size() + " favoritos");
         } catch (IOException e) {
             System.err.println("❌ Error al cargar favoritos: " + e.getMessage());
-            loaded = true;
-            loadedForUser = AuthService.getCurrentUser();
-        }
+        } finally { loaded = true; }
     }
 
-    // ============================
-    // AGREGAR FAVORITO
-    // ============================
-    public static void addFavorite(FavoriteItem item) {
-        ensureCorrectUserLoaded();
-        if (!favoritesList.contains(item)) {
-            favoritesList.add(item);
-            saveFavorites();
-            System.out.println("⭐ Agregado a favoritos: " + item.getTitle());
-        }
+    // ── CRUD de instancia (uso interno) ───────────────────────────────
+    void instanceAdd(FavoriteItem item) {
+        ensureLoaded();
+        if (!list.contains(item)) { list.add(item); save(); System.out.println("⭐ " + item.getTitle()); }
+    }
+    void instanceUpdate() { ensureLoaded(); save(); }
+    void instanceRemove(String id) {
+        ensureLoaded(); list.removeIf(f -> id.equals(f.getId())); save();
+        System.out.println("❌ Eliminado: " + id);
+    }
+    List<FavoriteItem> instanceGetAll() { ensureLoaded(); return Collections.unmodifiableList(list); }
+    List<FavoriteItem> instanceGetByType(MediaType t) {
+        ensureLoaded(); return list.stream().filter(f -> f.getType() == t).toList();
+    }
+    boolean instanceIsFavorite(String title) {
+        ensureLoaded();
+        return list.stream().anyMatch(f -> f.getTitle() != null && f.getTitle().equalsIgnoreCase(title));
+    }
+    Optional<FavoriteItem> instanceFindById(String id) {
+        ensureLoaded(); return list.stream().filter(f -> id.equals(f.getId())).findFirst();
+    }
+    void instanceToggleViewed(String id) {
+        ensureLoaded();
+        instanceFindById(id).ifPresent(f -> { f.setViewed(!f.isViewed()); save(); });
+    }
+    void instanceToggleEpisode(String id, int ep) {
+        ensureLoaded();
+        instanceFindById(id).ifPresent(fav -> {
+            fav.setEpisodeWatched(ep, !fav.isEpisodeWatched(ep));
+            Integer total = fav.getTotalEpisodes();
+            if (total != null && total > 0) fav.setViewed(fav.getWatchedEpisodes().size() >= total);
+            save();
+        });
     }
 
-    /**
-     * Persiste cambios hechos sobre un FavoriteItem que ya está en la lista
-     * en memoria (por ejemplo, tras rellenar su trailerKey bajo demanda).
-     * addFavorite() no sirve para esto porque, al ser la misma instancia
-     * que ya está en favoritesList, "ya existe" y no se vuelve a guardar
-     * nada en disco aunque el objeto haya cambiado en memoria.
-     */
-    public static void updateFavorite(FavoriteItem item) {
-        ensureCorrectUserLoaded();
-        saveFavorites();
-    }
-
-    // ============================
-    // ELIMINAR FAVORITO
-    // ============================
-    public static void removeFavorite(String itemId) {
-        ensureCorrectUserLoaded();
-        favoritesList.removeIf(fav -> fav.getId().equals(itemId));
-        saveFavorites();
-        System.out.println("❌ Eliminado de favoritos");
-    }
-
-    // ============================
-    // OBTENER TODOS LOS FAVORITOS
-    // ============================
-    public static List<FavoriteItem> getFavorites() {
-        ensureCorrectUserLoaded();
-        return new ArrayList<>(favoritesList);
-    }
-
-    // ============================
-    // OBTENER FAVORITOS POR TIPO
-    // ============================
-    public static List<FavoriteItem> getFavoritesByType(MediaType type) {
-        ensureCorrectUserLoaded();
-        return favoritesList.stream()
-                .filter(fav -> fav.getType() == type)
-                .toList();
-    }
-
-    // ============================
-    // ACTUALIZAR ESTADO (VISTO/JUGADO) - item completo, sin episodios
-    // ============================
-    public static void toggleViewed(String itemId) {
-        ensureCorrectUserLoaded();
-        for (FavoriteItem fav : favoritesList) {
-            if (fav.getId().equals(itemId)) {
-                fav.setViewed(!fav.isViewed());
-                saveFavorites();
-                System.out.println("✏️ Estado actualizado: " + fav.getTitle());
-                return;
-            }
-        }
-    }
-
-    // ============================
-    // MARCAR/DESMARCAR UN EPISODIO CONCRETO COMO VISTO
-    // ============================
-    public static void toggleEpisodeWatched(String itemId, int episodeNumber) {
-        ensureCorrectUserLoaded();
-        for (FavoriteItem fav : favoritesList) {
-            if (fav.getId().equals(itemId)) {
-                boolean currentlyWatched = fav.isEpisodeWatched(episodeNumber);
-                fav.setEpisodeWatched(episodeNumber, !currentlyWatched);
-
-                // Si se han visto todos los episodios, marcar el item completo como visto
-                Integer total = fav.getTotalEpisodes();
-                if (total != null && total > 0) {
-                    fav.setViewed(fav.getWatchedEpisodes().size() >= total);
-                }
-
-                saveFavorites();
-                System.out.println("✏️ Episodio " + episodeNumber + " actualizado en: " + fav.getTitle());
-                return;
-            }
-        }
-    }
-
-    // ============================
-    // VERIFICAR SI ESTÁ EN FAVORITOS
-    // ============================
-    public static boolean isFavorite(String title) {
-        ensureCorrectUserLoaded();
-        return favoritesList.stream()
-                .anyMatch(fav -> fav.getTitle().equalsIgnoreCase(title));
-    }
-
-    // ============================
-    // GUARDAR FAVORITOS EN JSON
-    // ============================
-    private static void saveFavorites() {
-        java.nio.file.Path file = getFavoritesFile();
+    // ── Persistencia ───────────────────────────────────────────────────
+    private void save() {
         try {
+            JsonArray arr = new JsonArray();
+            for (FavoriteItem fav : list) arr.add(serialize(fav));
             JsonObject root = new JsonObject();
-            JsonArray favArray = new JsonArray();
-
-            for (FavoriteItem fav : favoritesList) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("id", fav.getId());
-                obj.addProperty("type", fav.getType().name());
-                obj.addProperty("title", fav.getTitle());
-                obj.addProperty("description", fav.getDescription());
-                obj.addProperty("imageUrl", fav.getImageUrl());
-                if (fav.getYear() != null) obj.addProperty("year", fav.getYear());
-                if (fav.getScore() != null) obj.addProperty("score", fav.getScore());
-                obj.addProperty("externalUrl", fav.getExternalUrl());
-                obj.addProperty("viewed", fav.isViewed());
-                obj.addProperty("addedDate", fav.getAddedDate());
-
-                if (fav.getTotalEpisodes() != null) {
-                    obj.addProperty("totalEpisodes", fav.getTotalEpisodes());
-                }
-
-                JsonArray watchedArray = new JsonArray();
-                for (Integer ep : fav.getWatchedEpisodes()) {
-                    watchedArray.add(ep);
-                }
-                obj.add("watchedEpisodes", watchedArray);
-
-                if (fav.getPlatforms() != null) {
-                    JsonArray platformsArray = new JsonArray();
-                    for (String p : fav.getPlatforms()) platformsArray.add(p);
-                    obj.add("platforms", platformsArray);
-                }
-
-                if (fav.getGenres() != null) {
-                    JsonArray genresArray = new JsonArray();
-                    for (String g : fav.getGenres()) genresArray.add(g);
-                    obj.add("genres", genresArray);
-                }
-
-                if (fav.getTmdbId() != null) {
-                    obj.addProperty("tmdbId", fav.getTmdbId());
-                }
-
-                if (fav.getTrailerKey() != null) {
-                    obj.addProperty("trailerKey", fav.getTrailerKey());
-                }
-
-                if (fav.getPreviewUrl() != null) {
-                    obj.addProperty("previewUrl", fav.getPreviewUrl());
-                }
-
-                if (fav.getAnilistId() != null) {
-                    obj.addProperty("anilistId", fav.getAnilistId());
-                }
-
-                if (fav.getIgdbId() != null) {
-                    obj.addProperty("igdbId", fav.getIgdbId());
-                }
-
-                favArray.add(obj);
-            }
-
-            root.add("favorites", favArray);
-
-            String json = gson.toJson(root);
-            Files.write(file, json.getBytes());
-            System.out.println("💾 Favoritos guardados en " + file);
-
-        } catch (IOException e) {
-            System.err.println("❌ Error al guardar favoritos: " + e.getMessage());
-        }
+            root.add("favorites", arr);
+            Files.writeString(file(), GSON.toJson(root));
+        } catch (IOException e) { System.err.println("❌ Error al guardar favoritos: " + e.getMessage()); }
     }
 
-    // ============================
-    // PARSEAR ITEM DESDE JSON
-    // ============================
-    private static FavoriteItem parseFavoriteItem(JsonObject obj) {
+    // ══════════════════════════════════════════════════════════════════
+    // API ESTÁTICA PÚBLICA — usada por todos los controllers existentes
+    // ══════════════════════════════════════════════════════════════════
+
+    private static FavoritesService svc() { return ServiceLocator.get().favorites(); }
+
+    public static void addFavorite(FavoriteItem item)                        { svc().instanceAdd(item); }
+    public static void updateFavorite(FavoriteItem item)                     { svc().instanceUpdate(); }
+    public static void removeFavorite(String id)                             { svc().instanceRemove(id); }
+    public static List<FavoriteItem> getFavorites()                          { return new ArrayList<>(svc().instanceGetAll()); }
+    public static List<FavoriteItem> getFavoritesByType(MediaType t)         { return svc().instanceGetByType(t); }
+    public static boolean isFavorite(String title)                           { return svc().instanceIsFavorite(title); }
+    public static void toggleViewed(String id)                               { svc().instanceToggleViewed(id); }
+    public static void toggleEpisodeWatched(String id, int ep)              { svc().instanceToggleEpisode(id, ep); }
+
+    // ── Serialización ──────────────────────────────────────────────────
+    private static JsonObject serialize(FavoriteItem fav) {
+        JsonObject o = new JsonObject();
+        o.addProperty("id",          fav.getId());
+        o.addProperty("type",        fav.getType() != null ? fav.getType().name() : "SERIES");
+        o.addProperty("title",       fav.getTitle());
+        o.addProperty("description", fav.getDescription());
+        o.addProperty("imageUrl",    fav.getImageUrl());
+        o.addProperty("externalUrl", fav.getExternalUrl());
+        o.addProperty("viewed",      fav.isViewed());
+        o.addProperty("addedDate",   fav.getAddedDate());
+        if (fav.getYear()          != null) o.addProperty("year",          fav.getYear());
+        if (fav.getScore()         != null) o.addProperty("score",         fav.getScore());
+        if (fav.getTotalEpisodes() != null) o.addProperty("totalEpisodes", fav.getTotalEpisodes());
+        if (fav.getTmdbId()        != null) o.addProperty("tmdbId",        fav.getTmdbId());
+        if (fav.getAnilistId()     != null) o.addProperty("anilistId",     fav.getAnilistId());
+        if (fav.getIgdbId()        != null) o.addProperty("igdbId",        fav.getIgdbId());
+        if (fav.getTrailerKey()    != null) o.addProperty("trailerKey",    fav.getTrailerKey());
+        if (fav.getPreviewUrl()    != null) o.addProperty("previewUrl",    fav.getPreviewUrl());
+        JsonArray watched = new JsonArray();
+        if (fav.getWatchedEpisodes() != null) fav.getWatchedEpisodes().forEach(watched::add);
+        o.add("watchedEpisodes", watched);
+        if (fav.getPlatforms() != null) { JsonArray a = new JsonArray(); fav.getPlatforms().forEach(a::add); o.add("platforms", a); }
+        if (fav.getGenres()   != null) { JsonArray a = new JsonArray(); fav.getGenres().forEach(a::add);    o.add("genres", a); }
+        return o;
+    }
+
+    // ── Deserialización — todos los campos con null-check (fix NPE) ────
+    private static FavoriteItem parseFavoriteItem(JsonObject o) {
         FavoriteItem item = new FavoriteItem();
-
-        // Campos "obligatorios" en teoría, pero blindados con valores por
-        // defecto razonables: un favorito guardado por una versión anterior
-        // de la app, o un item cuya API de origen no devolvió algún campo
-        // (ej. un juego de IGDB sin "summary"), puede llegar aquí sin ese
-        // campo. Antes esto lanzaba NullPointerException y tiraba abajo
-        // TODA la carga de favoritos (Inicio y Favoritos dejaban de
-        // funcionar por completo, no solo para ese item concreto).
-        item.setId(safeGetString(obj, "id", "sin_id_" + System.nanoTime()));
-        item.setType(safeGetMediaType(obj, "type"));
-        item.setTitle(safeGetString(obj, "title", "Sin título"));
-        item.setDescription(safeGetString(obj, "description", ""));
-        item.setImageUrl(safeGetString(obj, "imageUrl", ""));
-
-        if (obj.has("year") && !obj.get("year").isJsonNull()) {
-            item.setYear(obj.get("year").getAsInt());
+        item.setId(         safeStr(o, "id",          "sinId_" + System.nanoTime()));
+        item.setType(       safeMediaType(o, "type"));
+        item.setTitle(      safeStr(o, "title",       "Sin título"));
+        item.setDescription(safeStr(o, "description", ""));
+        item.setImageUrl(   safeStr(o, "imageUrl",    ""));
+        item.setExternalUrl(safeStr(o, "externalUrl", ""));
+        item.setTrailerKey( safeStr(o, "trailerKey",  null));
+        item.setPreviewUrl( safeStr(o, "previewUrl",  null));
+        item.setViewed(   safeBool(o, "viewed",   false));
+        item.setAddedDate(safeLong(o, "addedDate", System.currentTimeMillis()));
+        safeInt(o, "year"         ).ifPresent(item::setYear);
+        safeInt(o, "score"        ).ifPresent(item::setScore);
+        safeInt(o, "totalEpisodes").ifPresent(item::setTotalEpisodes);
+        safeInt(o, "tmdbId"       ).ifPresent(item::setTmdbId);
+        safeInt(o, "anilistId"    ).ifPresent(item::setAnilistId);
+        safeInt(o, "igdbId"       ).ifPresent(item::setIgdbId);
+        if (has(o,"watchedEpisodes") && o.get("watchedEpisodes").isJsonArray()) {
+            Set<Integer> w = new HashSet<>();
+            o.getAsJsonArray("watchedEpisodes").forEach(e -> w.add(e.getAsInt()));
+            item.setWatchedEpisodes(w);
         }
-        if (obj.has("score") && !obj.get("score").isJsonNull()) {
-            item.setScore(obj.get("score").getAsInt());
+        if (has(o,"platforms") && o.get("platforms").isJsonArray()) {
+            List<String> l = new ArrayList<>(); o.getAsJsonArray("platforms").forEach(e -> l.add(e.getAsString())); item.setPlatforms(l);
         }
-
-        item.setExternalUrl(safeGetString(obj, "externalUrl", ""));
-        item.setViewed(obj.has("viewed") && !obj.get("viewed").isJsonNull() && obj.get("viewed").getAsBoolean());
-        item.setAddedDate(obj.has("addedDate") && !obj.get("addedDate").isJsonNull() ? obj.get("addedDate").getAsLong() : System.currentTimeMillis());
-
-        if (obj.has("totalEpisodes") && !obj.get("totalEpisodes").isJsonNull()) {
-            item.setTotalEpisodes(obj.get("totalEpisodes").getAsInt());
+        if (has(o,"genres") && o.get("genres").isJsonArray()) {
+            List<String> l = new ArrayList<>(); o.getAsJsonArray("genres").forEach(e -> l.add(e.getAsString())); item.setGenres(l);
         }
-
-        if (obj.has("watchedEpisodes") && obj.get("watchedEpisodes").isJsonArray()) {
-            java.util.Set<Integer> watched = new java.util.HashSet<>();
-            for (JsonElement el : obj.getAsJsonArray("watchedEpisodes")) {
-                watched.add(el.getAsInt());
-            }
-            item.setWatchedEpisodes(watched);
-        }
-
-        if (obj.has("platforms") && obj.get("platforms").isJsonArray()) {
-            List<String> platforms = new ArrayList<>();
-            for (JsonElement el : obj.getAsJsonArray("platforms")) {
-                platforms.add(el.getAsString());
-            }
-            item.setPlatforms(platforms);
-        }
-
-        if (obj.has("genres") && obj.get("genres").isJsonArray()) {
-            List<String> genres = new ArrayList<>();
-            for (JsonElement el : obj.getAsJsonArray("genres")) {
-                genres.add(el.getAsString());
-            }
-            item.setGenres(genres);
-        }
-
-        if (obj.has("tmdbId") && !obj.get("tmdbId").isJsonNull()) {
-            item.setTmdbId(obj.get("tmdbId").getAsInt());
-        }
-
-        if (obj.has("trailerKey") && !obj.get("trailerKey").isJsonNull()) {
-            item.setTrailerKey(obj.get("trailerKey").getAsString());
-        }
-
-        if (obj.has("previewUrl") && !obj.get("previewUrl").isJsonNull()) {
-            item.setPreviewUrl(obj.get("previewUrl").getAsString());
-        }
-
-        if (obj.has("anilistId") && !obj.get("anilistId").isJsonNull()) {
-            item.setAnilistId(obj.get("anilistId").getAsInt());
-        }
-
-        if (obj.has("igdbId") && !obj.get("igdbId").isJsonNull()) {
-            item.setIgdbId(obj.get("igdbId").getAsInt());
-        }
-
         return item;
     }
 
-    /**
-     * Lee un campo String de un JsonObject de forma segura: si el campo
-     * no existe, es JSON null, o no es una cadena válida, devuelve el
-     * valor por defecto en vez de lanzar NullPointerException. Evita que
-     * un solo favorito con datos incompletos (por ejemplo, guardado por
-     * una versión anterior de la app, o un item cuya API de origen no
-     * devolvió ese campo) tire abajo la carga de TODOS los favoritos.
-     */
-    private static String safeGetString(JsonObject obj, String key, String defaultValue) {
-        if (obj.has(key) && !obj.get(key).isJsonNull()) {
-            try {
-                return obj.get(key).getAsString();
-            } catch (Exception ignored) {
-                // El campo existe pero no es una cadena válida (tipo inesperado)
-            }
-        }
-        return defaultValue;
+    // ── Helpers null-safe ──────────────────────────────────────────────
+    private static boolean has(JsonObject o, String k) { return o.has(k) && !o.get(k).isJsonNull(); }
+    private static String safeStr(JsonObject o, String k, String def) {
+        if (!has(o,k)) return def; try { return o.get(k).getAsString(); } catch(Exception e){ return def; }
     }
-
-    /**
-     * Lee el MediaType de un favorito de forma segura: si el valor
-     * guardado no coincide con ningún valor del enum (por ejemplo, si
-     * en el futuro se renombra o elimina un tipo), devuelve SERIES como
-     * valor de respaldo razonable en vez de lanzar una excepción que
-     * tiraría abajo la carga de todos los favoritos.
-     */
-    private static MediaType safeGetMediaType(JsonObject obj, String key) {
-        String raw = safeGetString(obj, key, null);
+    private static boolean safeBool(JsonObject o, String k, boolean def) {
+        if (!has(o,k)) return def; try { return o.get(k).getAsBoolean(); } catch(Exception e){ return def; }
+    }
+    private static long safeLong(JsonObject o, String k, long def) {
+        if (!has(o,k)) return def; try { return o.get(k).getAsLong(); } catch(Exception e){ return def; }
+    }
+    private static Optional<Integer> safeInt(JsonObject o, String k) {
+        if (!has(o,k)) return Optional.empty(); try { return Optional.of(o.get(k).getAsInt()); } catch(Exception e){ return Optional.empty(); }
+    }
+    private static MediaType safeMediaType(JsonObject o, String k) {
+        String raw = safeStr(o, k, null);
         if (raw == null) return MediaType.SERIES;
-        try {
-            return MediaType.valueOf(raw);
-        } catch (IllegalArgumentException e) {
-            System.err.println("⚠️ MediaType desconocido en favorito: '" + raw + "', usando SERIES como respaldo");
-            return MediaType.SERIES;
-        }
+        try { return MediaType.valueOf(raw); }
+        catch (IllegalArgumentException e) { System.err.println("⚠️ MediaType desconocido: '" + raw + "'"); return MediaType.SERIES; }
     }
 }

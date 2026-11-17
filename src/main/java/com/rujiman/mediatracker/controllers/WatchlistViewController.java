@@ -94,6 +94,7 @@ public class WatchlistViewController {
             case ANIME -> "#ec4dc0";
             case MUSIC -> "#4dec9e";
             case MOVIE -> "#ecb14d";
+            case BOOK -> "#f97316";
         };
     }
 
@@ -506,6 +507,7 @@ public class WatchlistViewController {
             case MOVIE -> "🎬 PELÍCULA";
             case MUSIC -> "🎵 MÚSICA";
             case GAME -> "🎮 JUEGO";
+            case BOOK -> "📚 LIBRO";
         };
     }
 
@@ -517,6 +519,7 @@ public class WatchlistViewController {
             case ANIME -> "badge-anime";
             case MUSIC -> "badge-music";
             case MOVIE -> "badge-movie";
+            case BOOK -> "badge-book";
         };
     }
 

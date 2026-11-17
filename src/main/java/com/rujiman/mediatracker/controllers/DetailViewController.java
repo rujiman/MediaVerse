@@ -3,6 +3,7 @@ package com.rujiman.mediatracker.controllers;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.util.MediaTypeTheme;
 import com.rujiman.mediatracker.models.PlanItem;
 import com.rujiman.mediatracker.services.FavoritesService;
 import com.rujiman.mediatracker.services.WatchProgressService;
@@ -63,8 +64,7 @@ public class DetailViewController {
     // un Referer válido que el WebView de JavaFX no envía correctamente
     // (Error 153: "Video player configuration error"), un problema
     // conocido y muy extendido en cualquier WebView embebido, no solo en
-    // JavaFX. Para un proyecto de TFG, un enlace simple es más robusto
-    // y mantenible que pelear con esa limitación.
+    // JavaFX.
     @FXML private Button trailerButton;
 
     // "Pienso ver/jugar/escuchar" + "Mover a Favoritos"
@@ -166,15 +166,10 @@ public class DetailViewController {
      * de episodios) según el tipo del item que se está viendo en cada
      * momento, en vez de usar siempre el mismo color de marca para todo.
      */
+    /** @deprecated Usar {@link MediaTypeTheme#accentHex(MediaType)} directamente. */
+    @Deprecated
     private String sectionAccentHex(MediaType type) {
-        if (type == null) return COLOR_PRIMARY;
-        return switch (type) {
-            case GAME -> "#4dd9ec";
-            case SERIES -> "#8b5cf6";
-            case ANIME -> "#ec4dc0";
-            case MUSIC -> "#4dec9e";
-            case MOVIE -> "#ecb14d";
-        };
+        return MediaTypeTheme.accentHex(type);
     }
 
     @FXML
@@ -718,6 +713,7 @@ public class DetailViewController {
                 case SERIES -> recommendations = new TMDBService().getRecommendations(item.getTmdbId(), false);
                 case ANIME -> recommendations = new AnilistService().getRecommendations(item.getAnilistId());
                 case GAME -> recommendations = new GameService().getSimilarGames(item.getIgdbId());
+                case BOOK -> recommendations = new java.util.ArrayList<>();
                 default -> recommendations = List.of();
             }
 
@@ -824,6 +820,7 @@ public class DetailViewController {
         if (type == null) return "card-hover-series";
         return switch (type) {
             case GAME -> "card-hover-game";
+            case BOOK -> "card-hover-book";
             case SERIES -> "card-hover-series";
             case ANIME -> "card-hover-anime";
             case MUSIC -> "card-hover-music";
@@ -1078,6 +1075,7 @@ public class DetailViewController {
             case MOVIE -> viewedLabel = "Marcar como visto";
             case MUSIC -> viewedLabel = "Marcar como escuchado";
             case GAME -> viewedLabel = "Marcar como jugado";
+            case BOOK -> viewedLabel = "Marcar como leído";
         }
         viewedButton.setText(viewedLabel);
 

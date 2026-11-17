@@ -2,6 +2,7 @@ package com.rujiman.mediatracker.controllers;
 
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.util.MediaTypeTheme;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.services.*;
 import javafx.animation.TranslateTransition;
@@ -288,15 +289,10 @@ public class SearchController {
      * Devuelve el hex de acento de la sección, según la paleta
      * "Constelaciones" de theme.css.
      */
+    /** @deprecated Usar {@link MediaTypeTheme#accentHex(MediaType)} directamente. */
+    @Deprecated
     private String sectionAccentHex(MediaType type) {
-        if (type == null) return "#ec4d80";
-        return switch (type) {
-            case GAME -> "#4dd9ec";
-            case SERIES -> "#8b5cf6";
-            case ANIME -> "#ec4dc0";
-            case MUSIC -> "#4dec9e";
-            case MOVIE -> "#ecb14d";
-        };
+        return MediaTypeTheme.accentHex(type);
     }
 
     /**
@@ -686,6 +682,7 @@ public class SearchController {
             case MOVIE -> "🎬 PELÍCULA";
             case MUSIC -> "🎵 MÚSICA";
             case GAME -> "🎮 JUEGO";
+            case BOOK -> "📚 LIBRO";
         };
     }
 
@@ -701,6 +698,7 @@ public class SearchController {
             case ANIME -> "badge-anime";
             case MUSIC -> "badge-music";
             case MOVIE -> "badge-movie";
+            case BOOK -> "badge-book";
         };
     }
 

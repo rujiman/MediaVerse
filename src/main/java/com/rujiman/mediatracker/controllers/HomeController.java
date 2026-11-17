@@ -3,6 +3,7 @@ package com.rujiman.mediatracker.controllers;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.util.MediaTypeTheme;
 import com.rujiman.mediatracker.services.DashboardService;
 import com.rujiman.mediatracker.services.FavoritesService;
 import javafx.fxml.FXML;
@@ -226,6 +227,7 @@ public class HomeController {
             case ANIME -> "card-hover-anime";
             case MUSIC -> "card-hover-music";
             case MOVIE -> "card-hover-movie";
+            case BOOK -> "card-hover-book";
         };
     }
 
@@ -344,15 +346,10 @@ public class HomeController {
      * dinámicos de un Dialog no pueden referenciar lookup colors de CSS
      * directamente desde Java sin acceso a la Scene ya construida).
      */
+    /** @deprecated Usar {@link MediaTypeTheme#accentHex(MediaType)} directamente. */
+    @Deprecated
     private String sectionAccentHex(MediaType type) {
-        if (type == null) return "#ec4d80";
-        return switch (type) {
-            case GAME -> "#4dd9ec";
-            case SERIES -> "#8b5cf6";
-            case ANIME -> "#ec4dc0";
-            case MUSIC -> "#4dec9e";
-            case MOVIE -> "#ecb14d";
-        };
+        return MediaTypeTheme.accentHex(type);
     }
 
     /**
