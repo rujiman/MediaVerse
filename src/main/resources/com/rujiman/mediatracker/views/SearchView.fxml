@@ -27,6 +27,10 @@
                                    -fx-cursor: hand;
                                    -fx-padding: 0 4 0 0;"/>
 
+                    <!-- Logo + nombre: clicables, llevan a Inicio desde cualquier pantalla -->
+                    <HBox spacing="14" alignment="CENTER_LEFT"
+                          onMouseClicked="#goHome"
+                          style="-fx-cursor: hand;">
                     <ImageView fitWidth="26" fitHeight="26" preserveRatio="true">
                         <image>
                             <Image url="@icons/mediaverse_logo.png"/>
@@ -40,6 +44,7 @@
                     <Label text="Mediaverse"
                            style="-fx-font-size: 20px; -fx-font-weight: bold;
                                   -fx-text-fill: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
+                    </HBox>
 
                     <Button fx:id="backToHomeButton"
                             text="← Volver"
@@ -110,6 +115,12 @@
                 <ToggleButton fx:id="filterGame" text="🎮 Juegos"
                               onAction="#onFilterChanged"
                               styleClass="filter-toggle"/>
+                <ToggleButton fx:id="filterManga" text="📖 Manga"
+                              onAction="#onFilterChanged"
+                              styleClass="filter-toggle"/>
+                <ToggleButton fx:id="filterBook" text="📚 Libros"
+                              onAction="#onFilterChanged"
+                              styleClass="filter-toggle"/>
             </HBox>
         </VBox>
     </top>
@@ -154,6 +165,13 @@
 
             </VBox>
 
+            <!-- Overlay de detalle / favoritos / listas: ahora vive DENTRO
+                 del centro del BorderPane (antes tapaba toda la ventana),
+                 así la cabecera con ☰, logo y perfil siempre queda visible
+                 y se puede saltar a cualquier sitio sin ir "Volver" a "Volver". -->
+            <StackPane fx:id="detailOverlayContainer" visible="false" styleClass="bg-base">
+            </StackPane>
+
         </StackPane>
     </center>
 
@@ -166,7 +184,12 @@
                StackPane.alignment="TOP_LEFT">
         <StackPane.margin><Insets top="100"/></StackPane.margin>
 
-        <VBox spacing="14">
+        <!-- Con libros y manga el menú ya no cabe entero en pantallas de
+             portátil: se envuelve en un ScrollPane transparente. -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    styleClass="scroll-pane-transparent"
+                    style="-fx-background: transparent;">
+        <VBox spacing="10">
             <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
             <HBox spacing="10" alignment="CENTER_LEFT">
@@ -220,6 +243,11 @@
                     maxWidth="Infinity"
                     styleClass="btn-flat-nav-music"/>
 
+            <Button text="📚 Pienso leer"
+                    onAction="#openPlanRead"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-book"/>
+
             <Separator/>
 
             <Button text="📺 Series vistas"
@@ -257,6 +285,21 @@
                     maxWidth="Infinity"
                     styleClass="btn-flat-nav-music"/>
 
+            <Button text="📖 Manga leídos"
+                    onAction="#openReadManga"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-manga"/>
+
+            <Button text="📖 Manga leyendo"
+                    onAction="#openReadingManga"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-manga"/>
+
+            <Button text="📚 Libros leídos"
+                    onAction="#openReadBooks"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-nav-book"/>
+
             <Separator/>
 
             <Button text="Cerrar sesión"
@@ -265,6 +308,7 @@
                     styleClass="btn-flat-brand"/>
 
         </VBox>
+        </ScrollPane>
 
     </StackPane>
 
@@ -325,9 +369,6 @@
                     styleClass="btn-flat-brand"
                     style="-fx-font-size: 12px;"/>
         </VBox>
-    </StackPane>
-
-    <StackPane fx:id="detailOverlayContainer" visible="false" styleClass="bg-base">
     </StackPane>
 
 </StackPane>

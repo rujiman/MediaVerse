@@ -80,6 +80,7 @@ public class DetailViewController {
     @FXML private Button unmarkAllWatchedButton;
     @FXML private TextField jumpToEpisodeField;
     @FXML private Button jumpToEpisodeButton;
+    @FXML private Label jumpToEpisodeLabel;
 
     // Canciones de álbum (MUSIC)
     @FXML private VBox trackCountSection;
@@ -214,6 +215,10 @@ public class DetailViewController {
     public void loadItem(MediaItem item) {
         this.currentItem = item;
 
+        // Si este título ya tenía progreso de antes (sin ficha), se la
+        // guardamos ahora para que aparezca en las listas de seguimiento.
+        WatchProgressService.rememberIfMissing(item);
+
         // Por defecto, asumimos que el detalle NO viene de una lista de
         // plan; si sí viene, quien abre este detalle (SearchController)
         // llamará a setPlanContext() justo después de loadItem().
@@ -327,7 +332,13 @@ public class DetailViewController {
      */
     private void renderPlatformsLabel(MediaItem item) {
         if (item.getPlatforms() != null && !item.getPlatforms().isEmpty()) {
-            detailPlatforms.setText("Plataformas: " + String.join(", ", item.getPlatforms()));
+            // En libros y manga "platforms" guarda los autores (y en libros,
+            // además, el número de páginas): se pinta como línea de autoría.
+            if (MediaTypeTheme.isReadable(item.getType())) {
+                detailPlatforms.setText("✍️ " + String.join(" · ", item.getPlatforms()));
+            } else {
+                detailPlatforms.setText("Plataformas: " + String.join(", ", item.getPlatforms()));
+            }
             detailPlatforms.setVisible(true);
         } else {
             detailPlatforms.setVisible(false);
@@ -698,7 +709,7 @@ public class DetailViewController {
 
         boolean canFetch =
                 ((type == MediaType.MOVIE || type == MediaType.SERIES) && item.getTmdbId() != null) ||
-                        (type == MediaType.ANIME && item.getAnilistId() != null) ||
+                        ((type == MediaType.ANIME || type == MediaType.MANGA) && item.getAnilistId() != null) ||
                         (type == MediaType.GAME && item.getIgdbId() != null);
 
         if (!canFetch) return;
@@ -712,6 +723,7 @@ public class DetailViewController {
                 case MOVIE -> recommendations = new TMDBService().getRecommendations(item.getTmdbId(), true);
                 case SERIES -> recommendations = new TMDBService().getRecommendations(item.getTmdbId(), false);
                 case ANIME -> recommendations = new AnilistService().getRecommendations(item.getAnilistId());
+                case MANGA -> recommendations = new AnilistService().getRecommendations(item.getAnilistId(), MediaType.MANGA);
                 case GAME -> recommendations = new GameService().getSimilarGames(item.getIgdbId());
                 case BOOK -> recommendations = new java.util.ArrayList<>();
                 default -> recommendations = List.of();
@@ -817,15 +829,7 @@ public class DetailViewController {
      * (mismo patrón que HomeController.cardHoverClassFor()).
      */
     private String cardHoverClassFor(MediaType type) {
-        if (type == null) return "card-hover-series";
-        return switch (type) {
-            case GAME -> "card-hover-game";
-            case BOOK -> "card-hover-book";
-            case SERIES -> "card-hover-series";
-            case ANIME -> "card-hover-anime";
-            case MUSIC -> "card-hover-music";
-            case MOVIE -> "card-hover-movie";
-        };
+        return MediaTypeTheme.cardHoverClass(type);
     }
 
     /**
@@ -837,7 +841,7 @@ public class DetailViewController {
     private void setupUserRatingStars(MediaItem item) {
         userRatingStars.getChildren().clear();
 
-        Integer currentRating = WatchProgressService.getUserRating(item.getTitle());
+        Integer currentRating = WatchProgressService.getUserRating(WatchProgressService.keyFor(item.getType(), item.getTitle()));
         int rating = currentRating != null ? currentRating : 0;
 
         for (int i = 1; i <= 5; i++) {
@@ -851,7 +855,7 @@ public class DetailViewController {
             );
 
             star.setOnMouseClicked(e -> {
-                Integer existing = WatchProgressService.getUserRating(item.getTitle());
+                Integer existing = WatchProgressService.getUserRating(WatchProgressService.keyFor(item.getType(), item.getTitle()));
                 int existingValue = existing != null ? existing : 0;
 
                 // Pinchar la misma estrella que ya estaba puesta como máxima
@@ -859,7 +863,8 @@ public class DetailViewController {
                 // Letterboxd; pinchar cualquier otra la establece directamente.
                 int newRating = (starValue == existingValue) ? 0 : starValue;
 
-                WatchProgressService.setUserRating(item.getTitle(), newRating > 0 ? newRating : null);
+                WatchProgressService.setUserRating(WatchProgressService.keyFor(item.getType(), item.getTitle()), newRating > 0 ? newRating : null);
+                WatchProgressService.remember(item);
                 setupUserRatingStars(item); // repintar con el nuevo estado
             });
 
@@ -885,7 +890,10 @@ public class DetailViewController {
 
         MediaType type = item.getType();
 
-        if (type == MediaType.ANIME || type == MediaType.SERIES) {
+        if (MediaTypeTheme.hasUnitProgress(type)) {
+            // ANIME/SERIES: episodios. MANGA: capítulos (mismo sistema).
+            jumpToEpisodeLabel.setText(type == MediaType.MANGA
+                    ? "Ya he leído hasta el capítulo" : "Ya he visto hasta el episodio");
             episodesHeaderLabel.setStyle("-fx-text-fill: " + sectionAccentHex(type) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
 
             Integer total = item.getEpisodes();
@@ -966,13 +974,13 @@ public class DetailViewController {
      */
     private void buildEpisodesList(int totalEpisodes) {
         episodesList.getChildren().clear();
-        WatchProgressService.Progress progress = WatchProgressService.getProgress(currentItem.getTitle());
-        episodesHeaderLabel.setText("Episodios (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
+        WatchProgressService.Progress progress = WatchProgressService.getProgress(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
+        episodesHeaderLabel.setText(MediaTypeTheme.unitPlural(currentItem.getType()) + " (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
 
         for (int i = 1; i <= totalEpisodes; i++) {
             final int episodeNumber = i;
 
-            CheckBox checkBox = new CheckBox("Episodio " + episodeNumber);
+            CheckBox checkBox = new CheckBox(MediaTypeTheme.unitSingular(currentItem.getType()) + " " + episodeNumber);
             checkBox.setStyle(
                     "-fx-text-fill: #f0eef5; -fx-font-size: 12px;"
             );
@@ -993,10 +1001,11 @@ public class DetailViewController {
      * almacenamiento, totalmente independiente.
      */
     private void onEpisodeToggled(int episodeNumber, int totalEpisodes) {
-        WatchProgressService.toggleEpisodeWatched(currentItem.getTitle(), episodeNumber, totalEpisodes);
+        WatchProgressService.toggleEpisodeWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), episodeNumber, totalEpisodes);
+        WatchProgressService.remember(currentItem);
 
-        WatchProgressService.Progress progress = WatchProgressService.getProgress(currentItem.getTitle());
-        episodesHeaderLabel.setText("Episodios (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
+        WatchProgressService.Progress progress = WatchProgressService.getProgress(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
+        episodesHeaderLabel.setText(MediaTypeTheme.unitPlural(currentItem.getType()) + " (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
 
         // Si se completaron todos los episodios, el botón de visto general también se actualiza
         updateViewedButtonStyle();
@@ -1012,7 +1021,8 @@ public class DetailViewController {
         Integer total = currentItem.getEpisodes();
         if (total == null || total <= 0) return;
 
-        WatchProgressService.markAllEpisodesWatched(currentItem.getTitle(), total);
+        WatchProgressService.markAllEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), total);
+        WatchProgressService.remember(currentItem);
         buildEpisodesList(total);
         updateViewedButtonStyle();
     }
@@ -1027,7 +1037,8 @@ public class DetailViewController {
         Integer total = currentItem.getEpisodes();
         if (total == null || total <= 0) return;
 
-        WatchProgressService.unmarkAllEpisodesWatched(currentItem.getTitle(), total);
+        WatchProgressService.unmarkAllEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), total);
+        WatchProgressService.remember(currentItem);
         buildEpisodesList(total);
         updateViewedButtonStyle();
     }
@@ -1056,7 +1067,8 @@ public class DetailViewController {
 
         if (targetEpisode < 0) targetEpisode = 0;
 
-        WatchProgressService.markEpisodesUpTo(currentItem.getTitle(), targetEpisode, total);
+        WatchProgressService.markEpisodesUpTo(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), targetEpisode, total);
+        WatchProgressService.remember(currentItem);
         buildEpisodesList(total);
         updateViewedButtonStyle();
         jumpToEpisodeField.clear();
@@ -1075,11 +1087,11 @@ public class DetailViewController {
             case MOVIE -> viewedLabel = "Marcar como visto";
             case MUSIC -> viewedLabel = "Marcar como escuchado";
             case GAME -> viewedLabel = "Marcar como jugado";
-            case BOOK -> viewedLabel = "Marcar como leído";
+            case BOOK, MANGA -> viewedLabel = "Marcar como leído";
         }
         viewedButton.setText(viewedLabel);
 
-        boolean hasEpisodeList = (item.getType() == MediaType.ANIME || item.getType() == MediaType.SERIES)
+        boolean hasEpisodeList = MediaTypeTheme.hasUnitProgress(item.getType())
                 && item.getEpisodes() != null && item.getEpisodes() > 0;
 
         viewedButton.setVisible(!hasEpisodeList);
@@ -1090,7 +1102,7 @@ public class DetailViewController {
      * Verificar si el item está en favoritos
      */
     private void checkIfFavorite() {
-        boolean isFav = FavoritesService.isFavorite(currentItem.getTitle());
+        boolean isFav = FavoritesService.isFavorite(currentItem.getTitle(), currentItem.getType());
         String accentHex = sectionAccentHex(currentItem.getType());
 
         if (isFav) {
@@ -1098,7 +1110,7 @@ public class DetailViewController {
             currentFavorite = null;
             List<FavoriteItem> favs = FavoritesService.getFavorites();
             for (FavoriteItem fav : favs) {
-                if (fav.getTitle().equalsIgnoreCase(currentItem.getTitle())) {
+                if (fav.getTitle().equalsIgnoreCase(currentItem.getTitle()) && fav.getType() == currentItem.getType()) {
                     currentFavorite = fav;
                     break;
                 }
@@ -1139,6 +1151,7 @@ public class DetailViewController {
     private PlanService.ListKind listKindForType(MediaType type) {
         if (type == MediaType.GAME) return PlanService.ListKind.PLAY;
         if (type == MediaType.MUSIC) return PlanService.ListKind.LISTEN;
+        if (type == MediaType.BOOK || type == MediaType.MANGA) return PlanService.ListKind.READ;
         return PlanService.ListKind.WATCH; // SERIES, MOVIE, ANIME
     }
 
@@ -1147,6 +1160,7 @@ public class DetailViewController {
             case WATCH -> "Pienso ver esto";
             case PLAY -> "Pienso jugar esto";
             case LISTEN -> "Pienso escuchar esto";
+            case READ -> "Pienso leer esto";
         };
     }
 
@@ -1245,12 +1259,13 @@ public class DetailViewController {
 
     @FXML
     private void onToggleViewed() {
-        WatchProgressService.toggleViewed(currentItem.getTitle());
+        WatchProgressService.toggleViewed(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
+        WatchProgressService.remember(currentItem);
         updateViewedButtonStyle();
     }
 
     private void updateViewedButtonStyle() {
-        boolean viewed = WatchProgressService.isViewed(currentItem.getTitle());
+        boolean viewed = WatchProgressService.isViewed(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
         if (viewed) {
             viewedButton.setStyle("-fx-background-color: " + COLOR_GREEN + ";");
         } else {

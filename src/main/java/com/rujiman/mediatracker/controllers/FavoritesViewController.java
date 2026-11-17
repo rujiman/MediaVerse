@@ -3,6 +3,7 @@ package com.rujiman.mediatracker.controllers;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.util.MediaTypeTheme;
 import com.rujiman.mediatracker.models.PlanFolder;
 import com.rujiman.mediatracker.services.FavoritesService;
 import com.rujiman.mediatracker.services.FolderService;
@@ -44,6 +45,8 @@ public class FavoritesViewController {
     @FXML private ToggleButton filterMovie;
     @FXML private ToggleButton filterMusic;
     @FXML private ToggleButton filterGame;
+    @FXML private ToggleButton filterManga;
+    @FXML private ToggleButton filterBook;
 
     @FXML private StackPane statusPane;
     @FXML private Label statusLabel;
@@ -80,6 +83,8 @@ public class FavoritesViewController {
         filterMovie.setToggleGroup(filterGroup);
         filterMusic.setToggleGroup(filterGroup);
         filterGame.setToggleGroup(filterGroup);
+        filterManga.setToggleGroup(filterGroup);
+        filterBook.setToggleGroup(filterGroup);
 
         filterGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle == null && oldToggle != null) {
@@ -102,6 +107,8 @@ public class FavoritesViewController {
         updateSingleFilterStyle(filterMovie, "#ecb14d");
         updateSingleFilterStyle(filterMusic, "#4dec9e");
         updateSingleFilterStyle(filterGame, "#4dd9ec");
+        updateSingleFilterStyle(filterManga, MediaTypeTheme.accentHex(MediaType.MANGA));
+        updateSingleFilterStyle(filterBook, MediaTypeTheme.accentHex(MediaType.BOOK));
     }
 
     private void updateSingleFilterStyle(ToggleButton btn, String accentHexWhenSelected) {
@@ -201,6 +208,8 @@ public class FavoritesViewController {
         else if (selected == filterMovie) typeFilter = MediaType.MOVIE;
         else if (selected == filterMusic) typeFilter = MediaType.MUSIC;
         else if (selected == filterGame) typeFilter = MediaType.GAME;
+        else if (selected == filterManga) typeFilter = MediaType.MANGA;
+        else if (selected == filterBook) typeFilter = MediaType.BOOK;
 
         foldersSection.setVisible(atRoot);
         foldersSection.setManaged(atRoot);
@@ -504,7 +513,7 @@ public class FavoritesViewController {
         card.getChildren().addAll(imageContainer, titleLabel, metaRow);
 
         com.rujiman.mediatracker.services.WatchProgressService.Progress progress =
-                com.rujiman.mediatracker.services.WatchProgressService.getProgress(fav.getTitle());
+                com.rujiman.mediatracker.services.WatchProgressService.getProgress(com.rujiman.mediatracker.services.WatchProgressService.keyFor(fav.getType(), fav.getTitle()));
 
         HBox statusRow = new HBox();
         statusRow.setAlignment(Pos.CENTER_LEFT);
@@ -513,10 +522,10 @@ public class FavoritesViewController {
         Integer total = fav.getTotalEpisodes();
         Label statusLbl;
         if (total != null && total > 0) {
-            statusLbl = new Label("📺 " + progress.watchedEpisodes.size() + "/" + total + " vistos");
+            statusLbl = new Label(MediaTypeTheme.progressText(fav.getType(), progress.watchedEpisodes.size(), total));
             statusLbl.getStyleClass().add("text-dim");
         } else if (progress.viewed) {
-            statusLbl = new Label("✔ Visto");
+            statusLbl = new Label(MediaTypeTheme.doneText(fav.getType()));
             statusLbl.getStyleClass().add("text-success");
         } else {
             statusLbl = new Label(" ");
@@ -580,27 +589,11 @@ public class FavoritesViewController {
     }
 
     private String typeLabel(MediaType type) {
-        if (type == null) return "";
-        return switch (type) {
-            case ANIME -> "🎌 ANIME";
-            case SERIES -> "📺 SERIES";
-            case MOVIE -> "🎬 PELÍCULA";
-            case MUSIC -> "🎵 MÚSICA";
-            case GAME -> "🎮 JUEGO";
-            case BOOK -> "📚 LIBRO";
-        };
+        return MediaTypeTheme.badgeText(type);
     }
 
     private String badgeClassFor(MediaType type) {
-        if (type == null) return "badge-series";
-        return switch (type) {
-            case GAME -> "badge-game";
-            case SERIES -> "badge-series";
-            case ANIME -> "badge-anime";
-            case MUSIC -> "badge-music";
-            case MOVIE -> "badge-movie";
-            case BOOK -> "badge-book";
-        };
+        return MediaTypeTheme.badgeClass(type);
     }
 
     private void styleDialogDark(DialogPane pane) {

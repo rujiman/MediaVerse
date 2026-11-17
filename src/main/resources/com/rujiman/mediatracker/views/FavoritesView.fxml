@@ -57,6 +57,12 @@
                 <ToggleButton fx:id="filterGame" text="🎮 Juegos"
                               onAction="#onFilterChanged"
                               styleClass="filter-toggle"/>
+                <ToggleButton fx:id="filterManga" text="📖 Manga"
+                              onAction="#onFilterChanged"
+                              styleClass="filter-toggle"/>
+                <ToggleButton fx:id="filterBook" text="📚 Libros"
+                              onAction="#onFilterChanged"
+                              styleClass="filter-toggle"/>
             </HBox>
         </VBox>
     </top>

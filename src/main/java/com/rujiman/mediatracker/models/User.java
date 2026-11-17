@@ -3,7 +3,7 @@ package com.rujiman.mediatracker.models;
 /**
  * Modelo para representar un usuario del sistema
  */
-public class User {
+public class    User {
     private String username;
     private String password;
 

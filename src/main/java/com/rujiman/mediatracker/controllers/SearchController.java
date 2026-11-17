@@ -62,6 +62,8 @@ public class SearchController {
     @FXML private ToggleButton filterMovie;
     @FXML private ToggleButton filterMusic;
     @FXML private ToggleButton filterGame;
+    @FXML private ToggleButton filterManga;
+    @FXML private ToggleButton filterBook;
 
     private final ToggleGroup filterGroup = new ToggleGroup();
 
@@ -73,6 +75,7 @@ public class SearchController {
     private final AnilistService anilistService = new AnilistService();
     private final MusicService musicService = new MusicService();
     private final GameService gameService = new GameService();
+    private final BookService bookService = new BookService();
 
     // -------------------------
     // NUEVOS ELEMENTOS DEL MENÚ
@@ -103,6 +106,9 @@ public class SearchController {
     // animación de deslizamiento
     private static final double SIDE_MENU_WIDTH = 270;
 
+    /** Animación de apertura/cierre del overlay en curso (para poder cancelarla). */
+    private javafx.animation.FadeTransition overlayFade;
+
     // -------------------------
     // INICIALIZACIÓN
     // -------------------------
@@ -129,6 +135,8 @@ public class SearchController {
         filterMovie.setToggleGroup(filterGroup);
         filterMusic.setToggleGroup(filterGroup);
         filterGame.setToggleGroup(filterGroup);
+        filterManga.setToggleGroup(filterGroup);
+        filterBook.setToggleGroup(filterGroup);
 
         // Evitar que el usuario pueda dejar el grupo sin ninguna selección
         filterGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
@@ -195,6 +203,7 @@ public class SearchController {
     private void goHome() {
         if (navMenuOpen) closeNavMenu();
         if (profileMenuOpen) closeProfileMenu();
+        closeOverlayNow();
 
         homeContainer.setVisible(true);
         searchContentBox.setVisible(false);
@@ -221,6 +230,7 @@ public class SearchController {
     private void goSearch() {
         if (navMenuOpen) closeNavMenu();
         if (profileMenuOpen) closeProfileMenu();
+        closeOverlayNow();
 
         homeContainer.setVisible(false);
         searchContentBox.setVisible(true);
@@ -266,6 +276,8 @@ public class SearchController {
         updateSingleFilterStyle(filterMovie, "#ecb14d");
         updateSingleFilterStyle(filterMusic, "#4dec9e");
         updateSingleFilterStyle(filterGame, "#4dd9ec");
+        updateSingleFilterStyle(filterManga, MediaTypeTheme.accentHex(MediaType.MANGA));
+        updateSingleFilterStyle(filterBook, MediaTypeTheme.accentHex(MediaType.BOOK));
     }
 
     private void updateSingleFilterStyle(ToggleButton btn, String accentHexWhenSelected) {
@@ -414,6 +426,9 @@ public class SearchController {
             return;
         }
 
+        // Si se busca con un detalle abierto encima, se cierra para ver los resultados
+        closeOverlayNow();
+
         // Deshabilitar mientras busca, para evitar búsquedas duplicadas
         searchButton.setDisable(true);
         searchField.setDisable(true);
@@ -456,6 +471,20 @@ public class SearchController {
                     allResults.addAll(gameService.search(query));
                 } catch (Exception e) {
                     System.err.println("⚠️ Error buscando videojuegos: " + e.getMessage());
+                }
+
+                updateMessage("Buscando manga en AniList...");
+                try {
+                    allResults.addAll(anilistService.searchManga(query));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error buscando manga: " + e.getMessage());
+                }
+
+                updateMessage("Buscando libros en Google Books...");
+                try {
+                    allResults.addAll(bookService.search(query));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error buscando libros: " + e.getMessage());
                 }
 
                 return allResults;
@@ -527,6 +556,10 @@ public class SearchController {
             typeFilter = MediaType.MUSIC;
         } else if (selected == filterGame) {
             typeFilter = MediaType.GAME;
+        } else if (selected == filterManga) {
+            typeFilter = MediaType.MANGA;
+        } else if (selected == filterBook) {
+            typeFilter = MediaType.BOOK;
         }
         // Si selected == filterAll (o ninguno), typeFilter se queda en null
 
@@ -609,7 +642,7 @@ public class SearchController {
         }
 
         // ---- Badge de favorito (esquina superior derecha) ----
-        boolean isFav = FavoritesService.isFavorite(item.getTitle());
+        boolean isFav = FavoritesService.isFavorite(item.getTitle(), item.getType());
         Button favButton = new Button("★");
         favButton.setTextFill(javafx.scene.paint.Color.web(isFav ? "#e94560" : "#ffffff"));
         favButton.setStyle(
@@ -675,15 +708,7 @@ public class SearchController {
     }
 
     private String typeLabel(MediaType type) {
-        if (type == null) return "";
-        return switch (type) {
-            case ANIME -> "🎌 ANIME";
-            case SERIES -> "📺 SERIES";
-            case MOVIE -> "🎬 PELÍCULA";
-            case MUSIC -> "🎵 MÚSICA";
-            case GAME -> "🎮 JUEGO";
-            case BOOK -> "📚 LIBRO";
-        };
+        return MediaTypeTheme.badgeText(type);
     }
 
     /**
@@ -691,15 +716,7 @@ public class SearchController {
      * sección (ver theme.css), en vez de un rojo fijo para todos los tipos.
      */
     private String badgeClassFor(MediaType type) {
-        if (type == null) return "badge-series";
-        return switch (type) {
-            case GAME -> "badge-game";
-            case SERIES -> "badge-series";
-            case ANIME -> "badge-anime";
-            case MUSIC -> "badge-music";
-            case MOVIE -> "badge-movie";
-            case BOOK -> "badge-book";
-        };
+        return MediaTypeTheme.badgeClass(type);
     }
 
     /**
@@ -707,12 +724,12 @@ public class SearchController {
      * sin necesidad de abrir la ventana de detalle.
      */
     private void toggleFavoriteQuick(MediaItem item, Button favButton) {
-        boolean isFav = FavoritesService.isFavorite(item.getTitle());
+        boolean isFav = FavoritesService.isFavorite(item.getTitle(), item.getType());
 
         if (isFav) {
             List<FavoriteItem> favs = FavoritesService.getFavorites();
             for (FavoriteItem fav : favs) {
-                if (fav.getTitle().equalsIgnoreCase(item.getTitle())) {
+                if (fav.getTitle().equalsIgnoreCase(item.getTitle()) && fav.getType() == item.getType()) {
                     FavoritesService.removeFavorite(fav.getId());
                     break;
                 }
@@ -843,16 +860,45 @@ public class SearchController {
         if (navMenuOpen) closeNavMenu();
         if (profileMenuOpen) closeProfileMenu();
 
+        // Si había un cierre a medias, se cancela: si no, su onFinished
+        // vaciaría el overlay que estamos abriendo ahora mismo.
+        if (overlayFade != null) overlayFade.stop();
+
         detailOverlayContainer.getChildren().setAll(content);
         detailOverlayContainer.setVisible(true);
         detailOverlayContainer.setOpacity(0);
 
-        javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(
+        // Con un overlay abierto, los filtros de búsqueda no aplican a lo
+        // que se ve: se ocultan (la barra de búsqueda sí se queda).
+        filterBarBox.setVisible(false);
+        filterBarBox.setManaged(false);
+
+        overlayFade = new javafx.animation.FadeTransition(
                 Duration.millis(180), detailOverlayContainer
         );
-        fade.setFromValue(0);
-        fade.setToValue(1);
-        fade.play();
+        overlayFade.setFromValue(0);
+        overlayFade.setToValue(1);
+        overlayFade.play();
+    }
+
+    /**
+     * Cierra el overlay al instante, sin animación. Lo usan las acciones
+     * de la cabecera (logo, Inicio, Buscar, buscar algo nuevo) para saltar
+     * directamente desde cualquier detalle, sin cadena de "Volver".
+     */
+    private void closeOverlayNow() {
+        if (overlayFade != null) overlayFade.stop();
+        detailOverlayContainer.setVisible(false);
+        detailOverlayContainer.getChildren().clear();
+        detailOverlayContainer.setOpacity(1);
+        restoreFilterBar();
+    }
+
+    /** Los filtros solo se muestran si estamos en Buscar y sin overlay encima. */
+    private void restoreFilterBar() {
+        boolean show = searchContentBox.isVisible() && !detailOverlayContainer.isVisible();
+        filterBarBox.setVisible(show);
+        filterBarBox.setManaged(show);
     }
 
     /**
@@ -860,14 +906,18 @@ public class SearchController {
      * (búsqueda o menú lateral), que nunca se destruyeron.
      */
     private void closeOverlay() {
+        if (overlayFade != null) overlayFade.stop();
         javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(
                 Duration.millis(150), detailOverlayContainer
         );
+        overlayFade = fade;
         fade.setFromValue(1);
         fade.setToValue(0);
         fade.setOnFinished(e -> {
             detailOverlayContainer.setVisible(false);
             detailOverlayContainer.getChildren().clear();
+            detailOverlayContainer.setOpacity(1);
+            restoreFilterBar();
 
             // Al cerrar cualquier overlay (detalle, favoritos, watchlist,
             // plan...), restauramos el título de lo que queda visible
@@ -1095,6 +1145,11 @@ public class SearchController {
         openPlanList(PlanService.ListKind.LISTEN);
     }
 
+    @FXML
+    private void openPlanRead() {
+        openPlanList(PlanService.ListKind.READ);
+    }
+
     /**
      * Abre la lista de plan (Pienso ver/jugar/escuchar) en el overlay,
      * con su propia navegación de carpetas. Mismo patrón que
@@ -1123,6 +1178,7 @@ public class SearchController {
                 case WATCH -> "Pienso ver";
                 case PLAY -> "Pienso jugar";
                 case LISTEN -> "Pienso escuchar";
+                case READ -> "Pienso leer";
             };
             setWindowTitle("Mediaverse - " + listLabel);
 
@@ -1227,6 +1283,30 @@ public class SearchController {
                 progress -> !progress.viewed && !progress.watchedEpisodes.isEmpty(),
                 "🎌 Anime viendo",
                 "No tienes ningún anime a medias ahora mismo.\nMarca algún episodio como visto desde su detalle para que aparezca aquí.");
+    }
+
+    @FXML
+    private void openReadBooks() {
+        openWatchlist(MediaType.BOOK,
+                progress -> progress.viewed,
+                "📚 Libros leídos",
+                "Todavía no has marcado ningún libro como leído.\nMárcalo desde su detalle.");
+    }
+
+    @FXML
+    private void openReadManga() {
+        openWatchlist(MediaType.MANGA,
+                progress -> progress.viewed,
+                "📖 Manga leídos",
+                "Todavía no has terminado ningún manga.\nMárcalo como leído desde su detalle, o completa todos sus capítulos.");
+    }
+
+    @FXML
+    private void openReadingManga() {
+        openWatchlist(MediaType.MANGA,
+                progress -> !progress.viewed && !progress.watchedEpisodes.isEmpty(),
+                "📖 Manga leyendo",
+                "No tienes ningún manga a medias ahora mismo.\nMarca algún capítulo como leído desde su detalle para que aparezca aquí.");
     }
 
     /**

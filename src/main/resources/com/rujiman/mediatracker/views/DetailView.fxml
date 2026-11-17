@@ -184,7 +184,7 @@
                 <!-- Separador antes de episodios -->
                 <Separator fx:id="episodesSeparator" styleClass="separator-line" visible="false" managed="false"/>
 
-                <!-- Episodios (solo ANIME / SERIES); la cabecera usa el
+                <!-- Episodios (ANIME / SERIES) o capítulos (MANGA); la cabecera usa el
                      color dinámico de sección (violeta=Series, magenta=Anime) -->
                 <VBox fx:id="episodesSection" spacing="10" visible="false" managed="false">
 
@@ -208,7 +208,7 @@
 
                     <!-- Ir directamente a un episodio concreto: marca del 1 a ese número -->
                     <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="Ya he visto hasta el episodio" styleClass="text-dim"/>
+                        <Label fx:id="jumpToEpisodeLabel" text="Ya he visto hasta el episodio" styleClass="text-dim"/>
                         <TextField fx:id="jumpToEpisodeField"
                                    promptText="nº"
                                    prefWidth="60"

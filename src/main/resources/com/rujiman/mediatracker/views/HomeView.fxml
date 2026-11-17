@@ -160,6 +160,54 @@
 
         </HBox>
 
+        <!-- ===================== FILA DE LECTURA: 2 COLUMNAS DE TAMAÑO FIJO =====================
+             Libros / Manga: mismo formato que Música / Películas (608 de ancho,
+             una fila de máximo 5 tarjetas), con su propio color de acento
+             (naranja=Libros, rojo=Manga). -->
+        <HBox spacing="16" alignment="TOP_CENTER">
+
+            <!-- LIBROS -->
+            <VBox fx:id="bookSectionContainer" spacing="10" prefWidth="608" minWidth="608" maxWidth="608"
+                  styleClass="bg-panel">
+                <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="📚 Libros" styleClass="section-title-book"
+                           HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button fx:id="editBookButton"
+                            text="+"
+                            onAction="#onEditBookSection"
+                            minWidth="26" minHeight="26" maxWidth="26" maxHeight="26"
+                            styleClass="btn-circle-base, btn-circle-book"/>
+                </HBox>
+                <HBox fx:id="bookSectionBox" spacing="12" alignment="CENTER"/>
+                <Label fx:id="bookEmptyLabel"
+                       text="Pulsa + para elegir tus libros favoritos"
+                       visible="false" managed="false"
+                       styleClass="text-dim"/>
+            </VBox>
+
+            <!-- MANGA -->
+            <VBox fx:id="mangaSectionContainer" spacing="10" prefWidth="608" minWidth="608" maxWidth="608"
+                  styleClass="bg-panel">
+                <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="📖 Manga" styleClass="section-title-manga"
+                           HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button fx:id="editMangaButton"
+                            text="+"
+                            onAction="#onEditMangaSection"
+                            minWidth="26" minHeight="26" maxWidth="26" maxHeight="26"
+                            styleClass="btn-circle-base, btn-circle-manga"/>
+                </HBox>
+                <HBox fx:id="mangaSectionBox" spacing="12" alignment="CENTER"/>
+                <Label fx:id="mangaEmptyLabel"
+                       text="Pulsa + para elegir tus manga favoritos"
+                       visible="false" managed="false"
+                       styleClass="text-dim"/>
+            </VBox>
+
+        </HBox>
+
     </VBox>
 
 </ScrollPane>

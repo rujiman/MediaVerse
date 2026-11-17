@@ -80,6 +80,10 @@ public class FavoritesService {
         ensureLoaded();
         return list.stream().anyMatch(f -> f.getTitle() != null && f.getTitle().equalsIgnoreCase(title));
     }
+    boolean instanceIsFavorite(String title, MediaType type) {
+        ensureLoaded();
+        return list.stream().anyMatch(f -> f.getTitle() != null && f.getTitle().equalsIgnoreCase(title) && f.getType() == type);
+    }
     Optional<FavoriteItem> instanceFindById(String id) {
         ensureLoaded(); return list.stream().filter(f -> id.equals(f.getId())).findFirst();
     }
@@ -120,6 +124,8 @@ public class FavoritesService {
     public static List<FavoriteItem> getFavorites()                          { return new ArrayList<>(svc().instanceGetAll()); }
     public static List<FavoriteItem> getFavoritesByType(MediaType t)         { return svc().instanceGetByType(t); }
     public static boolean isFavorite(String title)                           { return svc().instanceIsFavorite(title); }
+    /** Igual que isFavorite(title) pero exigiendo también el tipo (evita que el manga "Berserk" salga como favorito por el anime). */
+    public static boolean isFavorite(String title, MediaType type)           { return svc().instanceIsFavorite(title, type); }
     public static void toggleViewed(String id)                               { svc().instanceToggleViewed(id); }
     public static void toggleEpisodeWatched(String id, int ep)              { svc().instanceToggleEpisode(id, ep); }
 

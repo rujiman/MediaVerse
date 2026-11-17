@@ -2,6 +2,7 @@ package com.rujiman.mediatracker.controllers;
 
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.util.MediaTypeTheme;
 import com.rujiman.mediatracker.models.PlanFolder;
 import com.rujiman.mediatracker.models.PlanItem;
 import com.rujiman.mediatracker.services.PlanService;
@@ -89,11 +90,13 @@ public class PlanListViewController {
             case WATCH -> "📋 Pienso ver";
             case PLAY -> "🎮 Pienso jugar";
             case LISTEN -> "🎵 Pienso escuchar";
+            case READ -> "📚 Pienso leer";
         };
         String accentHex = switch (kind) {
             case WATCH -> "#8b5cf6";
             case PLAY -> "#4dd9ec";
             case LISTEN -> "#4dec9e";
+            case READ -> MediaTypeTheme.accentHex(MediaType.BOOK);
         };
 
         titleLabel.setText(title);
@@ -213,6 +216,7 @@ public class PlanListViewController {
             case WATCH -> "Todavía no tienes nada en \"Pienso ver\".\nAñade algo desde su detalle con el botón 📋.";
             case PLAY -> "Todavía no tienes nada en \"Pienso jugar\".\nAñade algo desde su detalle con el botón 📋.";
             case LISTEN -> "Todavía no tienes nada en \"Pienso escuchar\".\nAñade algo desde su detalle con el botón 📋.";
+            case READ -> "Todavía no tienes nada en \"Pienso leer\".\nAñade libros o manga desde su detalle con el botón 📋.";
         };
     }
 
@@ -486,27 +490,11 @@ public class PlanListViewController {
     }
 
     private String typeLabel(MediaType type) {
-        if (type == null) return "";
-        return switch (type) {
-            case ANIME -> "🎌 ANIME";
-            case SERIES -> "📺 SERIES";
-            case MOVIE -> "🎬 PELÍCULA";
-            case MUSIC -> "🎵 MÚSICA";
-            case GAME -> "🎮 JUEGO";
-            case BOOK -> "📚 LIBRO";
-        };
+        return MediaTypeTheme.badgeText(type);
     }
 
     private String badgeClassFor(MediaType type) {
-        if (type == null) return "badge-series";
-        return switch (type) {
-            case GAME -> "badge-game";
-            case SERIES -> "badge-series";
-            case ANIME -> "badge-anime";
-            case MUSIC -> "badge-music";
-            case MOVIE -> "badge-movie";
-            case BOOK -> "badge-book";
-        };
+        return MediaTypeTheme.badgeClass(type);
     }
 
     /**

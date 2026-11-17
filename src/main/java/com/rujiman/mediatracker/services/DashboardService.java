@@ -32,8 +32,9 @@ public class DashboardService {
      * grid 3x4 (12, FIJO sin importar la resolución de pantalla — se
      * intentó hacer responsive varias veces y siempre acababa rompiendo
      * el layout en alguna combinación de tamaño/resolución; 3x4 fijo es
-     * la decisión final, simple y predecible). Música y Películas son
-     * las 2 filas de abajo, cada una a media anchura, con máximo 5.
+     * la decisión final, simple y predecible). Música / Películas y
+     * Libros / Manga son las 2 filas de abajo, cada una a media anchura,
+     * con máximo 5.
      */
     public static int getMaxItemsForSection(MediaType type) {
         return (type == MediaType.GAME || type == MediaType.SERIES || type == MediaType.ANIME) ? 12 : 5;

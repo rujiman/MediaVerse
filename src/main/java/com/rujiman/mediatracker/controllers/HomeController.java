@@ -22,7 +22,8 @@ import java.util.List;
 
 /**
  * Controller de la pantalla de inicio "Mi MediaVerse": muestra, por
- * sección fija (Juegos / Música / Series / Películas / Anime), los
+ * sección fija (Juegos / Series / Anime / Música / Películas / Libros /
+ * Manga), los
  * favoritos que el usuario eligió manualmente mediante el selector (✏️).
  */
 public class HomeController {
@@ -54,6 +55,16 @@ public class HomeController {
     @FXML private HBox movieSectionBox;
     @FXML private Label movieEmptyLabel;
     @FXML private Button editMovieButton;
+
+    @FXML private VBox bookSectionContainer;
+    @FXML private HBox bookSectionBox;
+    @FXML private Label bookEmptyLabel;
+    @FXML private Button editBookButton;
+
+    @FXML private VBox mangaSectionContainer;
+    @FXML private HBox mangaSectionBox;
+    @FXML private Label mangaEmptyLabel;
+    @FXML private Button editMangaButton;
 
     /** Se ejecuta al pinchar una tarjeta; recibe el MediaItem equivalente. */
     private java.util.function.Consumer<MediaItem> onOpenDetailAction;
@@ -97,6 +108,8 @@ public class HomeController {
         renderVerticalSection(MediaType.ANIME, animeSectionBox, animeEmptyLabel);
         renderHorizontalSection(MediaType.MUSIC, musicSectionBox, musicEmptyLabel);
         renderHorizontalSection(MediaType.MOVIE, movieSectionBox, movieEmptyLabel);
+        renderHorizontalSection(MediaType.BOOK, bookSectionBox, bookEmptyLabel);
+        renderHorizontalSection(MediaType.MANGA, mangaSectionBox, mangaEmptyLabel);
     }
 
     // ===========================================================
@@ -220,15 +233,7 @@ public class HomeController {
      * tipo de contenido, según la paleta "Constelaciones" de theme.css.
      */
     private String cardHoverClassFor(MediaType type) {
-        if (type == null) return "card-hover-series";
-        return switch (type) {
-            case GAME -> "card-hover-game";
-            case SERIES -> "card-hover-series";
-            case ANIME -> "card-hover-anime";
-            case MUSIC -> "card-hover-music";
-            case MOVIE -> "card-hover-movie";
-            case BOOK -> "card-hover-book";
-        };
+        return MediaTypeTheme.cardHoverClass(type);
     }
 
     // ===========================================================
@@ -240,6 +245,8 @@ public class HomeController {
     @FXML private void onEditSeriesSection() { openSectionEditor(MediaType.SERIES, "Series"); }
     @FXML private void onEditMovieSection() { openSectionEditor(MediaType.MOVIE, "Películas"); }
     @FXML private void onEditAnimeSection() { openSectionEditor(MediaType.ANIME, "Anime"); }
+    @FXML private void onEditBookSection() { openSectionEditor(MediaType.BOOK, "Libros"); }
+    @FXML private void onEditMangaSection() { openSectionEditor(MediaType.MANGA, "Manga"); }
 
     /**
      * Abre un selector visual con tarjetas (imagen + título) de todos los

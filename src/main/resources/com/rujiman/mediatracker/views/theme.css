@@ -41,6 +41,8 @@
     -accent-anime: #ec4dc0;
     -accent-music: #4dec9e;
     -accent-movie: #ecb14d;
+    -accent-book: #f97316;
+    -accent-manga: #ef4444;
 
     -fx-background-color: -bg-base;
     -fx-font-family: "Segoe UI", sans-serif;
@@ -204,6 +206,24 @@
 }
 .btn-flat-nav-movie:hover { -fx-text-fill: derive(-accent-movie, 25%); }
 
+.btn-flat-nav-book {
+    -fx-background-color: transparent;
+    -fx-text-fill: -accent-book;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+.btn-flat-nav-book:hover { -fx-text-fill: derive(-accent-book, 25%); }
+
+.btn-flat-nav-manga {
+    -fx-background-color: transparent;
+    -fx-text-fill: -accent-manga;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+.btn-flat-nav-manga:hover { -fx-text-fill: derive(-accent-manga, 25%); }
+
 .btn-flat-brand {
     -fx-background-color: transparent;
     -fx-text-fill: -brand;
@@ -229,6 +249,8 @@
 .btn-circle-anime    { -fx-background-color: -accent-anime;  }
 .btn-circle-music    { -fx-background-color: -accent-music;  -fx-text-fill: -text-on-accent; }
 .btn-circle-movie    { -fx-background-color: -accent-movie;  -fx-text-fill: -text-on-accent; }
+.btn-circle-book     { -fx-background-color: -accent-book;   }
+.btn-circle-manga    { -fx-background-color: -accent-manga;  }
 
 /* ============================================================
    TÍTULOS DE SECCIÓN (cabeceras de cajas en Inicio) — color por tipo
@@ -239,6 +261,8 @@
 .section-title-anime  { -fx-text-fill: -accent-anime;  -fx-font-size: 15px; -fx-font-weight: bold; }
 .section-title-music  { -fx-text-fill: -accent-music;  -fx-font-size: 15px; -fx-font-weight: bold; }
 .section-title-movie  { -fx-text-fill: -accent-movie;  -fx-font-size: 15px; -fx-font-weight: bold; }
+.section-title-book   { -fx-text-fill: -accent-book;   -fx-font-size: 15px; -fx-font-weight: bold; }
+.section-title-manga  { -fx-text-fill: -accent-manga;  -fx-font-size: 15px; -fx-font-weight: bold; }
 
 /* ============================================================
    TARJETAS — borde y glow de hover por sección
@@ -272,6 +296,9 @@
 }
 .card-hover-book {
     -fx-effect: dropshadow(gaussian, #f9731699, 18, 0.35, 0, 0);
+}
+.card-hover-manga {
+    -fx-effect: dropshadow(gaussian, #ef444499, 18, 0.35, 0, 0);
 }
 
 /* Chip de género (Acción, Aventura, Drama...) en la pantalla de detalle.
@@ -382,6 +409,16 @@
     -fx-padding: 4 11 4 9;
     -fx-background-radius: 20;
     -fx-effect: dropshadow(gaussian, #f9731699, 8, 0.4, 0, 1);
+}
+.badge-manga {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444, #c92a2a);
+    -fx-text-fill: white;
+    -fx-font-size: 9px;
+    -fx-font-weight: 800;
+    -fx-letter-spacing: 0.6px;
+    -fx-padding: 4 11 4 9;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, #ef444499, 8, 0.4, 0, 1);
 }
 
 /* ============================================================

@@ -33,11 +33,11 @@ public class PlanService {
     /**
      * A qué lista pertenece un item/carpeta. WATCH cubre series, películas
      * y anime juntos (todo lo que se "ve"), PLAY solo juegos, LISTEN solo
-     * música — coincide con cómo el usuario las describió: "Pienso ver",
-     * "Pienso jugar", "Pienso escuchar".
+     * música y READ libros y manga — coincide con cómo el usuario las
+     * describió: "Pienso ver", "Pienso jugar", "Pienso escuchar", "Pienso leer".
      */
     public enum ListKind {
-        WATCH, PLAY, LISTEN
+        WATCH, PLAY, LISTEN, READ
     }
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -54,6 +54,7 @@ public class PlanService {
             case WATCH -> "watch";
             case PLAY -> "play";
             case LISTEN -> "listen";
+            case READ -> "read";
         };
         return AppPaths.userFile(user, AppPaths.DIR_PLAN, "plan_" + suffix + ".json");
     }
@@ -65,9 +66,7 @@ public class PlanService {
     private static void ensureCorrectUserLoaded() {
         String currentUser = AuthService.getCurrentUser();
         if (loadedForUser != null && java.util.Objects.equals(loadedForUser, currentUser)
-                && loadedFlags.getOrDefault(ListKind.WATCH, false)
-                && loadedFlags.getOrDefault(ListKind.PLAY, false)
-                && loadedFlags.getOrDefault(ListKind.LISTEN, false)) {
+                && java.util.Arrays.stream(ListKind.values()).allMatch(k -> loadedFlags.getOrDefault(k, false))) {
             return;
         }
         itemsCache.clear();

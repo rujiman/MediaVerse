@@ -3,6 +3,7 @@ package com.rujiman.mediatracker.controllers;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
+import com.rujiman.mediatracker.util.MediaTypeTheme;
 import com.rujiman.mediatracker.models.PlanFolder;
 import com.rujiman.mediatracker.services.FavoritesService;
 import com.rujiman.mediatracker.services.FolderService;
@@ -87,15 +88,7 @@ public class WatchlistViewController {
     }
 
     private String sectionAccentHex(MediaType type) {
-        if (type == null) return "#ec4d80";
-        return switch (type) {
-            case GAME -> "#4dd9ec";
-            case SERIES -> "#8b5cf6";
-            case ANIME -> "#ec4dc0";
-            case MUSIC -> "#4dec9e";
-            case MOVIE -> "#ecb14d";
-            case BOOK -> "#f97316";
-        };
+        return MediaTypeTheme.accentHex(type);
     }
 
     @FXML
@@ -140,11 +133,28 @@ public class WatchlistViewController {
         if (typeFilter == null || progressFilter == null) return;
 
         allMatching.clear();
+        java.util.Set<String> favoriteKeys = new java.util.HashSet<>();
         for (FavoriteItem fav : FavoritesService.getFavoritesByType(typeFilter)) {
-            WatchProgressService.Progress progress = WatchProgressService.getProgress(fav.getTitle());
+            String key = WatchProgressService.keyFor(fav.getType(), fav.getTitle()).toLowerCase();
+            favoriteKeys.add(key);
+            WatchProgressService.Progress progress = WatchProgressService.getProgress(key);
             if (progressFilter.test(progress)) {
                 allMatching.add(fav);
             }
+        }
+
+        // Además de los favoritos, todo lo que tenga progreso aunque no sea
+        // favorito (p. ej. un manga del que llevas 4 capítulos). Se envuelve
+        // en un FavoriteItem "de solo lectura" con un id estable derivado
+        // de su clave de progreso, para que las tarjetas y las carpetas
+        // funcionen igual que con un favorito real.
+        for (WatchProgressService.Tracked tracked : WatchProgressService.getTracked(typeFilter)) {
+            String key = WatchProgressService.keyFor(tracked.item().getType(), tracked.item().getTitle()).toLowerCase();
+            if (favoriteKeys.contains(key) || !progressFilter.test(tracked.progress())) continue;
+            FavoriteItem wrapper = new FavoriteItem(tracked.item());
+            wrapper.setId("progress::" + key);
+            if (wrapper.getTotalEpisodes() == null) wrapper.setTotalEpisodes(tracked.progress().totalEpisodes);
+            allMatching.add(wrapper);
         }
 
         List<String> validIds = new ArrayList<>();
@@ -428,7 +438,7 @@ public class WatchlistViewController {
 
         card.getChildren().addAll(imageContainer, cardTitle, metaRow);
 
-        WatchProgressService.Progress progress = WatchProgressService.getProgress(fav.getTitle());
+        WatchProgressService.Progress progress = WatchProgressService.getProgress(WatchProgressService.keyFor(fav.getType(), fav.getTitle()));
 
         HBox statusRow = new HBox();
         statusRow.setAlignment(Pos.CENTER_LEFT);
@@ -437,10 +447,10 @@ public class WatchlistViewController {
         Integer total = fav.getTotalEpisodes();
         Label progressLabel;
         if (total != null && total > 0) {
-            progressLabel = new Label("📺 " + progress.watchedEpisodes.size() + "/" + total);
+            progressLabel = new Label(MediaTypeTheme.progressText(fav.getType(), progress.watchedEpisodes.size(), total).replaceAll(" (vistos|leídos)$", ""));
             progressLabel.getStyleClass().add("text-dim");
         } else if (progress.viewed) {
-            progressLabel = new Label("✔ Visto");
+            progressLabel = new Label(MediaTypeTheme.doneText(fav.getType()));
             progressLabel.getStyleClass().add("text-success");
         } else {
             progressLabel = new Label(" ");
@@ -500,27 +510,11 @@ public class WatchlistViewController {
     }
 
     private String typeLabel(MediaType type) {
-        if (type == null) return "";
-        return switch (type) {
-            case ANIME -> "🎌 ANIME";
-            case SERIES -> "📺 SERIES";
-            case MOVIE -> "🎬 PELÍCULA";
-            case MUSIC -> "🎵 MÚSICA";
-            case GAME -> "🎮 JUEGO";
-            case BOOK -> "📚 LIBRO";
-        };
+        return MediaTypeTheme.badgeText(type);
     }
 
     private String badgeClassFor(MediaType type) {
-        if (type == null) return "badge-series";
-        return switch (type) {
-            case GAME -> "badge-game";
-            case SERIES -> "badge-series";
-            case ANIME -> "badge-anime";
-            case MUSIC -> "badge-music";
-            case MOVIE -> "badge-movie";
-            case BOOK -> "badge-book";
-        };
+        return MediaTypeTheme.badgeClass(type);
     }
 
     private void styleDialogDark(DialogPane pane) {

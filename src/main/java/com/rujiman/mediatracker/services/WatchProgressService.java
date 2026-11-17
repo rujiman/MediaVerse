@@ -1,6 +1,7 @@
 package com.rujiman.mediatracker.services;
 
 import com.google.gson.*;
+import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
 
 import java.io.IOException;
@@ -30,7 +31,16 @@ public class WatchProgressService {
         // independiente de la puntuación que traen las APIs (TMDB/AniList/
         // IGDB/Deezer). null = sin valorar todavía.
         public Integer userRating;
+
+        // Mini ficha del título (portada, tipo, IDs...), guardada junto al
+        // progreso para que las listas "viendo/leyendo/vistos/leídos"
+        // puedan mostrar también lo que NO está en favoritos. null en
+        // progresos antiguos hasta que se vuelva a abrir su detalle.
+        public MediaItem item;
     }
+
+    /** Un título con progreso y su ficha guardada. */
+    public record Tracked(MediaItem item, Progress progress) {}
 
     private static Map<String, Progress> cache = new HashMap<>();
     private static boolean loaded = false;
@@ -88,6 +98,15 @@ public class WatchProgressService {
                         progress.userRating = obj.get("userRating").getAsInt();
                     }
 
+                    // Ficha opcional: si está corrupta se ignora, el progreso sigue valiendo
+                    if (obj.has("item") && obj.get("item").isJsonObject()) {
+                        try {
+                            progress.item = gson.fromJson(obj.get("item"), MediaItem.class);
+                        } catch (Exception e) {
+                            System.err.println("⚠️ Ficha de progreso corrupta ignorada (" + title + "): " + e.getMessage());
+                        }
+                    }
+
                     cache.put(title.toLowerCase(), progress);
                 }
             }
@@ -122,6 +141,10 @@ public class WatchProgressService {
                     obj.addProperty("userRating", p.userRating);
                 }
 
+                if (p.item != null) {
+                    obj.add("item", gson.toJsonTree(p.item));
+                }
+
                 root.add(entry.getKey(), obj);
             }
 
@@ -131,6 +154,67 @@ public class WatchProgressService {
         } catch (IOException e) {
             System.err.println("❌ Error al guardar progreso: " + e.getMessage());
         }
+    }
+
+    /**
+     * Clave con la que se guarda el progreso de un item.
+     *
+     * Por compatibilidad con los progress.json existentes, los tipos
+     * originales siguen usando solo el título. Libros y manga llevan el
+     * tipo delante ("MANGA::Berserk") para no chocar con un anime, serie o
+     * película que se llame igual (p. ej. el manga y el anime de
+     * "Shingeki no Kyojin", o el libro y la película "Dune").
+     */
+    public static String keyFor(MediaType type, String title) {
+        if (title == null) return "";
+        if (type == MediaType.BOOK || type == MediaType.MANGA) return type.name() + "::" + title;
+        return title;
+    }
+
+    /**
+     * Guarda (o refresca) la ficha del item junto a su progreso. Solo hace
+     * algo si el item YA tiene progreso guardado: abrir un detalle sin
+     * marcar nada no crea entradas nuevas. Se llama tras cada cambio de
+     * progreso desde el detalle.
+     */
+    public static void remember(MediaItem item) {
+        if (item == null || item.getTitle() == null || item.getType() == null) return;
+        ensureCorrectUserLoaded();
+        Progress progress = cache.get(keyFor(item.getType(), item.getTitle()).toLowerCase());
+        if (progress == null) return;
+        progress.item = snapshotOf(item);
+        saveProgress();
+    }
+
+    /**
+     * Igual que remember(), pero solo si aún no había ficha. Sirve para
+     * "rescatar" progresos guardados antes de que existieran las fichas:
+     * basta con abrir su detalle una vez.
+     */
+    public static void rememberIfMissing(MediaItem item) {
+        if (item == null || item.getTitle() == null || item.getType() == null) return;
+        ensureCorrectUserLoaded();
+        Progress progress = cache.get(keyFor(item.getType(), item.getTitle()).toLowerCase());
+        if (progress != null && progress.item == null) remember(item);
+    }
+
+    /** Todos los títulos de un tipo que tienen progreso y ficha guardada. */
+    public static java.util.List<Tracked> getTracked(MediaType type) {
+        ensureCorrectUserLoaded();
+        java.util.List<Tracked> result = new java.util.ArrayList<>();
+        for (Progress progress : cache.values()) {
+            if (progress.item != null && progress.item.getType() == type) {
+                result.add(new Tracked(progress.item, progress));
+            }
+        }
+        return result;
+    }
+
+    /** Copia independiente del item, sin datos efímeros (preview de Deezer caduca). */
+    private static MediaItem snapshotOf(MediaItem item) {
+        MediaItem copy = gson.fromJson(gson.toJsonTree(item), MediaItem.class);
+        copy.setPreviewUrl(null);
+        return copy;
     }
 
     /**
