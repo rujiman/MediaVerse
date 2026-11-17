@@ -82,6 +82,21 @@ public class DetailViewController {
     @FXML private Button jumpToEpisodeButton;
     @FXML private Label jumpToEpisodeLabel;
 
+    // Rediseño "ficha": banda superior, progreso y acción principal
+    @FXML private StackPane heroBand;
+    @FXML private ImageView heroBackdrop;
+    @FXML private StackPane posterBox;
+    @FXML private Label typeBadge;
+    @FXML private VBox progressBox;
+    @FXML private Label progressCountLabel;
+    @FXML private StackPane progressTrack;
+    @FXML private javafx.scene.layout.Region progressFill;
+    @FXML private Button primaryActionButton;
+
+    /** Bloque de episodios visible (0 = 1–50, 1 = 51–100...) en series largas. */
+    private int episodeBlock = -1;
+    private static final int EPISODE_BLOCK = 50;
+
     // Canciones de álbum (MUSIC)
     @FXML private VBox trackCountSection;
     @FXML private Label trackCountLabel;
@@ -173,6 +188,69 @@ public class DetailViewController {
         return MediaTypeTheme.accentHex(type);
     }
 
+    /**
+     * Banda superior: fondo = color del tipo mezclado con el fondo de la app,
+     * badge del tipo, botón "Volver" con icono y póster desenfocado detrás.
+     */
+    private void styleHero(MediaItem item) {
+        String accent = sectionAccentHex(item.getType());
+        Color tint = Color.web("#100c1c").interpolate(Color.web(accent), 0.16);
+        heroBand.setStyle("-fx-background-color: " + toHex(tint) + ";");
+
+        typeBadge.setText(MediaTypeTheme.label(item.getType()).toUpperCase());
+        typeBadge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: #120c1c;");
+
+        backButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.BACK, 18, "#e6e1f5"));
+        backButton.setGraphicTextGap(4);
+
+        // Fondo: el póster muy desenfocado y oscurecido, a todo el ancho
+        javafx.scene.effect.ColorAdjust darken = new javafx.scene.effect.ColorAdjust(0, -0.1, -0.35, 0);
+        darken.setInput(new javafx.scene.effect.GaussianBlur(50));
+        heroBackdrop.setEffect(darken);
+        heroBackdrop.fitWidthProperty().bind(heroBand.widthProperty().multiply(1.1));
+        heroBackdrop.fitHeightProperty().bind(heroBand.heightProperty().multiply(1.3));
+        heroBackdrop.layoutXProperty().bind(heroBand.widthProperty().multiply(-0.05));
+        heroBackdrop.layoutYProperty().bind(heroBand.heightProperty().multiply(-0.15));
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle();
+        clip.widthProperty().bind(heroBand.widthProperty());
+        clip.heightProperty().bind(heroBand.heightProperty());
+        heroBand.setClip(clip);
+
+        javafx.scene.shape.Rectangle posterClip = new javafx.scene.shape.Rectangle(240, 360);
+        posterClip.setArcWidth(36);
+        posterClip.setArcHeight(36);
+        detailImage.setClip(posterClip);
+    }
+
+    private static String toHex(Color c) {
+        return String.format("#%02x%02x%02x",
+                (int) Math.round(c.getRed() * 255), (int) Math.round(c.getGreen() * 255), (int) Math.round(c.getBlue() * 255));
+    }
+
+    /** Recorta la imagen al centro para rellenar w×h sin deformarse (object-fit: cover). */
+    private void cropToFill(ImageView view, Image img, double w, double h) {
+        double iw = img.getWidth(), ih = img.getHeight();
+        if (iw <= 0 || ih <= 0) return;
+        double target = w / h;
+        double cw = iw, ch = iw / target;
+        if (ch > ih) { ch = ih; cw = ih * target; }
+        view.setViewport(new javafx.geometry.Rectangle2D((iw - cw) / 2, (ih - ch) / 2, cw, ch));
+    }
+
+    private void fadeTo(javafx.scene.Node n, double to) {
+        FadeTransition f = new FadeTransition(com.rujiman.mediatracker.ui.Motion.BASE, n);
+        f.setToValue(to);
+        f.setInterpolator(com.rujiman.mediatracker.ui.Motion.EASE_OUT);
+        f.play();
+    }
+
+    /** Estilo del botón de acción principal: relleno del color del tipo. */
+    private String primaryStyle(MediaType type) {
+        return "-fx-background-color: " + sectionAccentHex(type) + "; -fx-text-fill: #120c1c;"
+                + "-fx-font-family: 'Inter ExtraBold'; -fx-font-size: 15px; -fx-background-radius: 14;"
+                + "-fx-padding: 0 22; -fx-min-height: 48; -fx-cursor: hand;";
+    }
+
     @FXML
     public void initialize() {
         detailScroll.setStyle("-fx-background-color: #100c1c;");
@@ -224,21 +302,32 @@ public class DetailViewController {
         // llamará a setPlanContext() justo después de loadItem().
         this.currentPlanContext = null;
         this.currentPlanItemId = null;
+        this.episodeBlock = -1;
 
-        // Cargar imagen con fade
+        // Banda superior teñida con el color del tipo
+        styleHero(item);
+
+        // Póster (recortado, sin deformar) y el mismo póster, desenfocado,
+        // de fondo de la banda superior
+        detailImage.setImage(null);
+        heroBackdrop.setImage(null);
         if (item.getImageUrl() != null && !item.getImageUrl().isBlank()) {
-            new Thread(() -> {
-                try {
-                    Image img = new Image(item.getImageUrl(), 400, 600, true, true, true);
-                    Platform.runLater(() -> {
-                        detailImage.setImage(img);
-                        FadeTransition fade = new FadeTransition(Duration.millis(300), detailImage);
-                        fade.setFromValue(0);
-                        fade.setToValue(1);
-                        fade.play();
-                    });
-                } catch (Exception ignored) {}
-            }).start();
+            try {
+                Image img = new Image(item.getImageUrl(), 480, 720, true, true, true);
+                detailImage.setOpacity(0);
+                heroBackdrop.setOpacity(0);
+                detailImage.setImage(img);
+                heroBackdrop.setImage(img);
+                Runnable onLoaded = () -> {
+                    cropToFill(detailImage, img, 240, 360);
+                    fadeTo(detailImage, 1);
+                    fadeTo(heroBackdrop, 0.45);
+                };
+                if (img.getProgress() >= 1.0) onLoaded.run();
+                else img.progressProperty().addListener((o, a, b) -> {
+                    if (b.doubleValue() >= 1.0 && !img.isError()) onLoaded.run();
+                });
+            } catch (Exception ignored) {}
         }
 
         // Información básica
@@ -247,18 +336,21 @@ public class DetailViewController {
         // para Juegos, violeta para Series, magenta para Anime, etc.),
         // así el detalle "se siente" de esa sección concreta en vez de
         // usar siempre el mismo rosa para todo tipo de contenido.
-        detailTitle.setStyle("-fx-text-fill: " + sectionAccentHex(item.getType()) + "; -fx-font-size: 24px; -fx-font-weight: bold;");
+        // Título en blanco (el color del tipo ya está en el badge y la banda)
+        detailTitle.setStyle(null);
 
         detailYear.setText(item.getYear() != null ? String.valueOf(item.getYear()) : "—");
 
         // Puntuación
         int score = item.getScore() != null ? item.getScore() : 0;
-        detailScore.setText(score > 0 ? "⭐ " + score + "/100" : "Sin puntuación");
+        detailScore.setText(score > 0 ? "Nota " + score + "/100" : "Sin puntuación");
 
         // Descripción: la cabecera se pinta con el acento de la sección
         // del item, igual que el título principal, para mantener
         // consistencia visual (antes se quedaba siempre en rosa fijo).
-        detailDescription.setText(item.getDescription() != null ? item.getDescription() : "Sin descripción");
+        // Se limpia cualquier resto de HTML (<br>, <i>, &quot;...) que traiga la API
+        String description = com.rujiman.mediatracker.util.TextUtil.cleanHtml(item.getDescription());
+        detailDescription.setText(description != null && !description.isBlank() ? description : "Sin descripción.");
         descriptionHeaderLabel.setStyle("-fx-text-fill: " + sectionAccentHex(item.getType()) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         // Géneros: un chip individual por cada género, en vez de texto
@@ -434,16 +526,10 @@ public class DetailViewController {
 
         trailerButton.setVisible(canHaveTrailer);
         trailerButton.setManaged(canHaveTrailer);
-        trailerButton.setText("▶ Ver tráiler en YouTube");
+        trailerButton.setText("Ver tráiler");
+        trailerButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.PLAY, 16, "#f0eef5"));
+        trailerButton.setGraphicTextGap(8);
         trailerButton.setDisable(false);
-
-        if (canHaveTrailer) {
-            trailerButton.setStyle(
-                    "-fx-background-color: " + sectionAccentHex(item.getType()) + ";" +
-                            "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;" +
-                            "-fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
-            );
-        }
     }
 
     /**
@@ -738,10 +824,8 @@ public class DetailViewController {
                 if (currentItem != itemAtRequestTime) return;
                 if (results == null || results.isEmpty()) return;
 
-                recommendationsHeaderLabel.setText("Si te gusta " + itemAtRequestTime.getTitle() + ", te recomendamos:");
-                recommendationsHeaderLabel.setStyle(
-                        "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + sectionAccentHex(type) + ";"
-                );
+                recommendationsHeaderLabel.setText("Si te gusta " + itemAtRequestTime.getTitle() + ", también te gustará");
+                recommendationsHeaderLabel.setStyle(null);
 
                 for (MediaItem rec : results) {
                     recommendationsGrid.getChildren().add(buildRecommendationCard(rec));
@@ -849,8 +933,8 @@ public class DetailViewController {
 
             Label star = new Label(starValue <= rating ? "★" : "☆");
             star.setStyle(
-                    "-fx-font-size: 18px;" +
-                            "-fx-text-fill: " + (starValue <= rating ? "#f1c40f" : "#555577") + ";" +
+                    "-fx-font-size: 22px;" +
+                            "-fx-text-fill: " + (starValue <= rating ? "#ecb14d" : "#4a4170") + ";" +
                             "-fx-cursor: hand;"
             );
 
@@ -974,25 +1058,74 @@ public class DetailViewController {
      */
     private void buildEpisodesList(int totalEpisodes) {
         episodesList.getChildren().clear();
-        WatchProgressService.Progress progress = WatchProgressService.getProgress(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
-        episodesHeaderLabel.setText(MediaTypeTheme.unitPlural(currentItem.getType()) + " (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
+        MediaType type = currentItem.getType();
+        String accent = sectionAccentHex(type);
+        WatchProgressService.Progress progress = WatchProgressService.getProgress(WatchProgressService.keyFor(type, currentItem.getTitle()));
+        episodesHeaderLabel.setText(MediaTypeTheme.unitPlural(type) + " (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
 
-        for (int i = 1; i <= totalEpisodes; i++) {
-            final int episodeNumber = i;
-
-            CheckBox checkBox = new CheckBox(MediaTypeTheme.unitSingular(currentItem.getType()) + " " + episodeNumber);
-            checkBox.setStyle(
-                    "-fx-text-fill: #f0eef5; -fx-font-size: 12px;"
-            );
-
-            checkBox.setSelected(progress.watchedEpisodes.contains(episodeNumber));
-
-            checkBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-                onEpisodeToggled(episodeNumber, totalEpisodes);
-            });
-
-            episodesList.getChildren().add(checkBox);
+        // Series largas: bloques de 50 con pestañas ("1–50", "51–100"...).
+        // Por defecto se abre el bloque donde está el siguiente sin ver.
+        int blocks = (totalEpisodes + EPISODE_BLOCK - 1) / EPISODE_BLOCK;
+        if (episodeBlock < 0 || episodeBlock >= blocks) {
+            int next = nextUnwatched(totalEpisodes);
+            episodeBlock = next > 0 ? (next - 1) / EPISODE_BLOCK : blocks - 1;
         }
+        if (blocks > 1) {
+            FlowPane tabs = new FlowPane(8, 8);
+            for (int bIdx = 0; bIdx < blocks; bIdx++) {
+                final int block = bIdx;
+                int from = bIdx * EPISODE_BLOCK + 1;
+                int to = Math.min(totalEpisodes, (bIdx + 1) * EPISODE_BLOCK);
+                Button tab = new Button(from + "–" + to);
+                boolean active = bIdx == episodeBlock;
+                tab.setStyle("-fx-background-radius: 999; -fx-padding: 6 14; -fx-font-size: 13px; -fx-cursor: hand;"
+                        + (active ? "-fx-background-color: #f0eef5; -fx-text-fill: #120c1c; -fx-font-family: 'Inter SemiBold';"
+                                  : "-fx-background-color: transparent; -fx-border-color: #3a3160; -fx-border-radius: 999; -fx-text-fill: #e6e1f5;"));
+                tab.setOnAction(e -> {
+                    episodeBlock = block;
+                    buildEpisodesList(totalEpisodes);
+                });
+                tabs.getChildren().add(tab);
+            }
+            episodesList.getChildren().add(tabs);
+        }
+
+        // Cuadrícula de botones numerados: relleno del color del tipo = visto
+        FlowPane grid = new FlowPane(8, 8);
+        int start = episodeBlock * EPISODE_BLOCK + 1;
+        int end = Math.min(totalEpisodes, start + EPISODE_BLOCK - 1);
+        for (int i = start; i <= end; i++) {
+            final int episodeNumber = i;
+            boolean watched = progress.watchedEpisodes.contains(i);
+            Button ep = new Button(String.valueOf(i));
+            ep.setMinSize(56, 44);
+            ep.setPrefSize(56, 44);
+            ep.setStyle("-fx-background-radius: 12; -fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"
+                    + (watched ? "-fx-background-color: " + accent + "; -fx-text-fill: #120c1c;"
+                               : "-fx-background-color: #1a1530; -fx-border-color: #2a2347; -fx-border-radius: 12; -fx-text-fill: #f0eef5;"));
+            ep.setTooltip(new Tooltip(MediaTypeTheme.unitSingular(type) + " " + i
+                    + (watched ? " · marcado" : "") + "\nMayús + clic: marcar hasta aquí"));
+            // Clic normal: marcar/desmarcar este episodio
+            ep.setOnAction(e -> {
+                onEpisodeToggled(episodeNumber, totalEpisodes);
+                buildEpisodesList(totalEpisodes);
+            });
+            // Mayús + clic: marcar todos hasta este. Los botones de JavaFX
+            // IGNORAN las pulsaciones con Mayús/Ctrl/Alt (no disparan
+            // onAction), así que se escucha el clic del ratón directamente.
+            ep.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, e -> {
+                if (e.isShiftDown() && e.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                    WatchProgressService.markEpisodesUpTo(WatchProgressService.keyFor(type, currentItem.getTitle()), episodeNumber, totalEpisodes);
+                    WatchProgressService.remember(currentItem);
+                    updateViewedButtonStyle();
+                    buildEpisodesList(totalEpisodes);
+                    e.consume();
+                }
+            });
+            grid.getChildren().add(ep);
+        }
+        episodesList.getChildren().add(grid);
+        updatePrimaryAction();
     }
 
     /**
@@ -1090,6 +1223,7 @@ public class DetailViewController {
             case BOOK, MANGA -> viewedLabel = "Marcar como leído";
         }
         viewedButton.setText(viewedLabel);
+        updatePrimaryAction();
 
         boolean hasEpisodeList = MediaTypeTheme.hasUnitProgress(item.getType())
                 && item.getEpisodes() != null && item.getEpisodes() > 0;
@@ -1115,12 +1249,15 @@ public class DetailViewController {
                     break;
                 }
             }
-            favoriteButton.setText("❌ Eliminar de favoritos");
-            favoriteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;");
+            // Estrella rellena del color del tipo = ya es favorito
+            favoriteButton.setText(null);
+            favoriteButton.setGraphic(com.rujiman.mediatracker.ui.Icons.filled(com.rujiman.mediatracker.ui.Icons.STAR, 20, accentHex));
+            favoriteButton.setTooltip(new Tooltip("Quitar de favoritos"));
         } else {
             currentFavorite = null;
-            favoriteButton.setText("⭐ Agregar a favoritos");
-            favoriteButton.setStyle("-fx-background-color: " + accentHex + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;");
+            favoriteButton.setText(null);
+            favoriteButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 20, "#f0eef5"));
+            favoriteButton.setTooltip(new Tooltip("Añadir a favoritos"));
         }
     }
 
@@ -1174,10 +1311,14 @@ public class DetailViewController {
         PlanService.ListKind kind = listKindForType(item.getType());
         boolean inPlan = PlanService.isInPlan(kind, item.getTitle());
 
+        String accent = sectionAccentHex(item.getType());
+        planButton.setText(null);
         if (inPlan) {
-            planButton.setText("✕ Quitar de \"" + planButtonLabelFor(item.getType()) + "\"");
+            planButton.setGraphic(com.rujiman.mediatracker.ui.Icons.filled(com.rujiman.mediatracker.ui.Icons.BOOKMARK, 20, accent));
+            planButton.setTooltip(new Tooltip("Quitar de \"" + planButtonLabelFor(item.getType()) + "\""));
         } else {
-            planButton.setText("📋 " + capitalize(planButtonLabelFor(item.getType())));
+            planButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.BOOKMARK, 20, "#f0eef5"));
+            planButton.setTooltip(new Tooltip(capitalize(planButtonLabelFor(item.getType()))));
         }
     }
 
@@ -1266,11 +1407,97 @@ public class DetailViewController {
 
     private void updateViewedButtonStyle() {
         boolean viewed = WatchProgressService.isViewed(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
+        viewedButton.getStyleClass().remove("btn-secondary");
         if (viewed) {
-            viewedButton.setStyle("-fx-background-color: " + COLOR_GREEN + ";");
+            // Hecho: pasa a secundario con un check del color del tipo
+            viewedButton.setText(MediaTypeTheme.doneText(currentItem.getType()).replace("✔ ", ""));
+            viewedButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CHECK, 16,
+                    sectionAccentHex(currentItem.getType())));
+            viewedButton.setGraphicTextGap(8);
+            viewedButton.setStyle(null);
+            viewedButton.getStyleClass().add("btn-secondary");
         } else {
-            viewedButton.setStyle("-fx-background-color: " + COLOR_BG_CARD + ";");
+            // Pendiente: es la acción principal (relleno del color del tipo)
+            viewedButton.setText(viewedLabelFor(currentItem.getType()));
+            viewedButton.setGraphic(null);
+            viewedButton.setStyle(primaryStyle(currentItem.getType()));
         }
+        updatePrimaryAction();
+    }
+
+    private String viewedLabelFor(MediaType type) {
+        return switch (type) {
+            case MUSIC -> "Marcar como escuchado";
+            case GAME -> "Marcar como jugado";
+            case BOOK, MANGA -> "Marcar como leído";
+            default -> "Marcar como visto";
+        };
+    }
+
+    // ===========================================================
+    // ACCIÓN PRINCIPAL Y PROGRESO (anime / series / manga)
+    // ===========================================================
+
+    /** Primer episodio/capítulo sin marcar, o -1 si están todos. */
+    private int nextUnwatched(int total) {
+        WatchProgressService.Progress p = WatchProgressService.getProgress(
+                WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
+        for (int i = 1; i <= total; i++) if (!p.watchedEpisodes.contains(i)) return i;
+        return -1;
+    }
+
+    /**
+     * Si el item tiene lista de episodios, la acción principal es "Marcar
+     * episodio N" (el siguiente sin ver); al completarlos, "Completado".
+     * También actualiza la barra de progreso de la banda superior.
+     */
+    private void updatePrimaryAction() {
+        Integer total = currentItem.getEpisodes();
+        boolean units = MediaTypeTheme.hasUnitProgress(currentItem.getType()) && total != null && total > 0;
+        primaryActionButton.setVisible(units);
+        primaryActionButton.setManaged(units);
+        progressBox.setVisible(units);
+        progressBox.setManaged(units);
+        if (!units) return;
+
+        MediaType type = currentItem.getType();
+        String unit = MediaTypeTheme.unitSingular(type).toLowerCase();
+        int next = nextUnwatched(total);
+        if (next > 0) {
+            primaryActionButton.setText("Marcar " + unit + " " + next);
+            primaryActionButton.setGraphic(null);
+            primaryActionButton.getStyleClass().remove("btn-secondary");
+            primaryActionButton.setStyle(primaryStyle(type));
+        } else {
+            primaryActionButton.setText("Completado");
+            primaryActionButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CHECK, 16, sectionAccentHex(type)));
+            primaryActionButton.setGraphicTextGap(8);
+            primaryActionButton.setStyle(null);
+            if (!primaryActionButton.getStyleClass().contains("btn-secondary")) primaryActionButton.getStyleClass().add("btn-secondary");
+        }
+
+        WatchProgressService.Progress p = WatchProgressService.getProgress(WatchProgressService.keyFor(type, currentItem.getTitle()));
+        int done = p.watchedEpisodes.size();
+        progressCountLabel.setText(done + " de " + total + " " + MediaTypeTheme.unitPlural(type).toLowerCase());
+        progressFill.setStyle("-fx-background-color: " + sectionAccentHex(type) + ";");
+        double width = progressTrack.getPrefWidth() * Math.min(1.0, (double) done / total);
+        javafx.animation.Timeline grow = new javafx.animation.Timeline(new javafx.animation.KeyFrame(
+                com.rujiman.mediatracker.ui.Motion.SLOW,
+                new javafx.animation.KeyValue(progressFill.maxWidthProperty(), width, com.rujiman.mediatracker.ui.Motion.EASE_OUT),
+                new javafx.animation.KeyValue(progressFill.prefWidthProperty(), width, com.rujiman.mediatracker.ui.Motion.EASE_OUT)));
+        grow.play();
+    }
+
+    /** "Marcar episodio N": marca el siguiente sin ver. */
+    @FXML
+    private void onPrimaryAction() {
+        Integer total = currentItem.getEpisodes();
+        if (total == null || total <= 0) return;
+        int next = nextUnwatched(total);
+        if (next <= 0) return;
+        onEpisodeToggled(next, total);
+        episodeBlock = (next - 1) / EPISODE_BLOCK;
+        buildEpisodesList(total);
     }
 
     /**

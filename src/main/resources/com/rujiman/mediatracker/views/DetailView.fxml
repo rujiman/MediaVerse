@@ -5,229 +5,157 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 
+<!-- Detalle con estilo "ficha" (rediseño, dirección A):
+     1. Banda superior teñida con el color del tipo y el póster
+        desenfocado de fondo; póster, tipo, título, datos, descripción,
+        géneros, progreso y UNA acción principal.
+     2. Debajo: episodios/capítulos en cuadrícula y recomendaciones.
+     Ancho fijo de 1240 px centrado, igual que la vitrina de Inicio. -->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.rujiman.mediatracker.controllers.DetailViewController"
             styleClass="bg-base">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 20 0 20;">
-            <Button fx:id="backButton"
-                    text="← Volver"
-                    onAction="#onBack"
-                    styleClass="btn-pill-neutral"/>
-        </HBox>
-    </top>
-
     <center>
         <ScrollPane fx:id="detailScroll"
                     fitToWidth="true"
+                    hbarPolicy="NEVER"
                     styleClass="scroll-pane-transparent, bg-base">
 
-            <VBox fx:id="detailContainer"
-                  spacing="16"
-                  styleClass="bg-base">
-                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            <VBox fx:id="detailContainer" alignment="TOP_CENTER" styleClass="bg-base">
 
-                <!-- Encabezado con Imagen y Título -->
-                <HBox spacing="20" alignment="TOP_LEFT">
-                    <!-- Imagen -->
-                    <ImageView fx:id="detailImage"
-                               fitWidth="250"
-                               fitHeight="350"
-                               preserveRatio="true"/>
+                <!-- ===================== BANDA SUPERIOR ===================== -->
+                <StackPane fx:id="heroBand" alignment="TOP_CENTER">
+                    <ImageView fx:id="heroBackdrop" preserveRatio="false" managed="false" mouseTransparent="true"/>
 
-                    <!-- Información -->
-                    <VBox spacing="12" HBox.hgrow="ALWAYS">
-                        <!-- Título: el color se fija dinámicamente en el
-                             controller según el tipo del item (cian=Juego,
-                             violeta=Series, magenta=Anime, etc.), por eso
-                             no tiene clase CSS fija aquí. -->
-                        <Label fx:id="detailTitle"
-                               text="Título"
-                               wrapText="true"
-                               style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+                    <VBox fx:id="heroInner" spacing="12" maxWidth="1240" prefWidth="1240">
+                        <padding><Insets top="20" right="32" bottom="40" left="32"/></padding>
 
-                        <!-- Año y Puntuación -->
-                        <HBox spacing="20">
-                            <Label fx:id="detailYear" text="2023" styleClass="text-dim"/>
-                            <Label fx:id="detailScore" text="⭐ 85/100" styleClass="text-success"/>
+                        <Button fx:id="backButton" text="Volver" onAction="#onBack" styleClass="btn-ghost"/>
+
+                        <HBox spacing="40" alignment="TOP_LEFT">
+                            <StackPane fx:id="posterBox" minWidth="240" minHeight="360" maxWidth="240" maxHeight="360"
+                                       styleClass="detail-poster">
+                                <ImageView fx:id="detailImage" fitWidth="240" fitHeight="360" preserveRatio="false"/>
+                            </StackPane>
+
+                            <VBox spacing="14" HBox.hgrow="ALWAYS">
+                                <Label fx:id="typeBadge" text="TIPO" styleClass="detail-type-badge"/>
+                                <Label fx:id="detailTitle" text="Título" wrapText="true" styleClass="detail-title"/>
+
+                                <HBox spacing="18" alignment="CENTER_LEFT">
+                                    <Label fx:id="detailYear" text="2023" styleClass="detail-meta"/>
+                                    <Label fx:id="detailScore" text="Nota 85/100" styleClass="detail-meta"/>
+                                </HBox>
+
+                                <Label fx:id="detailPlatforms" text="" wrapText="true" styleClass="detail-meta"/>
+
+                                <!-- Se mantiene por compatibilidad; la descripción ya no lleva cabecera -->
+                                <Label fx:id="descriptionHeaderLabel" text="Descripción" visible="false" managed="false"/>
+                                <Label fx:id="detailDescription" text="" wrapText="true" maxWidth="760"
+                                       styleClass="detail-description"/>
+
+                                <FlowPane fx:id="detailGenresBox" hgap="8" vgap="8"/>
+
+                                <!-- Progreso (solo anime/series/manga con episodios conocidos) -->
+                                <VBox fx:id="progressBox" spacing="8" maxWidth="520" visible="false" managed="false">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <Label text="Tu progreso" styleClass="detail-progress-title"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label fx:id="progressCountLabel" text="" styleClass="detail-meta"/>
+                                    </HBox>
+                                    <StackPane fx:id="progressTrack" alignment="CENTER_LEFT"
+                                               prefHeight="8" minHeight="8" maxHeight="8" prefWidth="520" maxWidth="520"
+                                               styleClass="detail-progress-track">
+                                        <Region fx:id="progressFill" prefHeight="8" maxHeight="8" maxWidth="0"
+                                                styleClass="detail-progress-fill"/>
+                                    </StackPane>
+                                </VBox>
+
+                                <!-- Acciones: UNA principal (color del tipo) + secundarias -->
+                                <FlowPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+                                    <Button fx:id="primaryActionButton" text="Marcar episodio 1"
+                                            visible="false" managed="false" onAction="#onPrimaryAction"/>
+                                    <Button fx:id="viewedButton" text="Marcar como visto" onAction="#onToggleViewed"/>
+                                    <Button fx:id="openExternalButton" text="Abrir en navegador"
+                                            styleClass="btn-secondary" onAction="#onOpenExternal"/>
+                                    <Button fx:id="trailerButton" text="Ver tráiler"
+                                            visible="false" managed="false" styleClass="btn-secondary"
+                                            onAction="#onOpenTrailer"/>
+                                    <Button fx:id="favoriteButton" styleClass="btn-icon" onAction="#onToggleFavorite"/>
+                                    <Button fx:id="planButton" styleClass="btn-icon" onAction="#onTogglePlan"/>
+                                    <Button fx:id="moveToFavoritesButton" text="Mover a Favoritos"
+                                            visible="false" managed="false" styleClass="btn-secondary"
+                                            onAction="#onMoveToFavorites"/>
+                                </FlowPane>
+
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="Tu nota" styleClass="detail-meta"/>
+                                    <HBox fx:id="userRatingStars" spacing="4" alignment="CENTER_LEFT"/>
+                                </HBox>
+
+                                <!-- Preview de 30 s (solo canciones sueltas de Deezer) -->
+                                <VBox fx:id="previewSection" spacing="6" visible="false" managed="false">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Button fx:id="previewButton"
+                                                text="▶ Escuchar preview (30s)"
+                                                styleClass="btn-secondary"
+                                                onAction="#onTogglePreview"/>
+                                        <Label fx:id="previewTimeLabel" text="0:00 / 0:30" styleClass="detail-meta"/>
+                                    </HBox>
+                                    <ProgressBar fx:id="previewProgressBar"
+                                                 progress="0"
+                                                 prefWidth="260"
+                                                 style="-fx-accent: #4dec9e;"/>
+                                </VBox>
+                            </VBox>
                         </HBox>
-
-                        <!-- Valoración personal (1-5 estrellas), independiente de la puntuación de la API -->
-                        <HBox spacing="6" alignment="CENTER_LEFT">
-                            <Label text="Tu valoración:" styleClass="text-dim"/>
-                            <HBox fx:id="userRatingStars" spacing="2"/>
-                        </HBox>
-
-                        <!-- Botones -->
-                        <FlowPane hgap="10" vgap="10">
-                            <!-- Favorito: color dinámico de sección, fijado
-                                 en el controller (igual que el título) -->
-                            <Button fx:id="favoriteButton"
-                                    text="⭐ Agregar a favoritos"
-                                    minWidth="190"
-                                    style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
-                                    onAction="#onToggleFavorite"/>
-
-                            <Button fx:id="viewedButton"
-                                    text="Marcar como visto"
-                                    minWidth="170"
-                                    styleClass="btn-pill-neutral"
-                                    onAction="#onToggleViewed"/>
-
-                            <Button fx:id="openExternalButton"
-                                    text="Abrir en navegador"
-                                    minWidth="170"
-                                    style="-fx-background-color: #0078d4; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
-                                    onAction="#onOpenExternal"/>
-
-                            <!-- Tráiler: también color dinámico de sección -->
-                            <Button fx:id="trailerButton"
-                                    text="▶ Ver tráiler en YouTube"
-                                    minWidth="190"
-                                    visible="false" managed="false"
-                                    style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
-                                    onAction="#onOpenTrailer"/>
-
-                            <!-- "Pienso ver/jugar/escuchar": el texto exacto
-                                 (lista a la que pertenece) se fija en el
-                                 controller según el tipo del item. -->
-                            <Button fx:id="planButton"
-                                    text="📋 Pienso ver esto"
-                                    minWidth="190"
-                                    styleClass="btn-pill-neutral"
-                                    onAction="#onTogglePlan"/>
-
-                            <!-- "Mover a Favoritos": solo visible cuando el
-                                 detalle se abrió desde una de las 3 listas
-                                 de "Pienso..." (no desde búsqueda/favoritos
-                                 normales) -->
-                            <Button fx:id="moveToFavoritesButton"
-                                    text="✓ Mover a Favoritos"
-                                    minWidth="190"
-                                    visible="false" managed="false"
-                                    style="-fx-background-color: #4dec9e; -fx-text-fill: #100c1c; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
-                                    onAction="#onMoveToFavorites"/>
-                        </FlowPane>
-
-                        <!-- Géneros: cada uno como una cápsula pequeña
-                             individual (chip), construidas dinámicamente
-                             en el controller a partir de item.getGenres() -->
-                        <FlowPane fx:id="detailGenresBox" hgap="6" vgap="6"/>
-
-                        <!-- Plataformas -->
-                        <Label fx:id="detailPlatforms"
-                               text="Plataformas: Netflix, Prime Video"
-                               wrapText="true"
-                               styleClass="text-dim"/>
-
-                        <!-- Preview de 30s (solo MUSIC, canciones sueltas con preview de Deezer);
-                             usa el color de Música (menta) fijo, ya que esta sección
-                             solo aparece para items de tipo MUSIC -->
-                        <VBox fx:id="previewSection" spacing="6" visible="false" managed="false">
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Button fx:id="previewButton"
-                                        text="▶ Escuchar preview (30s)"
-                                        minWidth="190"
-                                        styleClass="btn-circle-music"
-                                        style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 16 10 16; -fx-background-radius: 8; -fx-cursor: hand;"
-                                        onAction="#onTogglePreview"/>
-                                <Label fx:id="previewTimeLabel" text="0:00 / 0:30" styleClass="text-dim"/>
-                            </HBox>
-                            <ProgressBar fx:id="previewProgressBar"
-                                         progress="0"
-                                         prefWidth="260"
-                                         style="-fx-accent: #4dec9e;"/>
-                        </VBox>
                     </VBox>
-                </HBox>
+                </StackPane>
 
-                <!-- Recomendaciones (MOVIE/SERIES vía TMDB, ANIME vía AniList,
-                     GAME vía IGDB; MUSIC sin soporte fiable, se queda fuera).
-                     Cargadas bajo demanda en segundo plano al abrir el detalle,
-                     igual que tráiler/episodios — no se piden en la búsqueda.
-                     El color de la cabecera se fija dinámicamente según la
-                     sección del item, igual que el título y "Descripción".
-                     Va justo debajo de la cabecera (imagen+título), antes
-                     de Descripción/Episodios, para que se vea de un vistazo
-                     sin tener que bajar hasta el final del detalle. -->
-                <VBox fx:id="recommendationsSection" spacing="10" visible="false" managed="false">
-                    <Label fx:id="recommendationsHeaderLabel"
-                           text="Si te gusta esto, te recomendamos:"
-                           wrapText="true"
-                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                    <FlowPane fx:id="recommendationsGrid" hgap="14" vgap="14"/>
+                <!-- ===================== CONTENIDO ===================== -->
+                <VBox fx:id="contentInner" spacing="36" maxWidth="1240" prefWidth="1240">
+                    <padding><Insets top="32" right="32" bottom="64" left="32"/></padding>
+
+                    <Separator fx:id="episodesSeparator" opacity="0" visible="false" managed="false"/>
+
+                    <!-- Episodios (ANIME / SERIES) o capítulos (MANGA) en cuadrícula -->
+                    <VBox fx:id="episodesSection" spacing="14" visible="false" managed="false">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label fx:id="episodesHeaderLabel" text="Episodios" styleClass="detail-section-title"/>
+                            <Label text="Clic para marcar · Mayús + clic marca hasta ese" styleClass="detail-hint"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="markAllWatchedButton" text="Marcar todos"
+                                    styleClass="btn-secondary-sm" onAction="#onMarkAllEpisodesWatched"/>
+                            <Button fx:id="unmarkAllWatchedButton" text="Desmarcar todos"
+                                    styleClass="btn-secondary-sm" onAction="#onUnmarkAllEpisodesWatched"/>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label fx:id="jumpToEpisodeLabel" text="Ya he visto hasta el episodio" styleClass="detail-hint"/>
+                            <TextField fx:id="jumpToEpisodeField" promptText="nº" prefWidth="70"
+                                       styleClass="text-field-base"/>
+                            <Button fx:id="jumpToEpisodeButton" text="Ir" styleClass="btn-secondary-sm"
+                                    onAction="#onJumpToEpisode"/>
+                        </HBox>
+
+                        <VBox fx:id="episodesList" spacing="12"/>
+                    </VBox>
+
+                    <!-- Canciones del álbum (solo MUSIC tipo álbum) -->
+                    <VBox fx:id="trackCountSection" spacing="4" visible="false" managed="false">
+                        <Label fx:id="trackCountLabel" text="0 canciones" styleClass="detail-meta"/>
+                    </VBox>
+
+                    <Separator fx:id="recommendationsSeparator" opacity="0" visible="false" managed="false"/>
+
+                    <!-- Recomendaciones, cargadas en segundo plano -->
+                    <VBox fx:id="recommendationsSection" spacing="14" visible="false" managed="false">
+                        <Label fx:id="recommendationsHeaderLabel" text="Si te gusta, también te gustará"
+                               wrapText="true" styleClass="detail-section-title"/>
+                        <FlowPane fx:id="recommendationsGrid" hgap="14" vgap="14"/>
+                    </VBox>
                 </VBox>
-
-                <!-- Separador antes de recomendaciones (se muestra incluso
-                     si no hay recomendaciones, como separador general entre
-                     la cabecera y la descripción) -->
-                <Separator fx:id="recommendationsSeparator" styleClass="separator-line" visible="false" managed="false"/>
-
-                <!-- Separador -->
-                <Separator styleClass="separator-line"/>
-
-                <!-- Descripción: el color del título de esta sección se
-                     fija dinámicamente en el controller, igual que el
-                     título principal y el de episodios, según la sección
-                     del item (cian=Juego, violeta=Series, etc.) -->
-                <VBox spacing="8">
-                    <Label fx:id="descriptionHeaderLabel" text="Descripción" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
-                    <Label fx:id="detailDescription"
-                           text="Descripción del contenido..."
-                           wrapText="true"
-                           styleClass="text-body"
-                           style="-fx-line-spacing: 4;"/>
-                </VBox>
-
-                <!-- Separador antes de episodios -->
-                <Separator fx:id="episodesSeparator" styleClass="separator-line" visible="false" managed="false"/>
-
-                <!-- Episodios (ANIME / SERIES) o capítulos (MANGA); la cabecera usa el
-                     color dinámico de sección (violeta=Series, magenta=Anime) -->
-                <VBox fx:id="episodesSection" spacing="10" visible="false" managed="false">
-
-                    <HBox alignment="CENTER_LEFT" spacing="12">
-                        <Label fx:id="episodesHeaderLabel"
-                               text="Episodios"
-                               style="-fx-font-size: 14px; -fx-font-weight: bold;"
-                               HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-
-                        <Button fx:id="markAllWatchedButton"
-                                text="✔ Marcar todos"
-                                onAction="#onMarkAllEpisodesWatched"
-                                style="-fx-background-color: #4dec9e; -fx-text-fill: #100c1c; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 6 12 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
-
-                        <Button fx:id="unmarkAllWatchedButton"
-                                text="✗ Desmarcar todos"
-                                onAction="#onUnmarkAllEpisodesWatched"
-                                styleClass="btn-pill-neutral"
-                                style="-fx-font-size: 11px; -fx-padding: 6 12 6 12; -fx-background-radius: 6;"/>
-                    </HBox>
-
-                    <!-- Ir directamente a un episodio concreto: marca del 1 a ese número -->
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label fx:id="jumpToEpisodeLabel" text="Ya he visto hasta el episodio" styleClass="text-dim"/>
-                        <TextField fx:id="jumpToEpisodeField"
-                                   promptText="nº"
-                                   prefWidth="60"
-                                   styleClass="text-field-base"
-                                   style="-fx-background-radius: 6; -fx-padding: 4 8 4 8; -fx-font-size: 11px;"/>
-                        <Button fx:id="jumpToEpisodeButton"
-                                text="Ir"
-                                onAction="#onJumpToEpisode"
-                                style="-fx-background-color: #0078d4; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 5 14 5 14; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                    </HBox>
-
-                    <VBox fx:id="episodesList" spacing="6"/>
-                </VBox>
-
-                <!-- Canciones del álbum (solo MUSIC tipo álbum, solo total por ahora) -->
-                <VBox fx:id="trackCountSection" spacing="4" visible="false" managed="false">
-                    <Label fx:id="trackCountLabel" text="🎵 0 canciones" styleClass="text-dim"/>
-                </VBox>
-
             </VBox>
         </ScrollPane>
     </center>
