@@ -107,7 +107,7 @@ public class SearchController {
     private static final double SIDE_MENU_WIDTH = 270;
 
     /** Animación de apertura/cierre del overlay en curso (para poder cancelarla). */
-    private javafx.animation.FadeTransition overlayFade;
+    private javafx.animation.Animation overlayFade;
 
     // -------------------------
     // INICIALIZACIÓN
@@ -601,6 +601,8 @@ public class SearchController {
         for (MediaItem item : items) {
             resultsGrid.getChildren().add(buildCard(item));
         }
+        // Las tarjetas aparecen en cascada
+        com.rujiman.mediatracker.ui.Motion.stagger(resultsGrid.getChildren());
     }
 
     /**
@@ -611,11 +613,9 @@ public class SearchController {
     private VBox buildCard(MediaItem item) {
         VBox card = new VBox(6);
         card.setPrefWidth(160);
-        card.setStyle(
-                "-fx-background-color: #16213e;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-cursor: hand;"
-        );
+        // card-base: mismo fondo que el resto de tarjetas (antes era un
+        // azul #16213e fuera de la paleta) y elevación al pasar el ratón
+        card.getStyleClass().add("card-base");
         card.setAlignment(Pos.TOP_LEFT);
 
         // ---- Imagen de portada con esquinas redondeadas ----
@@ -866,19 +866,15 @@ public class SearchController {
 
         detailOverlayContainer.getChildren().setAll(content);
         detailOverlayContainer.setVisible(true);
-        detailOverlayContainer.setOpacity(0);
+        detailOverlayContainer.setOpacity(1);
 
         // Con un overlay abierto, los filtros de búsqueda no aplican a lo
         // que se ve: se ocultan (la barra de búsqueda sí se queda).
         filterBarBox.setVisible(false);
         filterBarBox.setManaged(false);
 
-        overlayFade = new javafx.animation.FadeTransition(
-                Duration.millis(180), detailOverlayContainer
-        );
-        overlayFade.setFromValue(0);
-        overlayFade.setToValue(1);
-        overlayFade.play();
+        // Entrada "estilo Apple": la vista sube un poco mientras aparece
+        overlayFade = com.rujiman.mediatracker.ui.Motion.enter(content);
     }
 
     /**
@@ -908,8 +904,9 @@ public class SearchController {
     private void closeOverlay() {
         if (overlayFade != null) overlayFade.stop();
         javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(
-                Duration.millis(150), detailOverlayContainer
+                com.rujiman.mediatracker.ui.Motion.FAST, detailOverlayContainer
         );
+        fade.setInterpolator(com.rujiman.mediatracker.ui.Motion.EASE_IN_OUT);
         overlayFade = fade;
         fade.setFromValue(1);
         fade.setToValue(0);
@@ -945,7 +942,8 @@ public class SearchController {
     private void openNavMenu() {
         sideMenu.setVisible(true);
 
-        TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
+        TranslateTransition slide = new TranslateTransition(com.rujiman.mediatracker.ui.Motion.SLOW, sideMenu);
+        slide.setInterpolator(com.rujiman.mediatracker.ui.Motion.EASE_OUT);
         slide.setFromX(-SIDE_MENU_WIDTH);
         slide.setToX(0);
         slide.play();
@@ -954,7 +952,8 @@ public class SearchController {
     }
 
     private void closeNavMenu() {
-        TranslateTransition slide = new TranslateTransition(Duration.millis(250), sideMenu);
+        TranslateTransition slide = new TranslateTransition(com.rujiman.mediatracker.ui.Motion.BASE, sideMenu);
+        slide.setInterpolator(com.rujiman.mediatracker.ui.Motion.EASE_IN_OUT);
         slide.setFromX(0);
         slide.setToX(-SIDE_MENU_WIDTH);
         slide.setOnFinished(e -> sideMenu.setVisible(false));
@@ -976,6 +975,7 @@ public class SearchController {
     private void openProfileMenu() {
         profileMenu.setVisible(true);
         profileMenu.setManaged(true);
+        com.rujiman.mediatracker.ui.Motion.popIn(profileMenu);
         profileMenuOpen = true;
     }
 

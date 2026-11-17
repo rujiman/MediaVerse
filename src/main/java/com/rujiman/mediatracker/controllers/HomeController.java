@@ -140,6 +140,7 @@ public class HomeController {
             container.getChildren().add(card);
         }
         enableDropOnContainer(container);
+        com.rujiman.mediatracker.ui.Motion.stagger(container.getChildren());
     }
 
     /**
@@ -162,6 +163,7 @@ public class HomeController {
             container.getChildren().add(card);
         }
         enableDropOnContainer(container);
+        com.rujiman.mediatracker.ui.Motion.stagger(container.getChildren());
     }
 
     // ===========================================================
@@ -219,6 +221,7 @@ public class HomeController {
 
         card.setOnDragDone(e -> {
             card.setOpacity(1);
+            com.rujiman.mediatracker.ui.Motion.lift(card, false);
             card.getStyleClass().remove(MediaTypeTheme.cardHoverClass(type));
             if (draggedCard == card) saveOrder(container, type);
             draggedCard = null;

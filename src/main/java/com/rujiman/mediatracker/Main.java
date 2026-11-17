@@ -10,6 +10,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        // Tipografía Inter (incluida en la app) antes de crear ninguna Scene
+        com.rujiman.mediatracker.ui.Fonts.load();
+
         // Cargar LoginView en lugar de SearchView
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/rujiman/mediatracker/views/LoginView.fxml"));
         Scene scene = new Scene(loader.load(), 800, 600);
@@ -23,6 +26,9 @@ public class Main extends Application {
         scene.getStylesheets().add(
                 Main.class.getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
         );
+
+        // Movimiento global: tarjetas que se elevan y botones que se hunden
+        com.rujiman.mediatracker.ui.Motion.install(scene);
 
         // Icono de la ventana / barra de tareas
         stage.getIcons().add(new Image(

@@ -189,6 +189,8 @@ public class LoginController {
                     getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
             );
 
+            com.rujiman.mediatracker.ui.Motion.install(scene);
+
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Mediaverse - Search");

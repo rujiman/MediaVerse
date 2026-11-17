@@ -26,7 +26,7 @@
 
     /* Texto */
     -text-main: #f0eef5;
-    -text-dim: #756f94;
+    -text-dim: #a59fc0; /* antes #756f94: subido para cumplir contraste 4.5:1 sobre el fondo */
     -text-on-accent: #100c1c; /* texto oscuro sobre acentos claros (cian/menta/ámbar) */
 
     /* Acento de marca (favoritos, logout, identidad, alertas) */
@@ -45,7 +45,8 @@
     -accent-manga: #ef4444;
 
     -fx-background-color: -bg-base;
-    -fx-font-family: "Segoe UI", sans-serif;
+    /* Inter va incluida en la app (ver ui/Fonts.java); Segoe UI de respaldo */
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 /* ============================================================
