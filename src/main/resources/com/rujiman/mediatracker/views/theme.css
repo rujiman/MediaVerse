@@ -486,3 +486,31 @@
     -fx-font-size: 18px;
     -fx-cursor: hand;
 }
+
+/* ============================================================
+   MENÚS CONTEXTUALES (p. ej. "Cambiar portada" de la vitrina)
+   El tema por defecto de JavaFX los pinta claros: los forzamos a la
+   paleta oscura. Los popups heredan esta hoja de la Scene que los abre.
+   ============================================================ */
+.context-menu {
+    -fx-background-color: #1c1730;
+    -fx-background-radius: 12;
+    -fx-border-color: #2a2347;
+    -fx-border-radius: 12;
+    -fx-padding: 6;
+    -fx-effect: dropshadow(gaussian, #000000aa, 18, 0, 0, 6);
+}
+.context-menu .menu-item {
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+}
+.context-menu .menu-item .label {
+    -fx-text-fill: #f0eef5;
+    -fx-font-size: 13px;
+}
+.context-menu .menu-item:focused {
+    -fx-background-color: #2b2250;
+}
+.context-menu .separator .line {
+    -fx-border-color: #2a2347 transparent transparent transparent;
+}

@@ -185,6 +185,11 @@ public class SearchController {
             javafx.scene.Parent homeRoot = loader.load();
             homeController = loader.getController();
             homeController.setOnOpenDetailAction(this::openDetailView);
+            // La foto también se cambia pulsando el avatar de la vitrina
+            homeController.setOnChangePhotoAction(() -> {
+                onChangeProfilePicture();
+                homeController.refreshBanner();
+            });
 
             homeContainer.getChildren().setAll(homeRoot);
 

@@ -35,6 +35,7 @@ public final class Icons {
     public static final String EDIT     = "M4 20h4L19 9l-4-4L4 16z";
     public static final String PLAY     = "M7 4l13 8-13 8z";
     public static final String CLOSE    = "M6 6l12 12M18 6L6 18";
+    public static final String PALETTE  = "M12 3a9 9 0 1 0 0 18c1 0 1.5-.7 1.5-1.5 0-.8-.7-1.2-.7-2 0-.8.7-1.5 1.5-1.5H17a4 4 0 0 0 4-4c0-5-4-9-9-9z M7.5 11.5h.01 M10 7.5h.01 M14.5 7.5h.01";
 
     /** Icono de trazo del tamaño (px) y color indicados. */
     public static Node of(String path, double size, String hexColor) {

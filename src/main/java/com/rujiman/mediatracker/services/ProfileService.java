@@ -32,6 +32,22 @@ public class ProfileService {
         public String displayName;
         public String photoPath; // ruta relativa al archivo de foto, o null si no tiene
 
+        /**
+         * Imagen de la portada de la vitrina: una URL (portada de un
+         * favorito) o la URI de un archivo subido por el usuario.
+         * null = automática (el favorito absoluto de la primera vitrina).
+         */
+        public String bannerUrl;
+
+        /** Si la imagen de la portada se muestra desenfocada. */
+        public boolean bannerBlur;
+
+        /** Intensidad del desenfoque (radio en px, 2–40). */
+        public int bannerBlurAmount = 12;
+
+        /** Color sólido de la portada (#rrggbb). Si no es null, sustituye a la imagen. */
+        public String bannerColor;
+
         public Profile() {}
 
         public Profile(String displayName, String photoPath) {
@@ -53,7 +69,20 @@ public class ProfileService {
                     ? obj.get("displayName").getAsString() : username;
             String photoPath = obj.has("photoPath") && !obj.get("photoPath").isJsonNull()
                     ? obj.get("photoPath").getAsString() : null;
-            return new Profile(displayName, photoPath);
+            Profile profile = new Profile(displayName, photoPath);
+            if (obj.has("bannerUrl") && !obj.get("bannerUrl").isJsonNull()) {
+                profile.bannerUrl = obj.get("bannerUrl").getAsString();
+            }
+            if (obj.has("bannerBlur") && !obj.get("bannerBlur").isJsonNull()) {
+                profile.bannerBlur = obj.get("bannerBlur").getAsBoolean();
+            }
+            if (obj.has("bannerBlurAmount") && !obj.get("bannerBlurAmount").isJsonNull()) {
+                profile.bannerBlurAmount = obj.get("bannerBlurAmount").getAsInt();
+            }
+            if (obj.has("bannerColor") && !obj.get("bannerColor").isJsonNull()) {
+                profile.bannerColor = obj.get("bannerColor").getAsString();
+            }
+            return profile;
         }
 
         // Si no existe perfil todavía, devolvemos uno por defecto (sin foto)
@@ -73,6 +102,14 @@ public class ProfileService {
             obj.addProperty("photoPath", profile.photoPath);
         } else {
             obj.add("photoPath", JsonNull.INSTANCE);
+        }
+        if (profile.bannerUrl != null) {
+            obj.addProperty("bannerUrl", profile.bannerUrl);
+        }
+        obj.addProperty("bannerBlur", profile.bannerBlur);
+        obj.addProperty("bannerBlurAmount", profile.bannerBlurAmount);
+        if (profile.bannerColor != null) {
+            obj.addProperty("bannerColor", profile.bannerColor);
         }
 
         profiles.add(username, obj);
@@ -96,6 +133,38 @@ public class ProfileService {
     public static void updatePhotoPath(String username, String newPhotoPath) {
         Profile profile = loadProfile(username);
         profile.photoPath = newPhotoPath;
+        saveProfile(username, profile);
+    }
+
+    /**
+     * Cambia la portada de la vitrina (null = volver a la automática),
+     * conservando nombre y foto.
+     */
+    public static void updateBannerUrl(String username, String newBannerUrl) {
+        Profile profile = loadProfile(username);
+        profile.bannerUrl = newBannerUrl;
+        profile.bannerColor = null; // elegir imagen quita el color sólido
+        saveProfile(username, profile);
+    }
+
+    /** Activa o desactiva el desenfoque de la imagen de portada. */
+    public static void updateBannerBlur(String username, boolean blur) {
+        Profile profile = loadProfile(username);
+        profile.bannerBlur = blur;
+        saveProfile(username, profile);
+    }
+
+    /** Cambia la intensidad del desenfoque (se limita a 2–40 px). */
+    public static void updateBannerBlurAmount(String username, int amount) {
+        Profile profile = loadProfile(username);
+        profile.bannerBlurAmount = Math.max(2, Math.min(40, amount));
+        saveProfile(username, profile);
+    }
+
+    /** Pone la portada de un color sólido (#rrggbb), o null para volver a la imagen. */
+    public static void updateBannerColor(String username, String hexColor) {
+        Profile profile = loadProfile(username);
+        profile.bannerColor = hexColor;
         saveProfile(username, profile);
     }
 

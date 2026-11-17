@@ -37,7 +37,9 @@ public class DashboardService {
      * con máximo 5.
      */
     public static int getMaxItemsForSection(MediaType type) {
-        return (type == MediaType.GAME || type == MediaType.SERIES || type == MediaType.ANIME) ? 12 : 5;
+        // Vitrina (rediseño): las grandes muestran favorito absoluto + 4 en
+        // ranking (5); las compactas (Música, Libros, Manga), 4 portadas.
+        return (type == MediaType.MUSIC || type == MediaType.BOOK || type == MediaType.MANGA) ? 4 : 5;
     }
 
     // Una entrada de lista por cada MediaType que tiene sección fija en la home
