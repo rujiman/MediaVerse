@@ -25,6 +25,7 @@ import java.util.List;
  * sección fija (Juegos / Series / Anime / Música / Películas / Libros /
  * Manga), los
  * favoritos que el usuario eligió manualmente mediante el selector (✏️).
+ * Dentro de cada sección, las tarjetas se pueden reordenar arrastrándolas.
  */
 public class HomeController {
 
@@ -134,8 +135,11 @@ public class HomeController {
         emptyLabel.setManaged(empty);
 
         for (FavoriteItem fav : items) {
-            container.getChildren().add(buildCard(fav, 115, 145));
+            VBox card = buildCard(fav, 115, 145);
+            enableReorder(card, container, type);
+            container.getChildren().add(card);
         }
+        enableDropOnContainer(container);
     }
 
     /**
@@ -153,8 +157,96 @@ public class HomeController {
         emptyLabel.setManaged(empty);
 
         for (FavoriteItem fav : items) {
-            container.getChildren().add(buildCard(fav, 105, 150));
+            VBox card = buildCard(fav, 105, 150);
+            enableReorder(card, container, type);
+            container.getChildren().add(card);
         }
+        enableDropOnContainer(container);
+    }
+
+    // ===========================================================
+    // REORDENAR ARRASTRANDO
+    // ===========================================================
+
+    /** Tarjeta que se está arrastrando ahora mismo (null si no hay arrastre). */
+    private javafx.scene.Node draggedCard;
+
+    /**
+     * Permite reordenar una tarjeta arrastrándola con el ratón dentro de
+     * SU sección. El reordenado es "en vivo": al pasar por encima de otra
+     * tarjeta, la arrastrada se mueve a esa posición y el resto se aparta,
+     * así se ve el resultado antes de soltar. Al soltar se guarda el nuevo
+     * orden en dashboard.json.
+     *
+     * Solo se puede mover dentro de la misma sección (no tiene sentido
+     * llevar un juego a la columna de Anime).
+     */
+    private void enableReorder(VBox card, javafx.scene.layout.Pane container, MediaType type) {
+        card.setOnDragDetected(e -> {
+            draggedCard = card;
+            javafx.scene.input.Dragboard db = card.startDragAndDrop(javafx.scene.input.TransferMode.MOVE);
+
+            // "Fantasma" de la tarjeta siguiendo al ratón
+            javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
+            params.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            db.setDragView(card.snapshot(params, null), e.getX(), e.getY());
+
+            javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+            content.putString(String.valueOf(card.getUserData()));
+            db.setContent(content);
+
+            card.setOpacity(0.3); // hueco "fantasma" donde caerá
+            e.consume();
+        });
+
+        card.setOnDragOver(e -> {
+            if (draggedCard != null && draggedCard != card && draggedCard.getParent() == container) {
+                e.acceptTransferModes(javafx.scene.input.TransferMode.MOVE);
+                int from = container.getChildren().indexOf(draggedCard);
+                int to = container.getChildren().indexOf(card);
+                if (from >= 0 && to >= 0 && from != to) {
+                    container.getChildren().remove(draggedCard);
+                    container.getChildren().add(to, draggedCard);
+                }
+            }
+            e.consume();
+        });
+
+        card.setOnDragDropped(e -> {
+            e.setDropCompleted(true);
+            e.consume();
+        });
+
+        card.setOnDragDone(e -> {
+            card.setOpacity(1);
+            card.getStyleClass().remove(MediaTypeTheme.cardHoverClass(type));
+            if (draggedCard == card) saveOrder(container, type);
+            draggedCard = null;
+            e.consume();
+        });
+    }
+
+    /** Permite soltar también en los huecos entre tarjetas de la sección. */
+    private void enableDropOnContainer(javafx.scene.layout.Pane container) {
+        container.setOnDragOver(e -> {
+            if (draggedCard != null && draggedCard.getParent() == container) {
+                e.acceptTransferModes(javafx.scene.input.TransferMode.MOVE);
+            }
+            e.consume();
+        });
+        container.setOnDragDropped(e -> {
+            e.setDropCompleted(draggedCard != null);
+            e.consume();
+        });
+    }
+
+    /** Guarda el orden visual actual de una sección. */
+    private void saveOrder(javafx.scene.layout.Pane container, MediaType type) {
+        List<String> ids = new ArrayList<>();
+        for (javafx.scene.Node node : container.getChildren()) {
+            if (node.getUserData() instanceof String id) ids.add(id);
+        }
+        DashboardService.setSectionItems(type, ids);
     }
 
     /**
@@ -219,7 +311,13 @@ public class HomeController {
         card.setOnMouseEntered(e -> card.getStyleClass().add(hoverClass));
         card.setOnMouseExited(e -> card.getStyleClass().remove(hoverClass));
 
+        // El id del favorito viaja en la propia tarjeta: lo usa el
+        // reordenado por arrastre para saber en qué orden guardar.
+        card.setUserData(fav.getId());
+
         card.setOnMouseClicked(e -> {
+            // Si el ratón se movió (fue un arrastre para reordenar), no es un clic
+            if (!e.isStillSincePress()) return;
             if (onOpenDetailAction != null) {
                 onOpenDetailAction.accept(fav.toMediaItem());
             }
