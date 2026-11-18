@@ -107,7 +107,7 @@ Desde la 1.2, las apps instaladas se actualizan solas leyendo la **última Relea
    - **Tag**: `v1.3.0` (la `v` + la misma versión que `AppInfo.VERSION`)
    - **Notas**: las novedades (las verá el usuario en el aviso de actualización)
    - **Archivos**, con estos nombres EXACTOS:
-     - `MediaVerse.jar` → el de `target\` (lo descarga el actualizador, ~45 MB)
+     - `MediaVerse.jar` → el de `target\` (lo descarga el actualizador, ~15 MB)
      - `MediaVerse-portable.zip` → para instalaciones nuevas
 4. Publica la Release. Las apps la detectarán al abrirse y mostrarán **"Actualizar a 1.3.0"**.
 
