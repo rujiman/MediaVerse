@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediaVerse · Tu vitrina de todo lo que ves, juegas, escuchas y lees</title>
+  <meta name="description" content="App gratuita para Windows y Linux: guarda tus series, películas, anime, manga, juegos, música y libros, lleva tu progreso y presume de tus favoritos.">
+  <meta property="og:title" content="MediaVerse">
+  <meta property="og:description" content="Tu vitrina de todo lo que ves, juegas, escuchas y lees. Gratis para Windows y Linux.">
+  <meta property="og:image" content="assets/logo.png">
+  <meta name="theme-color" content="#100c1c">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preload" href="fonts/Inter-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#">
+    <img src="assets/logo.png" alt="" width="32" height="32">
+    <span>Mediaverse</span>
+  </a>
+  <nav class="top-nav" aria-label="Secciones">
+    <a href="#trailer">Tráiler</a>
+    <a href="#tipos">Qué guarda</a>
+    <a href="#instalar">Instalar</a>
+    <a class="top-cta" href="#descargar">Descargar</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="descargar">
+    <div class="hero-text">
+      <h1>Tu vitrina de todo lo que ves, juegas, escuchas y lees.</h1>
+      <p class="lead">
+        Guarda series, películas, anime, manga, juegos, música y libros en un solo sitio.
+        Marca por dónde vas, puntúa lo que terminas y monta un perfil con tus favoritos para enseñárselo a tus amigos.
+      </p>
+
+      <div class="download" data-download>
+        <a class="btn-main" data-primary href="https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-portable.zip">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 20h14"/></svg>
+          <span data-primary-label>Descargar para Windows</span>
+        </a>
+        <p class="download-alt" data-alt>
+          ¿Usas Linux? <a data-alt-link href="https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-linux.tar.gz">Descarga la versión para Linux</a>.
+        </p>
+        <p class="download-meta">
+          <span data-version>Última versión</span>, gratis y sin anuncios. Java ya va incluido: descomprimir y abrir.
+        </p>
+      </div>
+
+      <div class="mobile-note" data-mobile hidden>
+        <p><strong>MediaVerse es una app de ordenador</strong> para Windows y Linux. Abre esta página en tu PC para descargarla.</p>
+        <button class="btn-ghost" type="button" data-copy>Copiar el enlace</button>
+      </div>
+    </div>
+
+    <div class="mosaic-wrap" aria-hidden="true">
+      <div class="mosaic">
+        <div class="tile t-game"><b>Juegos</b><i>IGDB</i></div>
+        <div class="tile t-anime"><b>Anime</b><i>AniList</i></div>
+        <div class="tile t-series"><b>Series</b><i>TMDB</i></div>
+        <div class="tile t-movie"><b>Películas</b><i>TMDB</i></div>
+        <div class="tile t-music"><b>Música</b><i>Deezer</i></div>
+        <div class="tile t-book"><b>Libros</b><i>Google Books</i></div>
+        <div class="tile t-manga"><b>Manga</b><i>AniList</i></div>
+        <div class="tile t-game"><b>Juegos</b><i>IGDB</i></div>
+        <div class="tile t-anime"><b>Anime</b><i>AniList</i></div>
+        <div class="tile t-series"><b>Series</b><i>TMDB</i></div>
+        <div class="tile t-manga"><b>Manga</b><i>AniList</i></div>
+        <div class="tile t-movie"><b>Películas</b><i>TMDB</i></div>
+        <div class="tile t-book"><b>Libros</b><i>Google Books</i></div>
+        <div class="tile t-music"><b>Música</b><i>Deezer</i></div>
+        <div class="tile t-game"><b>Juegos</b><i>IGDB</i></div>
+        <div class="tile t-anime"><b>Anime</b><i>AniList</i></div>
+        <div class="tile t-series"><b>Series</b><i>TMDB</i></div>
+        <div class="tile t-movie"><b>Películas</b><i>TMDB</i></div>
+        <div class="tile t-manga"><b>Manga</b><i>AniList</i></div>
+        <div class="tile t-music"><b>Música</b><i>Deezer</i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRÁILER ============ -->
+  <section class="trailer" id="trailer" aria-labelledby="trailer-title">
+    <h2 id="trailer-title">Míralo en un minuto</h2>
+    <div class="video-frame" data-video>
+      <video controls preload="metadata" poster="assets/trailer-poster.jpg" playsinline>
+        <source src="assets/trailer.mp4" type="video/mp4">
+      </video>
+      <div class="video-soon">
+        <img src="assets/logo.png" alt="" width="72" height="72">
+        <p>El tráiler llega muy pronto.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TIPOS ============ -->
+  <section class="types" id="tipos" aria-labelledby="types-title">
+    <div class="section-head">
+      <h2 id="types-title">Siete tipos de contenido, cada uno con su color</h2>
+      <p>Buscas en la app y los datos llegan de las mejores bases de datos de cada cosa.</p>
+    </div>
+    <ul class="type-list">
+      <li style="--c:#b69cfa"><span class="type-name">Series</span><span class="type-what">Capítulo a capítulo, por temporadas, con dónde verlas</span><span class="type-src">TMDB</span></li>
+      <li style="--c:#ecb14d"><span class="type-name">Películas</span><span class="type-what">Vistas, pendientes, tráiler y plataformas</span><span class="type-src">TMDB</span></li>
+      <li style="--c:#ec4dc0"><span class="type-name">Anime</span><span class="type-what">Episodios, temporadas y recomendaciones</span><span class="type-src">AniList</span></li>
+      <li style="--c:#f87171"><span class="type-name">Manga</span><span class="type-what">Por dónde vas leyendo, capítulo a capítulo</span><span class="type-src">AniList</span></li>
+      <li style="--c:#4dd9ec"><span class="type-name">Juegos</span><span class="type-what">Jugando, terminados y los que quieres jugar</span><span class="type-src">IGDB</span></li>
+      <li style="--c:#4dec9e"><span class="type-name">Música</span><span class="type-what">Canciones y discos, con 30 segundos de escucha</span><span class="type-src">Deezer</span></li>
+      <li style="--c:#f97316"><span class="type-name">Libros</span><span class="type-what">Leyendo, leídos y pendientes</span><span class="type-src">Google Books</span></li>
+    </ul>
+  </section>
+
+  <!-- ============ FUNCIONES ============ -->
+  <section class="features" aria-label="Lo que puedes hacer">
+
+    <article class="feature">
+      <div class="feature-text">
+        <h2>Un perfil para presumir</h2>
+        <p>Tu pantalla de inicio es tu vitrina: tu favorito absoluto de cada cosa en grande y tu top 5 al lado. Elige portada, ordénalo arrastrando y expórtalo como imagen para subirlo a donde quieras.</p>
+      </div>
+      <figure class="shot" style="--c:#ec4dc0">
+        <img src="assets/shots/vitrina.png" alt="La vitrina de perfil de MediaVerse con favoritos de cada tipo" loading="lazy">
+        <figcaption>Vitrina de perfil</figcaption>
+      </figure>
+    </article>
+
+    <article class="feature">
+      <div class="feature-text">
+        <h2>Sabes siempre por dónde vas</h2>
+        <p>Marca episodios y capítulos con un clic, o con Mayús + clic todos hasta uno. Lo que tienes a medias aparece en Inicio para seguir donde lo dejaste.</p>
+      </div>
+      <figure class="shot" style="--c:#4dd9ec">
+        <img src="assets/shots/detalle.png" alt="Ficha de un anime con la cuadrícula de episodios vistos" loading="lazy">
+        <figcaption>Ficha con progreso</figcaption>
+      </figure>
+    </article>
+
+    <article class="feature">
+      <div class="feature-text">
+        <h2>Tu biblioteca, ordenada</h2>
+        <p>Pendiente, en curso y terminado, con filtros por tipo y carpetas que creas tú. Para meter algo en una carpeta, arrástralo encima.</p>
+      </div>
+      <figure class="shot" style="--c:#f97316">
+        <img src="assets/shots/biblioteca.png" alt="Mi biblioteca con las pestañas Pendiente, En curso y Terminado" loading="lazy">
+        <figcaption>Mi biblioteca</figcaption>
+      </figure>
+    </article>
+
+    <ul class="facts">
+      <li><h3>Se actualiza sola</h3><p>Cuando sale una versión nueva aparece un botón. Lo pulsas y listo.</p></li>
+      <li><h3>Tus datos, en tu PC</h3><p>Todo se guarda en tu carpeta de Documentos. Nada se sube a ningún servidor.</p></li>
+      <li><h3>Sin instalar Java</h3><p>Viene todo dentro. Descomprimes, abres y funciona.</p></li>
+    </ul>
+  </section>
+
+  <!-- ============ INSTALAR ============ -->
+  <section class="install" id="instalar" aria-labelledby="install-title">
+    <div class="section-head">
+      <h2 id="install-title">Instalarla lleva dos minutos</h2>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Sistema operativo">
+      <button role="tab" id="tab-win" aria-controls="panel-win" aria-selected="true" data-tab="win">Windows</button>
+      <button role="tab" id="tab-linux" aria-controls="panel-linux" aria-selected="false" data-tab="linux" tabindex="-1">Linux</button>
+    </div>
+
+    <ol class="steps" role="tabpanel" id="panel-win" aria-labelledby="tab-win">
+      <li>
+        <h3>Descarga</h3>
+        <p><a href="https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-portable.zip">MediaVerse-portable.zip</a>, unos 45 MB.</p>
+      </li>
+      <li>
+        <h3>Descomprime</h3>
+        <p>Clic derecho, «Extraer todo», en la carpeta que quieras: Escritorio, Documentos o un USB.</p>
+      </li>
+      <li>
+        <h3>Abre MediaVerse.exe</h3>
+        <p>La primera vez te guía para conectar tus claves gratuitas de TMDB y Twitch. Se hace una sola vez.</p>
+      </li>
+    </ol>
+
+    <ol class="steps" role="tabpanel" id="panel-linux" aria-labelledby="tab-linux" hidden>
+      <li>
+        <h3>Descarga</h3>
+        <p><a href="https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-linux.tar.gz">MediaVerse-linux.tar.gz</a>, unos 50 MB.</p>
+      </li>
+      <li>
+        <h3>Descomprime</h3>
+        <p><code>tar xzf MediaVerse-linux.tar.gz</code></p>
+      </li>
+      <li>
+        <h3>Ábrela</h3>
+        <p><code>./MediaVerse/bin/MediaVerse</code>. La primera vez te guía con las claves. Necesita un escritorio con GTK 3, que traen Ubuntu, Mint o Fedora.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ PREGUNTAS ============ -->
+  <section class="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Preguntas</h2>
+    <details>
+      <summary>¿Cuesta algo?</summary>
+      <p>No. MediaVerse es gratis y las claves que te pide también lo son.</p>
+    </details>
+    <details>
+      <summary>¿Para qué me pide claves de API?</summary>
+      <p>Las películas, series y juegos salen de TMDB y de Twitch (IGDB). Esos servicios dan acceso gratis, pero a cada persona con su clave. El asistente de la app te lleva a la página, te dice qué copiar y comprueba que funciona.</p>
+    </details>
+    <details>
+      <summary>¿Dónde se guardan mis cosas?</summary>
+      <p>En tu ordenador, en Documentos/MediaVerse. Puedes copiar esa carpeta como copia de seguridad o pasarla a otro PC. Al actualizar no se pierde nada.</p>
+    </details>
+    <details>
+      <summary>¿Hay versión para Mac o para el móvil?</summary>
+      <p>Por ahora, Windows y Linux. El móvil está en los planes.</p>
+    </details>
+    <details>
+      <summary>Windows me avisa al abrirla</summary>
+      <p>Pasa con las apps que no están firmadas por una empresa. Pulsa «Más información» y luego «Ejecutar de todas formas».</p>
+    </details>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="brand">
+    <img src="assets/logo.png" alt="" width="28" height="28">
+    <span>Mediaverse</span>
+  </div>
+  <p>Hecha por <a href="https://github.com/rujiman">Rujiman</a> como Trabajo de Fin de Grado de DAM. El código está en <a href="https://github.com/rujiman/MediaVerse">GitHub</a>.</p>
+  <p class="credits">Datos de TMDB, AniList, IGDB, Deezer, Google Books y Open Library. Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
