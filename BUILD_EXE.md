@@ -58,7 +58,6 @@ Copy-Item target\MediaVerse.jar input-clean\
   --icon mediaverse_logo.ico `
   --module-path "C:\javafx\javafx-jmods-25" `
   --add-modules javafx.base,javafx.graphics,javafx.controls,javafx.fxml,javafx.media,java.base,java.desktop,java.sql,java.naming,java.management,java.security.jgss `
-  --win-console `
   --dest dist
 ```
 
@@ -144,6 +143,6 @@ Desde la 1.2, las apps instaladas se actualizan solas leyendo la **última Relea
 ## Notas importantes
 
 - El `runtime\` pesa varios cientos de MB (Java 25 + JavaFX embebidos). Es normal.
-- El parámetro `--win-console` hace que el exe vuelque errores en la terminal, útil para depurar. Para distribución final puedes quitarlo si no quieres que aparezca una ventana de consola.
+- Desde la 1.3.3 el exe se genera **sin** `--win-console`: no aparece la ventana negra al abrir la app. Los mensajes de la app se guardan en `Documentos\MediaVerse\userdata\mediaverse.log`. Si quieres depurar con consola, añade `--win-console` al comando.
 - Si cambias código, repite los pasos 2, 3 y 4. El paso 1 solo hay que hacerlo una vez.
 - El `.env` del usuario nunca va dentro del zip que distribuyes — cada uno pone el suyo propio con sus claves.

@@ -8,6 +8,30 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    /**
+     * En la app instalada no hay consola (sin ventana negra al abrirla), así
+     * que los mensajes de System.out/err se guardan en
+     * Documentos/MediaVerse/userdata/mediaverse.log (se reescribe en cada
+     * arranque). Sirve para saber qué ha pasado si alguien avisa de un error.
+     * Desde el IDE (sin .jar) todo sigue saliendo por la consola.
+     */
+    private static void redirectLogsIfInstalled() {
+        if (com.rujiman.mediatracker.services.UpdateService.runningJar() == null) return;
+        try {
+            java.nio.file.Path log = java.nio.file.Paths.get(
+                    com.rujiman.mediatracker.services.AppPaths.ROOT, "mediaverse.log");
+            java.nio.file.Files.createDirectories(log.getParent());
+            java.io.PrintStream out = new java.io.PrintStream(
+                    java.nio.file.Files.newOutputStream(log), true, java.nio.charset.StandardCharsets.UTF_8);
+            out.println("MediaVerse " + com.rujiman.mediatracker.util.AppInfo.VERSION
+                    + " · " + System.getProperty("os.name") + " · " + java.time.LocalDateTime.now());
+            System.setOut(out);
+            System.setErr(out);
+        } catch (Exception ignored) {
+            // si no se puede crear el log, la app funciona igual
+        }
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         // Tipografía Inter (incluida en la app) antes de crear ninguna Scene
@@ -46,6 +70,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        redirectLogsIfInstalled();
         launch();
     }
 }

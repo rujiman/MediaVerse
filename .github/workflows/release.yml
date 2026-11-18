@@ -115,7 +115,7 @@ jobs:
             --name MediaVerse --app-version "${TAG#v}" --type app-image \
             --icon mediaverse_logo.ico \
             --module-path "$JMODS" --add-modules "$MODULES" \
-            --win-console --dest dist
+            --dest dist
           cp .env.example dist/MediaVerse/app/
           cp target/MediaVerse.jar MediaVerse.jar
           (cd dist && 7z a -tzip -mx=9 ../MediaVerse-portable.zip MediaVerse > /dev/null)

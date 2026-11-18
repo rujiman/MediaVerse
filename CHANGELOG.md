@@ -2,6 +2,14 @@
 
 ---
 
+## [1.3.3] — 2026-11-18
+
+### ✨ Novedades
+- **Sin ventana de terminal en Windows** al abrir la app (en las descargas nuevas; si ya la tienes instalada, desaparece al reinstalar con el zip)
+- Los mensajes internos de la app se guardan en `Documentos/MediaVerse/userdata/mediaverse.log`, por si hay que averiguar un fallo
+
+---
+
 ## [1.3.2] — 2026-11-18
 
 ### 🔨 Cambios técnicos
@@ -123,4 +131,4 @@
 
 ---
 
-**Última actualización**: 2026-11-18 (1.3.2)
+**Última actualización**: 2026-11-18 (1.3.3)
