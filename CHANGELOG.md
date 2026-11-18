@@ -2,6 +2,13 @@
 
 ---
 
+## [1.3.2] — 2026-11-18
+
+### 🔨 Cambios técnicos
+- Versión de prueba para comprobar la actualización automática en Windows y Linux. No cambia nada de la app
+
+---
+
 ## [1.3.1] — 2026-11-18
 
 ### 🐛 Correcciones
@@ -116,4 +123,4 @@
 
 ---
 
-**Última actualización**: 2026-11-18 (1.3.1)
+**Última actualización**: 2026-11-18 (1.3.2)
