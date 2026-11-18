@@ -2,6 +2,15 @@
 
 ---
 
+## [1.3.1] — 2026-11-18
+
+### 🐛 Correcciones
+- **La actualización automática en Windows no terminaba**: la app se cerraba pero no se actualizaba ni se volvía a abrir. El script de actualización ahora espera de verdad a que la app se cierre, se ejecuta en su propia ventana (antes Windows lo cerraba junto con la app) y funciona con rutas con tildes o ñ. Si algo falla, vuelve a abrir la versión anterior y deja un registro en `%TEMP%\mediaverse-update.log`
+
+> Si tienes la 1.2 o la 1.3.0 en Windows, instala esta versión a mano una última vez (descarga el zip y sustituye la carpeta; tus datos y claves no se pierden). A partir de aquí, el botón de actualizar funciona.
+
+---
+
 ## [1.3.0] — 2026-11-18
 
 ### ✨ Novedades
@@ -107,4 +116,4 @@
 
 ---
 
-**Última actualización**: 2026-11-18 (1.3.0)
+**Última actualización**: 2026-11-18 (1.3.1)

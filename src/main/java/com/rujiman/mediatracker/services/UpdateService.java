@@ -164,25 +164,67 @@ public final class UpdateService {
             installAndRestartLinux(newJar);
             return;
         }
+        installAndRestartWindows(newJar);
+    }
+
+    /**
+     * Versión Windows. Dos detalles que hacían fallar la 1.2/1.3:
+     *  - "timeout" no funciona si el script no tiene teclado (se lanza desde
+     *    Java), así que terminaba al instante sin esperar. Ahora se espera
+     *    con "ping", que funciona siempre.
+     *  - El script se lanzaba en la misma consola que la app; al cerrarse
+     *    la app, Windows cerraba también el script. Ahora se abre con
+     *    "start" en su propia ventana (minimizada).
+     * Además espera a que termine este proceso (por su PID), reintenta el
+     * cambio de jar y deja un registro en %TEMP%\mediaverse-update.log.
+     * Si algo falla, vuelve a abrir la versión anterior para que la app no
+     * desaparezca sin más.
+     */
+    private static void installAndRestartWindows(Path newJar) throws Exception {
         Path jar = runningJar();
         Path exe = jar.getParent().getParent().resolve("MediaVerse.exe"); // app\..\MediaVerse.exe
+        long pid = ProcessHandle.current().pid();
+        String relaunch = Files.exists(exe) ? "start \"\" \"" + exe + "\"" : "rem sin MediaVerse.exe";
         Path script = Files.createTempFile("mediaverse-update-", ".bat");
         String bat = String.join("\r\n",
                 "@echo off",
+                "chcp 65001 >nul",
+                "set LOG=\"%TEMP%\\mediaverse-update.log\"",
+                "echo [%date% %time%] Actualizando MediaVerse (PID " + pid + ") > %LOG%",
                 "set /a tries=0",
                 ":wait",
-                "timeout /t 1 /nobreak >nul",
+                "tasklist /FI \"PID eq " + pid + "\" 2>nul | find \" " + pid + " \" >nul",
+                "if errorlevel 1 goto replace",
+                "set /a tries+=1",
+                "if %tries% geq 60 goto fail",
+                "ping -n 2 127.0.0.1 >nul",
+                "goto wait",
+                ":replace",
+                "set /a tries=0",
+                ":move",
                 "move /y \"" + newJar + "\" \"" + jar + "\" >nul 2>&1",
-                "if errorlevel 1 (",
-                "  set /a tries+=1",
-                "  if %tries% lss 30 goto wait",
-                "  exit /b 1",
-                ")",
-                Files.exists(exe) ? "start \"\" \"" + exe + "\"" : "rem sin MediaVerse.exe: no se reabre",
-                "del \"%~f0\"",
+                "if not errorlevel 1 goto ok",
+                "set /a tries+=1",
+                "if %tries% geq 30 goto fail",
+                "ping -n 2 127.0.0.1 >nul",
+                "goto move",
+                ":ok",
+                "echo [%date% %time%] Jar actualizado >> %LOG%",
+                relaunch,
+                "goto end",
+                ":fail",
+                "echo [%date% %time%] No se pudo cambiar el jar (intentos: %tries%) >> %LOG%",
+                relaunch,
+                ":end",
+                "(goto) 2>nul & del \"%~f0\"",
                 "");
-        Files.writeString(script, bat, StandardCharsets.ISO_8859_1);
-        new ProcessBuilder("cmd.exe", "/c", script.toString()).start();
+        // UTF-8 + chcp 65001: rutas con tildes o ñ (C:\Users\Rubén\...) llegan bien
+        Files.writeString(script, bat, StandardCharsets.UTF_8);
+        // "start" abre el script en su propia consola, independiente de la app
+        new ProcessBuilder("cmd.exe", "/c", "start", "\"MediaVerse\"", "/min", script.toString())
+                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                .redirectError(ProcessBuilder.Redirect.DISCARD)
+                .start();
     }
 
     /**
