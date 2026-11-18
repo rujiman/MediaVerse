@@ -1,14 +1,9 @@
 // MediaVerse: página de descarga.
-// 1. Elige el botón de descarga según el sistema (Windows / Linux / móvil).
+// 1. Botones de Windows y Linux (en móvil, aviso; en Linux abre su pestaña).
 // 2. Muestra la versión actual, leída de la última Release de GitHub.
 // 3. Pestañas de instalación, tráiler y cabecera.
 
 const REPO = "rujiman/MediaVerse";
-const DL = `https://github.com/${REPO}/releases/latest/download/`;
-const FILES = {
-  windows: { url: DL + "MediaVerse-portable.zip", label: "Descargar para Windows" },
-  linux:   { url: DL + "MediaVerse-linux.tar.gz", label: "Descargar para Linux" },
-};
 
 function detectOS() {
   const ua = navigator.userAgent;
@@ -21,8 +16,6 @@ function detectOS() {
 // --- Botón de descarga
 (function setupDownload() {
   const os = detectOS();
-  const primary = document.querySelector("[data-primary]");
-  const label = document.querySelector("[data-primary-label]");
   const alt = document.querySelector("[data-alt]");
   const download = document.querySelector("[data-download]");
   const mobile = document.querySelector("[data-mobile]");
@@ -41,13 +34,10 @@ function detectOS() {
     return;
   }
 
-  if (os === "linux") {
-    primary.href = FILES.linux.url;
-    label.textContent = FILES.linux.label;
-    alt.innerHTML = `¿Usas Windows? <a href="${FILES.windows.url}">Descarga la versión para Windows</a>.`;
-    selectTab("linux");
-  } else if (os === "mac") {
-    alt.innerHTML = `Aún no hay versión para Mac. También está <a href="${FILES.linux.url}">la versión para Linux</a>.`;
+  if (os === "linux") selectTab("linux");
+  if (os === "mac") {
+    alt.textContent = "Aún no hay versión para Mac.";
+    alt.hidden = false;
   }
 })();
 

@@ -106,9 +106,10 @@ p { margin: 0; }
 .lead { margin-top: 24px; font-size: 19px; color: var(--soft); max-width: 34em; }
 
 .download { margin-top: 36px; }
+.download-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
 .btn-main {
   display: inline-flex; align-items: center; gap: 12px;
-  padding: 18px 28px;
+  padding: 18px 26px;
   border-radius: 16px;
   background: var(--text);
   color: var(--bg);
@@ -123,7 +124,7 @@ p { margin: 0; }
 
 .download-alt { margin-top: 16px; font-size: 15px; color: var(--muted); }
 .download-alt a { color: var(--text); text-underline-offset: 3px; }
-.download-meta { margin-top: 6px; font-size: 14px; color: var(--muted); }
+.download-meta { margin-top: 16px; font-size: 14px; color: var(--muted); }
 
 .mobile-note {
   margin-top: 32px; padding: 20px; max-width: 30em;
