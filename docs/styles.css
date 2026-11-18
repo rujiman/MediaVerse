@@ -259,6 +259,38 @@ main > section:not(.hero) {
   box-shadow: 0 30px 80px -30px color-mix(in srgb, var(--c) 45%, transparent);
 }
 .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; position: relative; z-index: 1; }
+
+/* Vitrina exportada: se ve entera, con su pie debajo */
+.shot--tall { aspect-ratio: auto; overflow: visible; background: none; border: 0; box-shadow: none; }
+.shot--tall img {
+  height: auto; border-radius: 20px; border: 1px solid var(--line);
+  box-shadow: 0 30px 80px -30px color-mix(in srgb, var(--c) 45%, transparent);
+}
+.shot--tall figcaption { position: static; margin-top: 14px; font-weight: 500; color: var(--muted); }
+
+/* "Dónde verlo": réplica del selector de plataformas de la app */
+.where {
+  justify-self: center;
+  width: min(100%, 380px);
+  padding: 22px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 80px -30px #ecb14d55;
+}
+.where-title { font-weight: 800; font-size: 18px; letter-spacing: -0.01em; margin-bottom: 14px; }
+.where ul { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 4px; }
+.where li {
+  padding: 10px 14px; border-radius: 10px;
+  color: var(--soft); font-weight: 500; font-size: 15px;
+}
+.where li.is-selected { background: var(--line-strong); color: var(--text); }
+.where-btn {
+  display: block; text-align: center;
+  padding: 12px; border-radius: 12px;
+  background: var(--c-movie); color: var(--bg);
+  font-weight: 800;
+}
 .shot figcaption {
   position: absolute; left: 20px; bottom: 16px;
   font-size: 14px; font-weight: 600; color: var(--soft);
