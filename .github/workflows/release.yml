@@ -1,0 +1,135 @@
+# Publica una versión de MediaVerse para Windows y Linux.
+#
+# Se lanza solo al subir una etiqueta de versión:
+#     git tag v1.2.1
+#     git push origin v1.2.1
+# (también se puede lanzar a mano desde la pestaña Actions de GitHub).
+#
+# Crea la Release con las notas de esa versión del CHANGELOG.md y sube:
+#   MediaVerse.jar            → actualizador de Windows
+#   MediaVerse-portable.zip   → instalación nueva en Windows
+#   MediaVerse-linux.jar      → actualizador de Linux
+#   MediaVerse-linux.tar.gz   → instalación nueva en Linux
+
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Etiqueta ya existente a publicar (p. ej. v1.2.1)'
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+  JAVAFX_VERSION: '25'
+  MODULES: javafx.base,javafx.graphics,javafx.controls,javafx.fxml,javafx.media,java.base,java.desktop,java.sql,java.naming,java.management,java.security.jgss
+
+jobs:
+  release:
+    name: Crear la Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Notas desde el CHANGELOG
+        run: |
+          VERSION="${TAG#v}"
+          awk -v v="$VERSION" '
+            /^## \[/ { if (on) exit; if (index($0, "[" v "]")) { on = 1; next } }
+            on { print }
+          ' CHANGELOG.md | sed '/^---$/d' > notes.md
+          if [ ! -s notes.md ]; then echo "MediaVerse $VERSION" > notes.md; fi
+          cat notes.md
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: MediaVerse ${{ env.TAG }}
+          body_path: notes.md
+
+  build:
+    name: Compilar (${{ matrix.platform }})
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            os: windows-latest
+            jfx: windows-x64
+          - platform: linux
+            os: ubuntu-22.04
+            jfx: linux-x64
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Compilar el jar
+        run: mvn -B clean package -DskipTests
+
+      - name: Descargar los jmods de JavaFX
+        run: |
+          curl -fsSL -o jmods.zip "https://download2.gluonhq.com/openjfx/${JAVAFX_VERSION}/openjfx-${JAVAFX_VERSION}_${{ matrix.jfx }}_bin-jmods.zip"
+          unzip -q jmods.zip -d jfx
+          JMODS="$(cd jfx/*/ && pwd)"
+          if [ "${{ matrix.platform }}" = windows ]; then JMODS="$(cygpath -m "$JMODS")"; fi
+          echo "JMODS=$JMODS" >> "$GITHUB_ENV"
+
+      - name: Empaquetar (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          mkdir input && cp target/MediaVerse.jar input/
+          jpackage --input input --main-jar MediaVerse.jar \
+            --main-class com.rujiman.mediatracker.Main \
+            --name MediaVerse --app-version "${TAG#v}" --type app-image \
+            --icon mediaverse_logo.ico \
+            --module-path "$JMODS" --add-modules "$MODULES" \
+            --win-console --dest dist
+          cp .env.example dist/MediaVerse/app/
+          cp target/MediaVerse.jar MediaVerse.jar
+          (cd dist && 7z a -tzip -mx=9 ../MediaVerse-portable.zip MediaVerse > /dev/null)
+          ls -la MediaVerse.jar MediaVerse-portable.zip
+
+      - name: Empaquetar (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          mkdir input && cp target/MediaVerse.jar input/
+          jpackage --input input --main-jar MediaVerse.jar \
+            --main-class com.rujiman.mediatracker.Main \
+            --name MediaVerse --app-version "${TAG#v}" --type app-image \
+            --icon src/main/resources/com/rujiman/mediatracker/views/icons/mediaverse_logo.png \
+            --module-path "$JMODS" --add-modules "$MODULES" \
+            --dest dist
+          cp .env.example dist/MediaVerse/
+          cp target/MediaVerse.jar MediaVerse-linux.jar
+          tar czf MediaVerse-linux.tar.gz -C dist MediaVerse
+          ls -la MediaVerse-linux.jar MediaVerse-linux.tar.gz
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: |
+            MediaVerse.jar
+            MediaVerse-portable.zip
+            MediaVerse-linux.jar
+            MediaVerse-linux.tar.gz
+          fail_on_unmatched_files: false

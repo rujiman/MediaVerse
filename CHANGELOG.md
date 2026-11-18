@@ -2,6 +2,18 @@
 
 ---
 
+## [1.2.1] — 2026-11-18
+
+### ✨ Novedades
+- **Versión para Linux** (`MediaVerse-linux.tar.gz`), con Java incluido y actualización automática igual que en Windows
+- Los enlaces (tráileres, plataformas, descargas) se abren también en escritorios Linux sin soporte de `java.awt.Desktop`, usando `xdg-open`
+
+### 🔨 Cambios técnicos
+- **Releases automáticas con GitHub Actions**: al subir una etiqueta `vX.Y.Z`, GitHub compila Windows y Linux y publica la Release con sus archivos y las notas de este CHANGELOG
+- En Linux el `.env` puede ir en la raíz de la carpeta (`MediaVerse/.env`)
+
+---
+
 ## [1.2.0] — 2026-11-18
 
 ### ✨ Novedades
@@ -82,4 +94,4 @@
 
 ---
 
-**Última actualización**: 2026-11-18
+**Última actualización**: 2026-11-18 (1.2.1)

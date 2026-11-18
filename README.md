@@ -21,6 +21,8 @@
 
 ## 🚀 Instalación rápida (Windows)
 
+> ¿Usas Linux? Mira [Linux](#-linux) más abajo.
+
 1. Descarga el `.zip` desde [Releases](https://github.com/rujiman/MediaVerse/releases)
 2. Descomprime donde quieras (Escritorio, Documentos, USB...)
 3. Copia `.env.example` y renómbralo a `.env`
@@ -29,9 +31,20 @@
 
 **No necesitas instalar Java ni ninguna otra cosa.** El runtime está incluido dentro del zip.
 
+### 🐧 Linux
+
+1. Descarga `MediaVerse-linux.tar.gz` desde [Releases](https://github.com/rujiman/MediaVerse/releases/latest)
+2. Descomprime: `tar xzf MediaVerse-linux.tar.gz`
+3. Copia `MediaVerse/.env.example` como `MediaVerse/.env` y rellena tus claves
+4. Ejecuta `MediaVerse/bin/MediaVerse`
+
+También lleva Java incluido. Hace falta un escritorio con GTK 3 (cualquier Ubuntu, Fedora, Mint… lo trae).
+
 ### 🔄 Actualizar
 
 A partir de la versión 1.2, la app comprueba sola si hay una versión nueva en GitHub: aparece el botón **"Actualizar a X"** arriba a la derecha y, al pulsarlo, se descarga, se reinicia y listo. También puedes comprobarlo desde el menú de perfil → *Buscar actualizaciones*.
+
+En Windows y en Linux funciona igual.
 
 Si vienes de la **1.0 o la 1.1** (no tienen actualizador), actualiza a mano una vez: descarga el zip nuevo, copia tu `app\.env` a la carpeta nueva y borra la vieja. **Tus datos no se pierden**: viven en `Documentos\MediaVerse`, fuera de la app.
 

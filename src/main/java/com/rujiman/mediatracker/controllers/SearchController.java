@@ -1314,11 +1314,7 @@ public class SearchController {
     }
 
     private void openInBrowser(String url) {
-        try {
-            java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-        } catch (Exception e) {
-            System.err.println("❌ No se pudo abrir el navegador: " + e.getMessage());
-        }
+        com.rujiman.mediatracker.util.Browser.open(url);
     }
 
     private void showInfo(String message) {

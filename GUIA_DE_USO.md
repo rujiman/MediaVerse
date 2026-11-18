@@ -164,5 +164,8 @@ Sin clave de Google Books se usa Open Library, que no da sinopsis. Ver [SETUP.md
 **La búsqueda de juegos da error 403**
 Tu `IGDB_CLIENT_SECRET` ha caducado: genera uno nuevo en la consola de Twitch (ver [SETUP.md](./SETUP.md)).
 
+**¿Funciona en Linux?**
+Sí, desde la 1.2.1: descarga `MediaVerse-linux.tar.gz` (ver [README](./README.md#-linux)). Tus datos van a `~/Documents/MediaVerse`.
+
 **La app no arranca**
 Comprueba que el `.env` está en la carpeta `app\` con las claves de TMDB e IGDB rellenas.

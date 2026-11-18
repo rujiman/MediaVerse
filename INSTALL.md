@@ -36,6 +36,16 @@ MediaVerse/
 
 Doble clic en `MediaVerse.exe`. Listo.
 
+### Linux
+
+```bash
+tar xzf MediaVerse-linux.tar.gz
+cp MediaVerse/.env.example MediaVerse/.env   # y rellena tus claves
+./MediaVerse/bin/MediaVerse
+```
+
+Tus datos se guardan en `~/Documents/MediaVerse/userdata`.
+
 ### 5. Actualizar
 
 - **Desde la 1.2 en adelante:** cuando haya una versión nueva aparecerá arriba a la derecha el botón **"Actualizar a X"**. Púlsalo: la app descarga la actualización, se cierra y se vuelve a abrir actualizada. También puedes comprobarlo en el menú de perfil → *Buscar actualizaciones*.

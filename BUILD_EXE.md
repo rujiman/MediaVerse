@@ -97,7 +97,29 @@ Sube `MediaVerse-portable.zip` a GitHub Releases. El usuario lo descarga, descom
 
 ---
 
-## Paso 7: Publicar una versión (con actualización automática)
+## Paso 7 (recomendado): Publicar con GitHub Actions
+
+Desde la 1.2.1 no hace falta compilar nada a mano. El workflow `.github/workflows/release.yml` lo hace todo en los servidores de GitHub:
+
+1. Sube la versión en `util/AppInfo.java` (`VERSION`) y en `pom.xml`
+2. Añade la sección `## [X.Y.Z]` en `CHANGELOG.md` (será el texto de la Release)
+3. Haz commit y push
+4. Crea y sube la etiqueta:
+   ```bash
+   git tag v1.2.2
+   git push origin v1.2.2
+   ```
+5. En la pestaña **Actions** de GitHub verás "Release" en marcha (~5 min). Al terminar, la Release tiene los 4 archivos:
+   - `MediaVerse.jar` y `MediaVerse-portable.zip` (Windows)
+   - `MediaVerse-linux.jar` y `MediaVerse-linux.tar.gz` (Linux)
+
+Si algo falla, corrige, haz push y relánzalo desde **Actions → Release → Run workflow** indicando la etiqueta.
+
+Los pasos 1-6 de esta guía quedan para compilar a mano en tu PC si alguna vez lo necesitas.
+
+---
+
+## Paso 7b: Publicar una versión a mano (con actualización automática)
 
 Desde la 1.2, las apps instaladas se actualizan solas leyendo la **última Release** de GitHub. Para que funcione:
 
@@ -113,7 +135,9 @@ Desde la 1.2, las apps instaladas se actualizan solas leyendo la **última Relea
 
 **¿Cuándo hace falta reinstalar en vez de actualizar?** Si cambias la versión de Java o JavaFX (el `runtime\` cambia y no basta con el jar). En ese caso escribe `[instalación completa]` en las notas de la Release: la app abrirá la página de descarga en vez de actualizarse sola.
 
-**Enlace fijo para la web de descarga:** `https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-portable.zip` siempre apunta al zip de la última versión.
+**Enlaces fijos para la web de descarga** (siempre apuntan a la última versión):
+- Windows: `https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-portable.zip`
+- Linux: `https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-linux.tar.gz`
 
 ---
 

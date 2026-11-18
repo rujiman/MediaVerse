@@ -86,7 +86,20 @@ public class ConfigLoader {
                     ? jarOrClassesLocation.getParentFile()
                     : findProjectRootFromClasses(jarOrClassesLocation);
 
-            return baseDir.toPath().resolve(".env");
+            Path env = baseDir.toPath().resolve(".env");
+
+            // En Linux, jpackage mete el jar en MediaVerse/lib/app/. Para
+            // que el usuario no tenga que bucear, también vale un .env en
+            // la raíz de la carpeta (MediaVerse/.env, junto a bin/ y lib/).
+            if (!Files.exists(env) && jarOrClassesLocation.isFile()) {
+                File app = baseDir, lib = app.getParentFile();
+                File root = lib != null ? lib.getParentFile() : null;
+                if (root != null && "app".equals(app.getName()) && "lib".equals(lib.getName())) {
+                    Path rootEnv = root.toPath().resolve(".env");
+                    if (Files.exists(rootEnv)) return rootEnv;
+                }
+            }
+            return env;
 
         } catch (URISyntaxException e) {
             // Fallback defensivo: si por lo que sea no se puede resolver

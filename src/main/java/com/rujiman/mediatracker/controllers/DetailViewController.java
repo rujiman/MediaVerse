@@ -553,13 +553,7 @@ public class DetailViewController {
      * navegador por defecto del sistema.
      */
     private void openYoutubeUrl(String youtubeKey) {
-        try {
-            java.awt.Desktop.getDesktop().browse(
-                    new java.net.URI("https://www.youtube.com/watch?v=" + youtubeKey)
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        com.rujiman.mediatracker.util.Browser.open("https://www.youtube.com/watch?v=" + youtubeKey);
     }
 
     /**
@@ -1618,13 +1612,7 @@ public class DetailViewController {
     }
 
     private void openExternalUrlDirect(String url) {
-        if (url != null && !url.isBlank()) {
-            try {
-                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        com.rujiman.mediatracker.util.Browser.open(url);
     }
 
 }

@@ -25,12 +25,12 @@ import java.util.function.DoubleConsumer;
  *
  * 1. checkLatest(): pregunta a la API de GitHub cuál es la última Release
  *    y, si su versión es mayor que AppInfo.VERSION, la devuelve.
- * 2. downloadJar(): descarga SOLO MediaVerse.jar (unos 45 MB) junto al
+ * 2. downloadJar(): descarga SOLO el .jar de la app (unos 15 MB) junto al
  *    actual, como "MediaVerse.jar.new" (el jar en uso no se puede
  *    sobrescribir mientras la app está abierta).
- * 3. installAndRestart(): deja un pequeño script .bat que espera a que la
- *    app se cierre, cambia el jar viejo por el nuevo y vuelve a abrir
- *    MediaVerse.exe. El .env y los datos del usuario no se tocan (los
+ * 3. installAndRestart(): deja un pequeño script (.bat en Windows, .sh en
+ *    Linux) que espera a que la app se cierre, cambia el jar viejo por el
+ *    nuevo y vuelve a abrir MediaVerse. El .env y los datos del usuario no se tocan (los
  *    datos viven en Documentos\MediaVerse, fuera de la app).
  *
  * Si la app se está ejecutando desde el IDE (no hay .jar) o la Release
@@ -117,8 +117,7 @@ public final class UpdateService {
 
     /** ¿Esta instalación se puede actualizar sola con esta Release? */
     public static boolean canSelfUpdate(Release release) {
-        boolean windows = System.getProperty("os.name", "").toLowerCase().contains("win");
-        return windows && runningJar() != null && release.jarUpdatable();
+        return (AppInfo.WINDOWS || AppInfo.LINUX) && runningJar() != null && release.jarUpdatable();
     }
 
     /** Descarga el nuevo .jar junto al actual. progress recibe 0..1 (o -1 si el tamaño es desconocido). */
@@ -161,6 +160,10 @@ public final class UpdateService {
      * a abrir. Después de llamar a esto, la app debe cerrarse.
      */
     public static void installAndRestart(Path newJar) throws Exception {
+        if (AppInfo.LINUX) {
+            installAndRestartLinux(newJar);
+            return;
+        }
         Path jar = runningJar();
         Path exe = jar.getParent().getParent().resolve("MediaVerse.exe"); // app\..\MediaVerse.exe
         Path script = Files.createTempFile("mediaverse-update-", ".bat");
@@ -180,6 +183,39 @@ public final class UpdateService {
                 "");
         Files.writeString(script, bat, StandardCharsets.ISO_8859_1);
         new ProcessBuilder("cmd.exe", "/c", script.toString()).start();
+    }
+
+    /**
+     * Versión Linux. La carpeta de jpackage en Linux es:
+     *   MediaVerse/bin/MediaVerse        (lanzador)
+     *   MediaVerse/lib/app/<jar>         (la app)
+     * El script espera a que termine este proceso (por su PID), cambia el
+     * jar y vuelve a abrir el lanzador.
+     */
+    private static void installAndRestartLinux(Path newJar) throws Exception {
+        Path jar = runningJar();
+        Path launcher = jar.getParent().getParent().getParent().resolve("bin").resolve("MediaVerse");
+        long pid = ProcessHandle.current().pid();
+        Path script = Files.createTempFile("mediaverse-update-", ".sh");
+        String sh = String.join("\n",
+                "#!/bin/sh",
+                "while kill -0 " + pid + " 2>/dev/null; do sleep 0.5; done",
+                "mv -f " + quote(newJar) + " " + quote(jar) + " || exit 1",
+                Files.isExecutable(launcher)
+                        ? "nohup " + quote(launcher) + " >/dev/null 2>&1 &"
+                        : "# sin lanzador: no se reabre",
+                "rm -f \"$0\"",
+                "");
+        Files.writeString(script, sh, StandardCharsets.UTF_8);
+        new ProcessBuilder("sh", script.toString())
+                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                .redirectError(ProcessBuilder.Redirect.DISCARD)
+                .start();
+    }
+
+    /** Entrecomilla una ruta para sh (soporta espacios y comillas simples). */
+    private static String quote(Path p) {
+        return "'" + p.toString().replace("'", "'\\''") + "'";
     }
 
     private static String str(JsonObject o, String key) {
