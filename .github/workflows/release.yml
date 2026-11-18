@@ -35,7 +35,7 @@ jobs:
     name: Crear la Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
@@ -73,11 +73,11 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
@@ -86,10 +86,22 @@ jobs:
       - name: Compilar el jar
         run: mvn -B clean package -DskipTests
 
+      # Los jmods se guardan en la caché de GitHub: así, si la web de
+      # Gluon falla un rato, las siguientes versiones se compilan igual.
+      - name: Caché de los jmods de JavaFX
+        id: jfx-cache
+        uses: actions/cache@v4
+        with:
+          path: jfx
+          key: javafx-jmods-${{ env.JAVAFX_VERSION }}-${{ matrix.jfx }}
+
       - name: Descargar los jmods de JavaFX
         run: |
-          curl -fsSL -o jmods.zip "https://download2.gluonhq.com/openjfx/${JAVAFX_VERSION}/openjfx-${JAVAFX_VERSION}_${{ matrix.jfx }}_bin-jmods.zip"
-          unzip -q jmods.zip -d jfx
+          if [ ! -d jfx ] || [ -z "$(ls -A jfx 2>/dev/null)" ]; then
+            curl -fsSL --retry 6 --retry-delay 15 --retry-all-errors --connect-timeout 30 \
+              -o jmods.zip "https://download2.gluonhq.com/openjfx/${JAVAFX_VERSION}/openjfx-${JAVAFX_VERSION}_${{ matrix.jfx }}_bin-jmods.zip"
+            unzip -q jmods.zip -d jfx
+          fi
           JMODS="$(cd jfx/*/ && pwd)"
           if [ "${{ matrix.platform }}" = windows ]; then JMODS="$(cygpath -m "$JMODS")"; fi
           echo "JMODS=$JMODS" >> "$GITHUB_ENV"
