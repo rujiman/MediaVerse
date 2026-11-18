@@ -246,7 +246,7 @@
                       -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
                       -fx-background-radius: 12;"
                prefWidth="220" maxWidth="220"
-               prefHeight="400" maxHeight="400"
+               prefHeight="440" maxHeight="440"
                StackPane.alignment="TOP_RIGHT">
         <StackPane.margin><Insets top="64" right="20"/></StackPane.margin>
 
@@ -283,6 +283,12 @@
 
             <Button text="Cambiar contraseña"
                     onAction="#onChangePassword"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"
+                    style="-fx-font-size: 12px;"/>
+
+            <Button text="Claves de API"
+                    onAction="#onApiKeys"
                     maxWidth="Infinity"
                     styleClass="btn-flat-brand"
                     style="-fx-font-size: 12px;"/>

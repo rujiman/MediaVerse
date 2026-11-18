@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -17,6 +19,12 @@ import java.util.Properties;
  *
  * USO:
  * String apiKey = ConfigLoader.getTMDBKey();
+ *
+ * CLAVES GUARDADAS DESDE LA APP (1.3):
+ * El asistente de claves (ui/ApiKeysWizard) las guarda en
+ * Documentos/MediaVerse/userdata/claves_api.env. Ese archivo vive fuera
+ * de la carpeta de la app, así que sobrevive a reinstalaciones, y sus
+ * valores tienen prioridad sobre los del .env de la app.
  *
  * DÓNDE BUSCA EL .env
  * --------------------
@@ -53,11 +61,10 @@ public class ConfigLoader {
             properties.load(Files.newInputStream(envPath));
             System.out.println("✅ Variables de entorno cargadas correctamente desde: " + envPath);
         } catch (IOException e) {
-            // Si no existe .env, muestra error
-            System.err.println("❌ ERROR: .env no encontrado en: " + envPath);
-            System.err.println("   Copia .env.example a .env (en esa misma carpeta) y rellena con tus claves");
-            e.printStackTrace();
+            // Normal desde la 1.3: las claves se configuran desde la app
+            System.out.println("ℹ️ Sin .env junto a la app (" + envPath + "); se usan las claves guardadas desde la app");
         }
+        loadUserKeys();
     }
 
     /**
@@ -133,6 +140,57 @@ public class ConfigLoader {
      */
     public static String get(String key) {
         return properties.getProperty(key);
+    }
+
+    // ===== CLAVES GUARDADAS DESDE LA APP =====
+
+    private static Path userKeysFile() {
+        return Paths.get(com.rujiman.mediatracker.services.AppPaths.ROOT, "claves_api.env");
+    }
+
+    private static void loadUserKeys() {
+        Path file = userKeysFile();
+        if (!Files.exists(file)) return;
+        Properties user = new Properties();
+        try (var in = Files.newInputStream(file)) {
+            user.load(in);
+            for (String name : user.stringPropertyNames()) {
+                String value = user.getProperty(name);
+                if (value != null && !value.isBlank()) properties.setProperty(name, value.trim());
+            }
+            System.out.println("✅ Claves de API cargadas desde: " + file);
+        } catch (IOException e) {
+            System.err.println("⚠️ No se pudieron leer las claves guardadas: " + e.getMessage());
+        }
+    }
+
+    /** ¿Hay valor (no vacío) para esta variable? */
+    public static boolean isSet(String key) {
+        String value = get(key);
+        return value != null && !value.isBlank();
+    }
+
+    /** ¿Están las claves sin las que la app no funciona (TMDB e IGDB)? */
+    public static boolean hasRequiredKeys() {
+        return isSet("TMDB_API_KEY") && isSet("IGDB_CLIENT_ID") && isSet("IGDB_CLIENT_SECRET");
+    }
+
+    /** Guarda claves en userdata/claves_api.env y las aplica al momento. */
+    public static synchronized void saveUserKeys(Map<String, String> keys) throws IOException {
+        Path file = userKeysFile();
+        Files.createDirectories(file.getParent());
+        Properties user = new Properties();
+        if (Files.exists(file)) {
+            try (var in = Files.newInputStream(file)) { user.load(in); }
+        }
+        keys.forEach((name, value) -> {
+            String v = value == null ? "" : value.trim();
+            user.setProperty(name, v);
+            if (v.isEmpty()) properties.remove(name); else properties.setProperty(name, v);
+        });
+        try (var out = Files.newOutputStream(file)) {
+            user.store(out, "Claves de API de MediaVerse (se editan desde la app: perfil > Claves de API)");
+        }
     }
 
     // ===== MÉTODOS ESPECÍFICOS PARA CADA API =====

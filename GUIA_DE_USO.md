@@ -22,8 +22,11 @@
 2. Elige un usuario (mínimo 3 caracteres) y una contraseña (mínimo 4)
 3. Confirma la contraseña y pulsa **Crear cuenta**; después inicia sesión
 
+### Claves de API (la primera vez)
+Antes del primer login, un asistente te guía para conectar **TMDB** (películas y series) y **Twitch/IGDB** (juegos), y opcionalmente **Google Books** (sinopsis de libros). Cada paso tiene un botón que abre la página del servicio y comprueba la clave al pegarla.
+
 ### Perfil
-Pulsa tu foto (arriba a la derecha) para cambiar el nombre de usuario o la contraseña, buscar actualizaciones o cerrar sesión. La foto de perfil se cambia desde la vitrina de Inicio (ver más abajo).
+Pulsa tu foto (arriba a la derecha) para cambiar el nombre de usuario o la contraseña, cambiar tus **claves de API**, buscar actualizaciones o cerrar sesión. La foto de perfil se cambia desde la vitrina de Inicio (ver más abajo).
 
 ---
 
@@ -143,7 +146,7 @@ Al abrir la app, MediaVerse comprueba si hay una versión nueva. Si la hay, apar
 2. Acepta: se descarga la actualización (con barra de progreso)
 3. La app se cierra y se vuelve a abrir ya actualizada
 
-También puedes comprobarlo a mano: foto de perfil → **Buscar actualizaciones**. Tus datos y tu `.env` no se tocan.
+También puedes comprobarlo a mano: foto de perfil → **Buscar actualizaciones**. Tus datos y tus claves no se tocan.
 
 ---
 
@@ -153,7 +156,7 @@ También puedes comprobarlo a mano: foto de perfil → **Buscar actualizaciones*
 En `Documentos\MediaVerse\userdata\<tu_usuario>\`. Haz backup copiando esa carpeta, o sincronízala con Drive/OneDrive.
 
 **¿Pierdo algo al actualizar o reinstalar?**
-No. Los datos están fuera de la carpeta de la app. Al reinstalar a mano, solo copia tu `app\.env`.
+No. Los datos están fuera de la carpeta de la app. Tus claves también se guardan ahí (desde la 1.3).
 
 **¿Necesito conexión a Internet?**
 Para buscar, ver portadas y actualizar, sí. Tus listas y progreso se guardan en local.
@@ -168,4 +171,4 @@ Tu `IGDB_CLIENT_SECRET` ha caducado: genera uno nuevo en la consola de Twitch (v
 Sí, desde la 1.2.1: descarga `MediaVerse-linux.tar.gz` (ver [README](./README.md#-linux)). Tus datos van a `~/Documents/MediaVerse`.
 
 **La app no arranca**
-Comprueba que el `.env` está en la carpeta `app\` con las claves de TMDB e IGDB rellenas.
+Ejecútala desde la carpeta descomprimida (no desde dentro del zip). Si busca pero no encuentra películas o juegos, revisa **perfil → Claves de API**.

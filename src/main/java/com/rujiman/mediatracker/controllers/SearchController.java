@@ -1234,6 +1234,28 @@ public class SearchController {
     }
 
     @FXML
+    private void onApiKeys() {
+        if (profileMenuOpen) closeProfileMenu();
+        javafx.stage.Stage dialog = new javafx.stage.Stage();
+        dialog.initOwner(mainStackWindow());
+        dialog.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        dialog.setTitle("Mediaverse - Claves de API");
+        StackPane root = new StackPane();
+        root.getStyleClass().add("login-root");
+        root.getChildren().add(com.rujiman.mediatracker.ui.ApiKeysWizard.create(false, dialog::close));
+        javafx.geometry.Rectangle2D screen = javafx.stage.Screen.getPrimary().getVisualBounds();
+        javafx.scene.Scene scene = new javafx.scene.Scene(root, 560, Math.min(820, screen.getHeight() * 0.9));
+        scene.getStylesheets().add(getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm());
+        com.rujiman.mediatracker.ui.Motion.install(scene);
+        dialog.setScene(scene);
+        dialog.show();
+    }
+
+    private javafx.stage.Window mainStackWindow() {
+        return updateButton != null && updateButton.getScene() != null ? updateButton.getScene().getWindow() : null;
+    }
+
+    @FXML
     private void onCheckUpdates() {
         if (profileMenuOpen) closeProfileMenu();
         checkForUpdates(true);

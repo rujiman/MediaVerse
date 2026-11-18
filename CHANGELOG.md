@@ -2,6 +2,19 @@
 
 ---
 
+## [1.3.0] — 2026-11-18
+
+### ✨ Novedades
+- **Asistente de claves de API**: la primera vez que abres la app, antes del login, te guía paso a paso para conectar TMDB, Twitch (IGDB) y, si quieres, Google Books. Cada paso abre la página del servicio, explica qué copiar y **comprueba la clave al momento** antes de seguir
+- **Ya no hace falta crear ni editar el `.env`**: las claves se guardan en `Documentos/MediaVerse/userdata/claves_api.env` y sobreviven a actualizaciones y reinstalaciones
+- **Perfil → Claves de API** para cambiarlas cuando quieras
+- Mensajes de error claros: token de TMDB equivocado, secret de Twitch caducado, Books API sin activar…
+
+### 🔨 Cambios técnicos
+- `ApiKeyChecker` valida cada clave contra su servicio; `ConfigLoader` combina el `.env` (opcional) con las claves guardadas desde la app, que tienen prioridad
+
+---
+
 ## [1.2.1] — 2026-11-18
 
 ### ✨ Novedades
@@ -94,4 +107,4 @@
 
 ---
 
-**Última actualización**: 2026-11-18 (1.2.1)
+**Última actualización**: 2026-11-18 (1.3.0)

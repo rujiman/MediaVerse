@@ -12,9 +12,15 @@ MediaVerse necesita claves de dos servicios externos para funcionar. Ambos son *
 
 ---
 
-## Paso previo: crear el fichero `.env`
+## La forma fácil: el asistente (desde la 1.3)
 
-Dentro de la carpeta `app\` de tu MediaVerse descomprimido (o en la raíz del proyecto si compilas desde código), crea un fichero llamado `.env` copiando el `.env.example` que viene incluido. Ábrelo con el Bloc de Notas o cualquier editor de texto.
+No hace falta tocar ningún archivo. La primera vez que abres MediaVerse, antes del login, aparece un asistente con un paso por servicio: abre la página, explica qué copiar y **comprueba la clave** antes de seguir. Las claves se guardan en `Documentos/MediaVerse/userdata/claves_api.env` y se pueden cambiar en **perfil → Claves de API**.
+
+Las instrucciones de abajo sirven de referencia o para usar el `.env` a mano.
+
+## Método manual: el fichero `.env` (opcional)
+
+Dentro de la carpeta `app\` de tu MediaVerse descomprimido (o en la raíz del proyecto si compilas desde código), crea un fichero llamado `.env` copiando el `.env.example` que viene incluido. Si una clave está en los dos sitios, manda la guardada desde la app.
 
 ---
 

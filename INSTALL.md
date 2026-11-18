@@ -20,17 +20,15 @@ La estructura que verás dentro:
 MediaVerse/
 ├── MediaVerse.exe       ← el ejecutable
 ├── app/
-│   ├── MediaVerse.jar
-│   └── .env             ← aquí va tu fichero .env
+│   └── MediaVerse.jar
 └── runtime/             ← Java incluido, no tocar
 ```
 
 ### 3. Configura tus claves de API
 
-1. Dentro de la carpeta descomprimida, entra en `app\`
-2. Crea un fichero llamado `.env` (copia el `.env.example` que hay en la raíz del zip)
-3. Ábrelo con el Bloc de Notas y rellena tus claves (ver [SETUP.md](./SETUP.md))
-4. Guarda el fichero
+Al abrir la app por primera vez aparece un **asistente** que te guía para conseguir y pegar las claves gratuitas de TMDB y Twitch (y, opcional, Google Books). Comprueba cada clave al momento y las guarda solo. Puedes cambiarlas luego en **perfil → Claves de API**.
+
+> Si prefieres el método antiguo, el `.env` en `app\` sigue funcionando (ver [SETUP.md](./SETUP.md)).
 
 ### 4. Ejecuta
 
@@ -40,7 +38,6 @@ Doble clic en `MediaVerse.exe`. Listo.
 
 ```bash
 tar xzf MediaVerse-linux.tar.gz
-cp MediaVerse/.env.example MediaVerse/.env   # y rellena tus claves
 ./MediaVerse/bin/MediaVerse
 ```
 
@@ -98,7 +95,7 @@ Esto significa que:
 
 | Problema | Solución |
 |----------|----------|
-| La app no abre | Comprueba que el `.env` está en `app\` con las claves rellenas |
-| "TMDB_API_KEY no configurada" | Falta crear o rellenar el `.env` (ver [SETUP.md](./SETUP.md)) |
+| La app no abre | Ejecuta `MediaVerse.exe` desde la carpeta descomprimida, no desde dentro del zip |
+| Las búsquedas de películas o juegos fallan | Revisa tus claves en **perfil → Claves de API** |
 | Las búsquedas no funcionan | Verifica que tienes conexión a Internet y que las claves son válidas |
 | La app es lenta al arrancar | Normal la primera vez; las siguientes arranca más rápido |

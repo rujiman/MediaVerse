@@ -43,7 +43,11 @@ public class LoginController {
         usernameLoginField.setOnAction(e -> passwordLoginField.requestFocus());
         confirmPasswordField.setOnAction(e -> onRegister());
         setupButtonHovers();
-        showLoginPanel();
+        if (com.rujiman.mediatracker.util.ConfigLoader.hasRequiredKeys()) {
+            showLoginPanel();
+        } else {
+            showSetupPanel();
+        }
 
         // El mosaico está girado y es más grande que su panel: se recorta
         // para que no invada la zona del formulario
@@ -91,6 +95,25 @@ public class LoginController {
     }
 
     // MOSTRAR REGISTRO
+    /**
+     * Primera vez (o sin claves): asistente de claves de API antes del
+     * login. Al terminar se pasa al formulario de inicio de sesión.
+     */
+    private void showSetupPanel() {
+        LoginPanel.setVisible(false);
+        RegisterPanel.setVisible(false);
+        javafx.scene.Node[] holder = new javafx.scene.Node[1];
+        holder[0] = com.rujiman.mediatracker.ui.ApiKeysWizard.create(true, () ->
+                com.rujiman.mediatracker.ui.Motion.exit(holder[0], () -> {
+                    mainStack.getChildren().remove(holder[0]);
+                    LoginPanel.setVisible(true);
+                    fadeIn(LoginPanel, null);
+                    updateWindowTitle("Mediaverse - Iniciar sesión");
+                }));
+        mainStack.getChildren().add(holder[0]);
+        updateWindowTitle("Mediaverse - Configuración");
+    }
+
     private void showRegisterPanel() {
         fadeOut(LoginPanel, () -> {
             LoginPanel.setVisible(false);

@@ -34,6 +34,12 @@ public class GameService {
     private static String cachedAccessToken = null;
     private static long tokenExpireTime = 0;
 
+    /** Olvida el token de Twitch (p. ej. porque el usuario ha cambiado las claves). */
+    public static void resetToken() {
+        cachedAccessToken = null;
+        tokenExpireTime = 0;
+    }
+
     private String getClientId() {
         return ConfigLoader.getIGDBClientId();
     }

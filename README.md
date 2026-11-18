@@ -25,9 +25,8 @@
 
 1. Descarga el `.zip` desde [Releases](https://github.com/rujiman/MediaVerse/releases)
 2. Descomprime donde quieras (Escritorio, Documentos, USB...)
-3. Copia `.env.example` y renómbralo a `.env`
-4. Rellena tus claves de API en `.env` (ver [SETUP.md](./SETUP.md))
-5. Doble clic en `MediaVerse.exe`
+3. Doble clic en `MediaVerse.exe`
+4. La primera vez, un asistente te guía para conectar tus claves de API gratuitas (TMDB y Twitch). Tarda unos minutos y solo se hace una vez
 
 **No necesitas instalar Java ni ninguna otra cosa.** El runtime está incluido dentro del zip.
 
@@ -35,8 +34,8 @@
 
 1. Descarga `MediaVerse-linux.tar.gz` desde [Releases](https://github.com/rujiman/MediaVerse/releases/latest)
 2. Descomprime: `tar xzf MediaVerse-linux.tar.gz`
-3. Copia `MediaVerse/.env.example` como `MediaVerse/.env` y rellena tus claves
-4. Ejecuta `MediaVerse/bin/MediaVerse`
+3. Ejecuta `MediaVerse/bin/MediaVerse`
+4. El asistente de la primera vez te ayuda con las claves de API
 
 También lleva Java incluido. Hace falta un escritorio con GTK 3 (cualquier Ubuntu, Fedora, Mint… lo trae).
 
@@ -48,7 +47,7 @@ En Windows y en Linux funciona igual.
 
 Si vienes de la **1.0 o la 1.1** (no tienen actualizador), actualiza a mano una vez: descarga el zip nuevo, copia tu `app\.env` a la carpeta nueva y borra la vieja. **Tus datos no se pierden**: viven en `Documentos\MediaVerse`, fuera de la app.
 
-> El `.env` debe colocarse en la subcarpeta `app\` del zip descomprimido, junto al `MediaVerse.jar`. Ver [INSTALL.md](./INSTALL.md) para el detalle paso a paso.
+> El `.env` ya es opcional: si lo tienes, sigue funcionando; si no, la app te pide las claves con el asistente. Ver [INSTALL.md](./INSTALL.md).
 
 ---
 
@@ -57,7 +56,7 @@ Si vienes de la **1.0 o la 1.1** (no tienen actualizador), actualiza a mano una 
 ```bash
 git clone https://github.com/rujiman/MediaVerse.git
 cd MediaVerse
-cp .env.example .env   # rellena tus claves
+cp .env.example .env   # opcional: o configúralas con el asistente al arrancar
 mvn javafx:run
 ```
 
