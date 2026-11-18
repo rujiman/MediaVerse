@@ -15,7 +15,9 @@ public class Main extends Application {
 
         // Cargar LoginView en lugar de SearchView
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/rujiman/mediatracker/views/LoginView.fxml"));
-        Scene scene = new Scene(loader.load(), 800, 600);
+        Scene scene = new Scene(loader.load(),
+                com.rujiman.mediatracker.ui.WindowSize.loginWidth(),
+                com.rujiman.mediatracker.ui.WindowSize.loginHeight());
 
         // theme.css centraliza toda la paleta de colores de la app
         // ("Constelaciones"): se carga UNA vez por cada Scene real que
@@ -37,6 +39,9 @@ public class Main extends Application {
 
         stage.setTitle("Mediaverse - Login");
         stage.setScene(scene);
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+        stage.centerOnScreen();
         stage.show();
     }
 

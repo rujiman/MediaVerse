@@ -3,73 +3,64 @@ package com.rujiman.mediatracker.controllers;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
-import com.rujiman.mediatracker.util.MediaTypeTheme;
 import com.rujiman.mediatracker.models.PlanFolder;
 import com.rujiman.mediatracker.services.FavoritesService;
 import com.rujiman.mediatracker.services.FolderService;
+import com.rujiman.mediatracker.services.WatchProgressService;
+import com.rujiman.mediatracker.ui.CollectionUI;
+import com.rujiman.mediatracker.ui.Icons;
+import com.rujiman.mediatracker.ui.Motion;
+import com.rujiman.mediatracker.util.MediaTypeTheme;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Controller para la vista de favoritos (overlay), con el mismo estilo
- * de tarjetas que la búsqueda, filtro por tipo de contenido, y carpetas
- * propias (namespace "favorites" en FolderService) — completamente
- * independientes de las carpetas de "Pienso ver/jugar/escuchar" o de
- * cualquiera de las 6 listas de seguimiento.
+ * Favoritos (rediseño): mismo sistema visual que "Mi biblioteca".
+ *
+ * - Chips por tipo (Todo, Juegos, Anime...).
+ * - Carpetas con collage de portadas. Se mete un favorito en una carpeta
+ *   ARRASTRANDO su tarjeta encima, o con el botón de carpeta de la
+ *   tarjeta (por si la carpeta queda lejos). Dentro de una carpeta,
+ *   soltar una tarjeta en «Favoritos» (arriba) la saca de la carpeta.
+ * - Tarjetas: portada, tipo, carpeta, quitar de favoritos, título y
+ *   progreso / estado / tu nota.
+ *
+ * Las carpetas siguen guardándose en el namespace "favorites" de
+ * FolderService, así que las carpetas que ya existían se conservan.
  */
 public class FavoritesViewController {
 
     private static final String FOLDER_NAMESPACE = "favorites";
 
-    @FXML private Button backButton;
-    @FXML private Button backToRootButton;
-    @FXML private Button newFolderButton;
-    @FXML private HBox filterBarBox;
+    @FXML private ScrollPane favoritesScroll;
+    @FXML private VBox favoritesRoot;
 
-    @FXML private ToggleButton filterAll;
-    @FXML private ToggleButton filterAnime;
-    @FXML private ToggleButton filterSeries;
-    @FXML private ToggleButton filterMovie;
-    @FXML private ToggleButton filterMusic;
-    @FXML private ToggleButton filterGame;
-    @FXML private ToggleButton filterManga;
-    @FXML private ToggleButton filterBook;
+    private static final double PAGE_W = 1240;
+    private static final double CARD_W = 176, POSTER_H = 264;
+    private static final String TEXT = "#f0eef5", DIM = "#a59fc0", PANEL = "#1a1530", LINE = "#2a2347";
 
-    @FXML private StackPane statusPane;
-    @FXML private Label statusLabel;
-    @FXML private ScrollPane scrollPane;
-
-    @FXML private VBox foldersSection;
-    @FXML private FlowPane foldersGrid;
-
-    @FXML private VBox itemsSection;
-    @FXML private Label itemsSectionLabel;
-    @FXML private FlowPane resultsGrid;
-
-    private final ToggleGroup filterGroup = new ToggleGroup();
-    private final List<FavoriteItem> allFavorites = new ArrayList<>();
-
-    private String currentFolderId; // null = vista raíz
+    // Se recuerda el filtro y la carpeta al volver de un detalle
+    private static MediaType typeFilter = null;
+    private static String currentFolderId = null;
 
     private Runnable onBackAction;
     private java.util.function.Consumer<MediaItem> onOpenDetailAction;
+    private String draggedId;
 
-    public void setOnBackAction(Runnable onBackAction) {
-        this.onBackAction = onBackAction;
-    }
+    public void setOnBackAction(Runnable onBackAction) { this.onBackAction = onBackAction; }
 
     public void setOnOpenDetailAction(java.util.function.Consumer<MediaItem> onOpenDetailAction) {
         this.onOpenDetailAction = onOpenDetailAction;
@@ -77,577 +68,417 @@ public class FavoritesViewController {
 
     @FXML
     public void initialize() {
-        filterAll.setToggleGroup(filterGroup);
-        filterAnime.setToggleGroup(filterGroup);
-        filterSeries.setToggleGroup(filterGroup);
-        filterMovie.setToggleGroup(filterGroup);
-        filterMusic.setToggleGroup(filterGroup);
-        filterGame.setToggleGroup(filterGroup);
-        filterManga.setToggleGroup(filterGroup);
-        filterBook.setToggleGroup(filterGroup);
-
-        filterGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-            if (newToggle == null && oldToggle != null) {
-                oldToggle.setSelected(true);
-                return;
+        favoritesScroll.skinProperty().addListener((o, a, b) -> {
+            if (b != null) {
+                Node viewport = favoritesScroll.lookup(".viewport");
+                if (viewport != null) viewport.setStyle("-fx-background-color: #100c1c;");
             }
-            updateFilterButtonStyles();
-            applyFilter();
         });
-
-        updateFilterButtonStyles();
-        speedUpScroll(scrollPane);
         loadFavorites();
     }
 
-    private void updateFilterButtonStyles() {
-        updateSingleFilterStyle(filterAll, "#ec4d80");
-        updateSingleFilterStyle(filterAnime, "#ec4dc0");
-        updateSingleFilterStyle(filterSeries, "#8b5cf6");
-        updateSingleFilterStyle(filterMovie, "#ecb14d");
-        updateSingleFilterStyle(filterMusic, "#4dec9e");
-        updateSingleFilterStyle(filterGame, "#4dd9ec");
-        updateSingleFilterStyle(filterManga, MediaTypeTheme.accentHex(MediaType.MANGA));
-        updateSingleFilterStyle(filterBook, MediaTypeTheme.accentHex(MediaType.BOOK));
+    /** Vuelve a leer favoritos y repinta (público por compatibilidad). */
+    public void loadFavorites() {
+        List<String> validIds = new ArrayList<>();
+        for (FavoriteItem f : FavoritesService.getFavorites()) validIds.add(f.getId());
+        FolderService.pruneDeletedFavorites(FOLDER_NAMESPACE, validIds);
+        refresh();
     }
 
-    private void updateSingleFilterStyle(ToggleButton btn, String accentHexWhenSelected) {
-        boolean selected = btn.isSelected();
-        String bgColor = selected ? accentHexWhenSelected : "#1c1730";
-        String textColor = selected ? "white" : "#f0eef5";
-        String fontWeight = selected ? "-fx-font-weight: bold;" : "";
+    // ===========================================================
+    // PINTADO
+    // ===========================================================
 
-        btn.setStyle(
-                "-fx-background-color: " + bgColor + ";" +
-                        "-fx-text-fill: " + textColor + ";" +
-                        "-fx-font-size: 11px;" +
-                        fontWeight +
-                        "-fx-background-radius: 14;" +
-                        "-fx-padding: 5 14 5 14;" +
-                        "-fx-cursor: hand;"
-        );
-    }
+    private void refresh() {
+        favoritesRoot.getChildren().clear();
 
-    /**
-     * "← Volver": si estamos dentro de una carpeta, primero vuelve a la
-     * raíz; solo si ya estamos en la raíz, sale de toda la pantalla.
-     */
-    @FXML
-    private void onBack() {
-        if (currentFolderId != null) {
-            onBackToRoot();
-        } else if (onBackAction != null) {
-            onBackAction.run();
+        List<FavoriteItem> all = new ArrayList<>();
+        for (FavoriteItem f : FavoritesService.getFavorites()) {
+            if (typeFilter == null || f.getType() == typeFilter) all.add(f);
+        }
+        if (currentFolderId != null && findFolder(currentFolderId) == null) currentFolderId = null;
+
+        favoritesRoot.getChildren().add(buildHeader(FavoritesService.getFavorites().size()));
+        favoritesRoot.getChildren().add(buildTypeChips());
+
+        if (currentFolderId == null) {
+            List<PlanFolder> folders = FolderService.getFolders(FOLDER_NAMESPACE);
+            if (!folders.isEmpty()) {
+                favoritesRoot.getChildren().add(sectionTitle("Carpetas"));
+                FlowPane grid = fixedFlow(16);
+                for (PlanFolder f : folders) grid.getChildren().add(buildFolderCard(f));
+                favoritesRoot.getChildren().add(grid);
+                favoritesRoot.getChildren().add(sectionTitle("Sin carpeta"));
+            }
+        } else {
+            favoritesRoot.getChildren().add(buildBreadcrumb(findFolder(currentFolderId)));
+        }
+
+        List<FavoriteItem> visible = new ArrayList<>();
+        for (FavoriteItem f : all) {
+            String folder = FolderService.getFolderIdFor(FOLDER_NAMESPACE, f.getId());
+            if (currentFolderId == null ? folder == null : currentFolderId.equals(folder)) visible.add(f);
+        }
+
+        if (visible.isEmpty()) {
+            favoritesRoot.getChildren().add(emptyState(all.isEmpty() && currentFolderId == null));
+        } else {
+            FlowPane grid = fixedFlow(18);
+            for (FavoriteItem f : visible) grid.getChildren().add(buildCard(f));
+            favoritesRoot.getChildren().add(grid);
+            Motion.stagger(grid.getChildren());
         }
     }
 
-    @FXML
-    private void onBackToRoot() {
-        currentFolderId = null;
-        applyFilter();
+    private Node buildHeader(int total) {
+        Label title = new Label("Favoritos");
+        title.setStyle("-fx-font-family: 'Inter ExtraBold'; -fx-font-size: 32px; -fx-text-fill: " + TEXT + ";");
+        Label count = new Label(total + (total == 1 ? " título" : " títulos"));
+        count.setStyle("-fx-font-size: 15px; -fx-text-fill: " + DIM + ";");
+        HBox titleRow = new HBox(12, title, count);
+        titleRow.setAlignment(Pos.BASELINE_LEFT);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Button newFolder = new Button("Nueva carpeta");
+        newFolder.setGraphic(Icons.of(Icons.FOLDER, 16, TEXT));
+        newFolder.setGraphicTextGap(8);
+        newFolder.getStyleClass().add("btn-secondary");
+        newFolder.setOnAction(e -> createFolder(null));
+
+        HBox header = new HBox(16, titleRow, spacer, newFolder);
+        header.setAlignment(Pos.CENTER_LEFT);
+        return header;
     }
 
-    @FXML
-    private void onCreateFolder() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Nueva carpeta");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Nombre de la carpeta:");
-        styleDialogDark(dialog.getDialogPane());
-        darkenDialogWindow(dialog.getDialogPane());
+    private Node buildTypeChips() {
+        FlowPane chips = new FlowPane(8, 8);
+        chips.getChildren().add(typeChip(null, "Todo", "#f0eef5"));
+        for (MediaType t : new MediaType[]{MediaType.GAME, MediaType.ANIME, MediaType.SERIES, MediaType.MOVIE,
+                MediaType.MUSIC, MediaType.BOOK, MediaType.MANGA}) {
+            chips.getChildren().add(typeChip(t, plural(t), MediaTypeTheme.accentHex(t)));
+        }
+        return chips;
+    }
 
-        dialog.showAndWait().ifPresent(name -> {
-            String trimmed = name.trim();
-            if (!trimmed.isEmpty()) {
-                FolderService.createFolder(FOLDER_NAMESPACE, trimmed);
-                applyFilter();
+    private Node typeChip(MediaType t, String label, String dot) {
+        boolean active = typeFilter == t;
+        Button chip = new Button(label);
+        chip.setGraphic(new Circle(4, javafx.scene.paint.Color.web(active && t == null ? "#120c1c" : dot)));
+        chip.setGraphicTextGap(8);
+        chip.setStyle("-fx-background-radius: 999; -fx-border-radius: 999; -fx-min-height: 36; -fx-padding: 0 14;"
+                + "-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-cursor: hand;"
+                + (active ? "-fx-background-color: #f0eef5; -fx-text-fill: #120c1c; -fx-border-color: #f0eef5;"
+                          : "-fx-background-color: transparent; -fx-text-fill: #e6e1f5; -fx-border-color: #3a3160;"));
+        chip.setOnAction(e -> {
+            typeFilter = t;
+            refresh();
+        });
+        return chip;
+    }
+
+    private Node buildBreadcrumb(PlanFolder folder) {
+        Button back = new Button("Favoritos");
+        back.setGraphic(Icons.of(Icons.BACK, 16, "#e6e1f5"));
+        back.getStyleClass().add("btn-ghost");
+        back.setOnAction(e -> {
+            currentFolderId = null;
+            refresh();
+        });
+        makeDropTarget(back, null);
+        Label sep = new Label("/");
+        sep.setStyle("-fx-text-fill: " + DIM + "; -fx-font-size: 16px;");
+        Label name = new Label(folder != null ? folder.getName() : "");
+        name.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: " + TEXT + ";");
+        Label hint = new Label("Arrastra una tarjeta a «Favoritos» para sacarla de la carpeta");
+        hint.setStyle("-fx-font-size: 13px; -fx-text-fill: " + DIM + ";");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox row = new HBox(10, back, sep, name, spacer, hint);
+        row.setAlignment(Pos.CENTER_LEFT);
+        return row;
+    }
+
+    private Node sectionTitle(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: " + TEXT + ";");
+        return l;
+    }
+
+    private FlowPane fixedFlow(double gap) {
+        FlowPane grid = new FlowPane(gap, gap);
+        grid.setPrefWrapLength(PAGE_W);
+        grid.setMaxWidth(PAGE_W);
+        return grid;
+    }
+
+    private Node emptyState(boolean noFavorites) {
+        Label title = new Label(noFavorites ? "Aún no tienes favoritos" : "Aquí no hay nada");
+        title.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: " + TEXT + ";");
+        Label body = new Label(noFavorites
+                ? "Busca cualquier juego, serie, anime, peli, libro o manga y pulsa la estrella de su detalle."
+                : "Arrastra tarjetas hasta aquí o usa el botón de carpeta de cada tarjeta.");
+        body.setWrapText(true);
+        body.setStyle("-fx-font-size: 14px; -fx-text-fill: " + DIM + ";");
+        VBox box = new VBox(8, title, body);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(48));
+        box.setMaxWidth(PAGE_W);
+        box.setStyle("-fx-border-color: #3a3160; -fx-border-style: segments(6, 4); -fx-border-radius: 20;");
+        return box;
+    }
+
+    // ===========================================================
+    // TARJETAS
+    // ===========================================================
+
+    private Node buildCard(FavoriteItem fav) {
+        MediaType type = fav.getType();
+        String accent = MediaTypeTheme.accentHex(type);
+
+        StackPane posterBox = CollectionUI.poster(fav.getImageUrl(), CARD_W, POSTER_H, accent, 16, false);
+
+        Label badge = new Label(MediaTypeTheme.label(type).toUpperCase());
+        badge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: #120c1c; -fx-background-radius: 999;"
+                + "-fx-padding: 3 10; -fx-font-family: 'Inter ExtraBold'; -fx-font-size: 10px;");
+        StackPane.setAlignment(badge, Pos.TOP_LEFT);
+        StackPane.setMargin(badge, new Insets(10));
+
+        Button folderBtn = overlayButton(Icons.of(Icons.FOLDER, 16, "#ffffff"), "Mover a una carpeta");
+        folderBtn.setOnAction(e -> showFolderMenu(folderBtn, fav));
+        Button starBtn = overlayButton(Icons.filled(Icons.STAR, 16, accent), "Quitar de favoritos");
+        starBtn.setOnAction(e -> confirmRemove(fav));
+        HBox actions = new HBox(6, folderBtn, starBtn);
+        actions.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        StackPane.setAlignment(actions, Pos.TOP_RIGHT);
+        StackPane.setMargin(actions, new Insets(8));
+        posterBox.getChildren().addAll(badge, actions);
+
+        Label title = new Label(fav.getTitle());
+        title.setMaxWidth(CARD_W - 24);
+        title.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: " + TEXT + ";");
+
+        VBox info = new VBox(8, title);
+        info.setPadding(new Insets(12));
+
+        // Progreso si está a medias; si no, estado o tu nota
+        String key = WatchProgressService.keyFor(type, fav.getTitle());
+        WatchProgressService.Progress p = WatchProgressService.getProgress(key);
+        Integer total = fav.getTotalEpisodes() != null ? fav.getTotalEpisodes() : p.totalEpisodes;
+        Integer rating = WatchProgressService.getUserRating(key);
+        info.getChildren().addAll(CollectionUI.statusLines(type, p, total, rating,
+                fav.getYear() != null ? String.valueOf(fav.getYear()) : null, CARD_W - 24));
+
+        VBox card = new VBox(posterBox, info);
+        card.setPrefWidth(CARD_W);
+        card.setMaxWidth(CARD_W);
+        card.getStyleClass().add("card-base");
+        card.setStyle("-fx-background-color: " + PANEL + "; -fx-background-radius: 16; -fx-border-color: " + LINE
+                + "; -fx-border-radius: 16; -fx-cursor: hand;");
+
+        card.setOnMouseClicked(e -> {
+            if (!e.isStillSincePress() || onOpenDetailAction == null) return;
+            onOpenDetailAction.accept(fav.toMediaItem());
+        });
+
+        card.setOnDragDetected(e -> {
+            draggedId = fav.getId();
+            Dragboard db = card.startDragAndDrop(TransferMode.MOVE);
+            javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
+            params.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            db.setDragView(card.snapshot(params, null), e.getX(), e.getY());
+            ClipboardContent content = new ClipboardContent();
+            content.putString(fav.getId());
+            db.setContent(content);
+            card.setOpacity(0.35);
+            e.consume();
+        });
+        card.setOnDragDone(e -> {
+            card.setOpacity(1);
+            Motion.lift(card, false);
+            boolean moved = e.isAccepted();
+            draggedId = null;
+            if (moved) refresh();
+        });
+        return card;
+    }
+
+    private Button overlayButton(Node icon, String tooltip) {
+        Button b = new Button();
+        b.setGraphic(icon);
+        b.setTooltip(new Tooltip(tooltip));
+        b.setStyle("-fx-background-color: #100c1cb3; -fx-background-radius: 10; -fx-min-width: 34; -fx-min-height: 34; -fx-cursor: hand;");
+        return b;
+    }
+
+    private void confirmRemove(FavoriteItem fav) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        if (favoritesRoot.getScene() != null) alert.initOwner(favoritesRoot.getScene().getWindow());
+        alert.setTitle("Quitar de favoritos");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Quitar \"" + fav.getTitle() + "\" de favoritos?\nTu progreso y tu nota se conservan.");
+        DialogPane pane = alert.getDialogPane();
+        pane.getStylesheets().add(getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm());
+        pane.setStyle("-fx-background-color: #1c1730;");
+        pane.lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: #f0eef5;"));
+        pane.sceneProperty().addListener((o, a, s) -> { if (s != null) s.setFill(javafx.scene.paint.Color.web("#100c1c")); });
+        alert.showAndWait().ifPresent(b -> {
+            if (b == ButtonType.OK) {
+                FavoritesService.removeFavorite(fav.getId());
+                loadFavorites();
             }
         });
     }
 
-    /**
-     * Carga (o recarga) los favoritos del usuario actual y aplica el
-     * filtro/carpeta activos. Público para refrescar al volver desde un
-     * detalle donde se haya quitado algún favorito.
-     */
-    public void loadFavorites() {
-        allFavorites.clear();
-        allFavorites.addAll(FavoritesService.getFavorites());
+    // ===========================================================
+    // CARPETAS
+    // ===========================================================
 
-        List<String> validIds = new ArrayList<>();
-        for (FavoriteItem fav : allFavorites) validIds.add(fav.getId());
-        FolderService.pruneDeletedFavorites(FOLDER_NAMESPACE, validIds);
+    private Node buildFolderCard(PlanFolder folder) {
+        List<String> ids = FolderService.getFavoriteIdsInFolder(FOLDER_NAMESPACE, folder.getId());
+        List<FavoriteItem> inside = new ArrayList<>();
+        for (FavoriteItem f : FavoritesService.getFavorites()) if (ids.contains(f.getId())) inside.add(f);
 
-        applyFilter();
-    }
-
-    @FXML
-    private void onFilterChanged() {
-        applyFilter();
-    }
-
-    /**
-     * Recalcula y pinta tanto las carpetas (solo en la raíz) como los
-     * favoritos visibles, combinando el filtro de tipo con la carpeta
-     * actual.
-     */
-    private void applyFilter() {
-        boolean atRoot = currentFolderId == null;
-
-        backToRootButton.setVisible(!atRoot);
-        backToRootButton.setManaged(!atRoot);
-        newFolderButton.setVisible(atRoot);
-        newFolderButton.setManaged(atRoot);
-        filterBarBox.setVisible(atRoot);
-        filterBarBox.setManaged(atRoot);
-
-        Toggle selected = filterGroup.getSelectedToggle();
-        MediaType typeFilter = null;
-        if (selected == filterAnime) typeFilter = MediaType.ANIME;
-        else if (selected == filterSeries) typeFilter = MediaType.SERIES;
-        else if (selected == filterMovie) typeFilter = MediaType.MOVIE;
-        else if (selected == filterMusic) typeFilter = MediaType.MUSIC;
-        else if (selected == filterGame) typeFilter = MediaType.GAME;
-        else if (selected == filterManga) typeFilter = MediaType.MANGA;
-        else if (selected == filterBook) typeFilter = MediaType.BOOK;
-
-        foldersSection.setVisible(atRoot);
-        foldersSection.setManaged(atRoot);
-        foldersGrid.getChildren().clear();
-
-        List<PlanFolder> folders = atRoot ? FolderService.getFolders(FOLDER_NAMESPACE) : List.of();
-        if (atRoot) {
-            for (PlanFolder folder : folders) {
-                foldersGrid.getChildren().add(buildFolderCard(folder));
-            }
-        }
-
-        List<FavoriteItem> filtered = new ArrayList<>();
-        for (FavoriteItem fav : allFavorites) {
-            if (typeFilter != null && fav.getType() != typeFilter) continue;
-
-            String favFolderId = FolderService.getFolderIdFor(FOLDER_NAMESPACE, fav.getId());
-            if (atRoot) {
-                if (favFolderId == null) filtered.add(fav);
+        GridPane collage = new GridPane();
+        collage.setHgap(4);
+        collage.setVgap(4);
+        double cell = (CARD_W + 24 - 4) / 2 - 12;
+        for (int i = 0; i < 4; i++) {
+            Node tile;
+            if (i < inside.size()) {
+                FavoriteItem f = inside.get(i);
+                tile = CollectionUI.poster(f.getImageUrl(), cell, cell, MediaTypeTheme.accentHex(f.getType()), 10, true);
             } else {
-                if (currentFolderId.equals(favFolderId)) filtered.add(fav);
+                Region empty = new Region();
+                empty.setMinSize(cell, cell);
+                empty.setStyle("-fx-background-color: #241d3d; -fx-background-radius: 10;");
+                tile = empty;
             }
+            collage.add(tile, i % 2, i / 2);
         }
 
-        if (atRoot) {
-            itemsSectionLabel.setText("Sin carpeta");
-        } else {
-            PlanFolder folder = findFolder(currentFolderId);
-            itemsSectionLabel.setText(folder != null ? folder.getName() : "Carpeta");
-        }
+        Label name = new Label(folder.getName());
+        name.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: " + TEXT + ";");
+        Label count = new Label(inside.size() + (inside.size() == 1 ? " título" : " títulos"));
+        count.setStyle("-fx-font-size: 12px; -fx-text-fill: " + DIM + ";");
 
-        renderFavorites(filtered, folders.isEmpty());
+        Button more = new Button();
+        more.setGraphic(Icons.of(Icons.EDIT, 14, TEXT));
+        more.setTooltip(new Tooltip("Renombrar o eliminar"));
+        more.setStyle("-fx-background-color: #241d3d; -fx-background-radius: 8; -fx-min-width: 30; -fx-min-height: 30; -fx-cursor: hand;");
+        more.setOnAction(e -> showFolderOptions(more, folder));
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox footer = new HBox(8, new VBox(2, name, count), spacer, more);
+        footer.setAlignment(Pos.CENTER_LEFT);
+
+        VBox card = new VBox(12, collage, footer);
+        card.setPadding(new Insets(12));
+        card.setPrefWidth(CARD_W + 24);
+        card.setMaxWidth(CARD_W + 24);
+        card.getStyleClass().add("motion-lift");
+        card.setStyle("-fx-background-color: " + PANEL + "; -fx-background-radius: 16; -fx-border-color: " + LINE
+                + "; -fx-border-radius: 16; -fx-cursor: hand;");
+        card.setOnMouseClicked(e -> {
+            if (!e.isStillSincePress()) return;
+            currentFolderId = folder.getId();
+            refresh();
+        });
+        makeDropTarget(card, folder.getId());
+        return card;
     }
 
-    private PlanFolder findFolder(String folderId) {
-        for (PlanFolder folder : FolderService.getFolders(FOLDER_NAMESPACE)) {
-            if (folder.getId().equals(folderId)) return folder;
+    /** Acepta tarjetas soltadas: folderId null = sacar de la carpeta. */
+    private void makeDropTarget(Node target, String folderId) {
+        String base = target.getStyle() == null ? "" : target.getStyle();
+        target.setOnDragOver(e -> {
+            if (draggedId != null) e.acceptTransferModes(TransferMode.MOVE);
+            e.consume();
+        });
+        target.setOnDragEntered(e -> {
+            if (draggedId != null) target.setStyle(base + "-fx-border-color: #ec4d80; -fx-border-width: 2;");
+        });
+        target.setOnDragExited(e -> target.setStyle(base));
+        target.setOnDragDropped(e -> {
+            boolean ok = draggedId != null;
+            if (ok) FolderService.assignToFolder(FOLDER_NAMESPACE, draggedId, folderId);
+            e.setDropCompleted(ok);
+            e.consume();
+        });
+    }
+
+    private void showFolderMenu(Node anchor, FavoriteItem fav) {
+        ContextMenu menu = new ContextMenu();
+        String current = FolderService.getFolderIdFor(FOLDER_NAMESPACE, fav.getId());
+        for (PlanFolder f : FolderService.getFolders(FOLDER_NAMESPACE)) {
+            MenuItem item = new MenuItem((f.getId().equals(current) ? "✓ " : "") + f.getName());
+            item.setOnAction(e -> {
+                FolderService.assignToFolder(FOLDER_NAMESPACE, fav.getId(), f.getId());
+                refresh();
+            });
+            menu.getItems().add(item);
         }
+        if (!menu.getItems().isEmpty()) menu.getItems().add(new SeparatorMenuItem());
+        MenuItem create = new MenuItem("Nueva carpeta…");
+        create.setOnAction(e -> createFolder(fav));
+        menu.getItems().add(create);
+        if (current != null) {
+            MenuItem out = new MenuItem("Sacar de la carpeta");
+            out.setOnAction(e -> {
+                FolderService.assignToFolder(FOLDER_NAMESPACE, fav.getId(), null);
+                refresh();
+            });
+            menu.getItems().add(out);
+        }
+        menu.show(anchor, javafx.geometry.Side.BOTTOM, 0, 4);
+    }
+
+    private void showFolderOptions(Node anchor, PlanFolder folder) {
+        MenuItem rename = new MenuItem("Renombrar…");
+        rename.setOnAction(e -> CollectionUI.textDialog(window(), "Renombrar carpeta", folder.getName())
+                .showAndWait().ifPresent(n -> {
+                    if (!n.trim().isEmpty()) {
+                        FolderService.renameFolder(FOLDER_NAMESPACE, folder.getId(), n.trim());
+                        refresh();
+                    }
+                }));
+        MenuItem delete = new MenuItem("Eliminar carpeta");
+        delete.setOnAction(e -> {
+            FolderService.deleteFolder(FOLDER_NAMESPACE, folder.getId());
+            if (folder.getId().equals(currentFolderId)) currentFolderId = null;
+            refresh();
+        });
+        new ContextMenu(rename, delete).show(anchor, javafx.geometry.Side.BOTTOM, 0, 4);
+    }
+
+    private void createFolder(FavoriteItem moveInto) {
+        CollectionUI.textDialog(window(), "Nueva carpeta", "").showAndWait().ifPresent(n -> {
+            String name = n.trim();
+            if (name.isEmpty()) return;
+            PlanFolder f = FolderService.createFolder(FOLDER_NAMESPACE, name);
+            if (moveInto != null) FolderService.assignToFolder(FOLDER_NAMESPACE, moveInto.getId(), f.getId());
+            refresh();
+        });
+    }
+
+    private javafx.stage.Window window() {
+        return favoritesRoot.getScene() != null ? favoritesRoot.getScene().getWindow() : null;
+    }
+
+    private PlanFolder findFolder(String id) {
+        for (PlanFolder f : FolderService.getFolders(FOLDER_NAMESPACE)) if (f.getId().equals(id)) return f;
         return null;
     }
 
-    private void renderFavorites(List<FavoriteItem> favorites, boolean noFolders) {
-        resultsGrid.getChildren().clear();
-
-        boolean nothingToShow = favorites.isEmpty() && noFolders;
-
-        if (nothingToShow) {
-            statusPane.setVisible(true);
-            statusPane.setManaged(true);
-            scrollPane.setVisible(false);
-            scrollPane.setManaged(false);
-            statusLabel.setVisible(true);
-            itemsSection.setVisible(false);
-            itemsSection.setManaged(false);
-            return;
-        }
-
-        statusPane.setVisible(false);
-        statusPane.setManaged(false);
-        scrollPane.setVisible(true);
-        scrollPane.setManaged(true);
-
-        itemsSection.setVisible(!favorites.isEmpty());
-        itemsSection.setManaged(!favorites.isEmpty());
-
-        for (FavoriteItem fav : favorites) {
-            resultsGrid.getChildren().add(buildCard(fav));
-        }
-    }
-
-    /**
-     * Tarjeta de carpeta: preview 2x2 con las portadas de hasta 4
-     * favoritos que contiene, nombre, contador, y botones Renombrar/
-     * Eliminar (mismo patrón que PlanListViewController.buildFolderCard()).
-     */
-    private VBox buildFolderCard(PlanFolder folder) {
-        List<String> favIdsInFolder = FolderService.getFavoriteIdsInFolder(FOLDER_NAMESPACE, folder.getId());
-        List<FavoriteItem> contents = new ArrayList<>();
-        for (FavoriteItem fav : allFavorites) {
-            if (favIdsInFolder.contains(fav.getId())) contents.add(fav);
-        }
-        int count = contents.size();
-
-        VBox card = new VBox(8);
-        card.setPrefWidth(220);
-        card.getStyleClass().add("card-base");
-        card.setAlignment(Pos.CENTER);
-        card.setStyle("-fx-padding: 18 14 16 14; -fx-cursor: hand;");
-
-        javafx.scene.layout.GridPane previewGrid = new javafx.scene.layout.GridPane();
-        previewGrid.setHgap(4);
-        previewGrid.setVgap(4);
-        previewGrid.setPrefSize(190, 190);
-        previewGrid.setMaxSize(190, 190);
-
-        double cellSize = 93;
-        for (int i = 0; i < 4; i++) {
-            int row = i / 2;
-            int col = i % 2;
-
-            StackPane cell = new StackPane();
-            cell.setPrefSize(cellSize, cellSize);
-            cell.setMaxSize(cellSize, cellSize);
-            cell.setStyle("-fx-background-color: #100c1c; -fx-background-radius: 6;");
-
-            if (i < contents.size() && contents.get(i).getImageUrl() != null
-                    && !contents.get(i).getImageUrl().isBlank()) {
-                ImageView thumb = new ImageView();
-                thumb.setFitWidth(cellSize);
-                thumb.setFitHeight(cellSize);
-                thumb.setPreserveRatio(false);
-                thumb.setSmooth(true);
-
-                Rectangle clip = new Rectangle(cellSize, cellSize);
-                clip.setArcWidth(6);
-                clip.setArcHeight(6);
-                thumb.setClip(clip);
-
-                try {
-                    thumb.setImage(new Image(contents.get(i).getImageUrl(), cellSize * 2, cellSize * 2, false, true, true));
-                } catch (Exception ignored) {}
-
-                cell.getChildren().add(thumb);
-            } else {
-                Label placeholder = new Label("📁");
-                placeholder.setStyle("-fx-font-size: 32px; -fx-opacity: 0.25;");
-                cell.getChildren().add(placeholder);
-            }
-
-            previewGrid.add(cell, col, row);
-        }
-
-        Label nameLabel = new Label(folder.getName());
-        nameLabel.setWrapText(true);
-        nameLabel.setMaxWidth(195);
-        nameLabel.setStyle("-fx-text-fill: #f0eef5; -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-alignment: center;");
-        nameLabel.setAlignment(Pos.CENTER);
-
-        Label countLabel = new Label(count + (count == 1 ? " elemento" : " elementos"));
-        countLabel.getStyleClass().add("text-dim");
-
-        HBox actionsRow = new HBox(8);
-        actionsRow.setAlignment(Pos.CENTER);
-
-        Button renameBtn = new Button("Renombrar");
-        renameBtn.getStyleClass().add("chip-action-neutral");
-        renameBtn.setOnAction(e -> {
-            e.consume();
-            onRenameFolder(folder);
-        });
-
-        Button deleteBtn = new Button("Eliminar");
-        deleteBtn.getStyleClass().add("chip-action-danger");
-        deleteBtn.setOnAction(e -> {
-            e.consume();
-            onDeleteFolder(folder);
-        });
-
-        actionsRow.getChildren().addAll(renameBtn, deleteBtn);
-
-        card.getChildren().addAll(previewGrid, nameLabel, countLabel, actionsRow);
-
-        card.setOnMouseClicked(e -> {
-            currentFolderId = folder.getId();
-            applyFilter();
-        });
-
-        return card;
-    }
-
-    private void onRenameFolder(PlanFolder folder) {
-        TextInputDialog dialog = new TextInputDialog(folder.getName());
-        dialog.setTitle("Renombrar carpeta");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Nuevo nombre:");
-        styleDialogDark(dialog.getDialogPane());
-        darkenDialogWindow(dialog.getDialogPane());
-
-        dialog.showAndWait().ifPresent(name -> {
-            String trimmed = name.trim();
-            if (!trimmed.isEmpty()) {
-                FolderService.renameFolder(FOLDER_NAMESPACE, folder.getId(), trimmed);
-                applyFilter();
-            }
-        });
-    }
-
-    private void onDeleteFolder(PlanFolder folder) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Eliminar carpeta");
-        confirm.setHeaderText(null);
-        confirm.setContentText("¿Eliminar \"" + folder.getName() + "\"? Los favoritos dentro no se borrarán, volverán a quedar sin carpeta.");
-        styleDialogDark(confirm.getDialogPane());
-        darkenDialogWindow(confirm.getDialogPane());
-
-        confirm.showAndWait().ifPresent(result -> {
-            if (result == ButtonType.OK) {
-                FolderService.deleteFolder(FOLDER_NAMESPACE, folder.getId());
-                applyFilter();
-            }
-        });
-    }
-
-    /**
-     * Tarjeta visual para un favorito: imagen, badge de tipo, título, año,
-     * rating y progreso de episodios si aplica, más un botón "📁" para
-     * mover el favorito a una carpeta.
-     */
-    private VBox buildCard(FavoriteItem fav) {
-        VBox card = new VBox(6);
-        card.setPrefWidth(160);
-        card.getStyleClass().add("card-base");
-        card.setAlignment(Pos.TOP_LEFT);
-
-        StackPane imageContainer = new StackPane();
-        imageContainer.setPrefSize(160, 220);
-        imageContainer.setMaxSize(160, 220);
-        imageContainer.setStyle("-fx-background-color: #100c1c; -fx-background-radius: 10 10 0 0;");
-
-        ImageView cover = new ImageView();
-        cover.setFitWidth(160);
-        cover.setFitHeight(220);
-        cover.setPreserveRatio(false);
-        cover.setSmooth(true);
-
-        Rectangle clip = new Rectangle(160, 220);
-        clip.setArcWidth(10);
-        clip.setArcHeight(10);
-        cover.setClip(clip);
-
-        if (fav.getImageUrl() != null && !fav.getImageUrl().isBlank()) {
-            try {
-                cover.setImage(new Image(fav.getImageUrl(), 160, 220, false, true, true));
-            } catch (Exception ignored) {}
-        }
-
-        Button removeButton = new Button("★");
-        removeButton.setTextFill(javafx.scene.paint.Color.web("#ec4d80"));
-        removeButton.setStyle(
-                "-fx-background-color: rgba(16,12,28,0.85);" +
-                        "-fx-font-size: 18px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 50;" +
-                        "-fx-min-width: 30; -fx-min-height: 30;" +
-                        "-fx-max-width: 30; -fx-max-height: 30;" +
-                        "-fx-padding: 0;" +
-                        "-fx-cursor: hand;"
-        );
-        StackPane.setAlignment(removeButton, Pos.TOP_RIGHT);
-        StackPane.setMargin(removeButton, new Insets(6));
-        removeButton.setOnAction(e -> {
-            e.consume();
-            FavoritesService.removeFavorite(fav.getId());
-            loadFavorites();
-        });
-
-        Label moveButton = new Label("📁");
-        moveButton.setStyle(
-                "-fx-background-color: rgba(16,12,28,0.9);" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-padding: 4 6 4 6;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-cursor: hand;"
-        );
-        StackPane.setAlignment(moveButton, Pos.BOTTOM_LEFT);
-        StackPane.setMargin(moveButton, new Insets(6));
-        moveButton.setOnMouseClicked(e -> {
-            e.consume();
-            onMoveToFolder(fav);
-        });
-
-        Label typeBadge = new Label(typeLabel(fav.getType()));
-        typeBadge.getStyleClass().add(badgeClassFor(fav.getType()));
-        StackPane.setAlignment(typeBadge, Pos.TOP_LEFT);
-        StackPane.setMargin(typeBadge, new Insets(6));
-
-        imageContainer.getChildren().addAll(cover, removeButton, moveButton, typeBadge);
-
-        Label titleLabel = new Label(fav.getTitle());
-        titleLabel.setWrapText(true);
-        titleLabel.setMaxWidth(150);
-        titleLabel.getStyleClass().add("text-heading");
-        titleLabel.setStyle("-fx-font-size: 12px; -fx-padding: 6 8 0 8;");
-
-        HBox metaRow = new HBox(8);
-        metaRow.setAlignment(Pos.CENTER_LEFT);
-        metaRow.setStyle("-fx-padding: 0 8 4 8;");
-
-        String yearText = fav.getYear() != null ? String.valueOf(fav.getYear()) : "—";
-        Label yearLabel = new Label(yearText);
-        yearLabel.getStyleClass().add("text-dim");
-        metaRow.getChildren().add(yearLabel);
-
-        if (fav.getScore() != null && fav.getScore() > 0) {
-            Label scoreLabel = new Label("⭐ " + fav.getScore());
-            scoreLabel.getStyleClass().add("text-success");
-            scoreLabel.setStyle("-fx-font-size: 10px; -fx-font-weight: bold;");
-            metaRow.getChildren().add(scoreLabel);
-        }
-
-        card.getChildren().addAll(imageContainer, titleLabel, metaRow);
-
-        com.rujiman.mediatracker.services.WatchProgressService.Progress progress =
-                com.rujiman.mediatracker.services.WatchProgressService.getProgress(com.rujiman.mediatracker.services.WatchProgressService.keyFor(fav.getType(), fav.getTitle()));
-
-        HBox statusRow = new HBox();
-        statusRow.setAlignment(Pos.CENTER_LEFT);
-        statusRow.setStyle("-fx-padding: 0 8 8 8;");
-
-        Integer total = fav.getTotalEpisodes();
-        Label statusLbl;
-        if (total != null && total > 0) {
-            statusLbl = new Label(MediaTypeTheme.progressText(fav.getType(), progress.watchedEpisodes.size(), total));
-            statusLbl.getStyleClass().add("text-dim");
-        } else if (progress.viewed) {
-            statusLbl = new Label(MediaTypeTheme.doneText(fav.getType()));
-            statusLbl.getStyleClass().add("text-success");
-        } else {
-            statusLbl = new Label(" ");
-        }
-
-        HBox spacerBox = new HBox();
-        HBox.setHgrow(spacerBox, Priority.ALWAYS);
-
-        Label userStars = new Label();
-        Integer userRating = progress.userRating;
-        if (userRating != null && userRating > 0) {
-            StringBuilder starsText = new StringBuilder();
-            for (int i = 0; i < userRating; i++) starsText.append("★");
-            userStars.setText(starsText.toString());
-            userStars.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 10px;");
-        }
-
-        statusRow.getChildren().addAll(statusLbl, spacerBox, userStars);
-        card.getChildren().add(statusRow);
-
-        card.setOnMouseClicked(e -> {
-            if (onOpenDetailAction != null) {
-                onOpenDetailAction.accept(fav.toMediaItem());
-            }
-        });
-
-        return card;
-    }
-
-    /**
-     * Selector simple: lista de carpetas existentes + "Sin carpeta",
-     * para mover un favorito de sitio.
-     */
-    private void onMoveToFolder(FavoriteItem fav) {
-        List<PlanFolder> folders = FolderService.getFolders(FOLDER_NAMESPACE);
-
-        List<String> options = new ArrayList<>();
-        options.add("(Sin carpeta)");
-        for (PlanFolder f : folders) options.add(f.getName());
-
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("(Sin carpeta)", options);
-        dialog.setTitle("Mover \"" + fav.getTitle() + "\"");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Elige carpeta de destino:");
-        styleDialogDark(dialog.getDialogPane());
-        darkenDialogWindow(dialog.getDialogPane());
-
-        dialog.showAndWait().ifPresent(selection -> {
-            String targetFolderId = null;
-            if (!"(Sin carpeta)".equals(selection)) {
-                for (PlanFolder f : folders) {
-                    if (f.getName().equals(selection)) {
-                        targetFolderId = f.getId();
-                        break;
-                    }
-                }
-            }
-            FolderService.assignToFolder(FOLDER_NAMESPACE, fav.getId(), targetFolderId);
-            applyFilter();
-        });
-    }
-
-    private String typeLabel(MediaType type) {
-        return MediaTypeTheme.badgeText(type);
-    }
-
-    private String badgeClassFor(MediaType type) {
-        return MediaTypeTheme.badgeClass(type);
-    }
-
-    private void styleDialogDark(DialogPane pane) {
-        pane.getStylesheets().add(
-                getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
-        );
-        pane.getStyleClass().add("bg-panel-flat");
-        pane.setStyle("-fx-background-color: #1c1730; -fx-text-fill: #f0eef5;");
-        pane.applyCss();
-
-        javafx.scene.Node headerPanel = pane.lookup(".header-panel");
-        if (headerPanel != null) {
-            headerPanel.setStyle("-fx-background-color: #1c1730;");
-        } else {
-            javafx.application.Platform.runLater(() -> {
-                javafx.scene.Node hp = pane.lookup(".header-panel");
-                if (hp != null) hp.setStyle("-fx-background-color: #1c1730;");
-            });
-        }
-
-        forceLabelColorRecursive(pane, "#f0eef5");
-    }
-
-    private void forceLabelColorRecursive(javafx.scene.Parent parent, String hexColor) {
-        for (javafx.scene.Node node : parent.getChildrenUnmodifiable()) {
-            if (node instanceof Label label) {
-                label.setStyle("-fx-text-fill: " + hexColor + ";");
-            }
-            if (node instanceof javafx.scene.Parent childParent) {
-                forceLabelColorRecursive(childParent, hexColor);
-            }
-        }
-    }
-
-    private void darkenDialogWindow(DialogPane pane) {
-        if (pane.getScene() != null) {
-            pane.getScene().setFill(javafx.scene.paint.Color.web("#100c1c"));
-        } else {
-            pane.sceneProperty().addListener((obs, oldScene, newScene) -> {
-                if (newScene != null) {
-                    newScene.setFill(javafx.scene.paint.Color.web("#100c1c"));
-                }
-            });
-        }
-    }
-
-    private void speedUpScroll(ScrollPane pane) {
-        final double SCROLL_MULTIPLIER = 4.0;
-        pane.addEventFilter(javafx.scene.input.ScrollEvent.SCROLL, event -> {
-            double deltaY = event.getDeltaY() * SCROLL_MULTIPLIER;
-            double height = pane.getContent().getBoundsInLocal().getHeight();
-            double vValue = pane.getVvalue();
-            pane.setVvalue(vValue - deltaY / height);
-            event.consume();
-        });
+    private String plural(MediaType t) {
+        return switch (t) {
+            case GAME -> "Juegos";
+            case SERIES -> "Series";
+            case ANIME -> "Anime";
+            case MUSIC -> "Música";
+            case MOVIE -> "Películas";
+            case BOOK -> "Libros";
+            case MANGA -> "Manga";
+        };
     }
 }

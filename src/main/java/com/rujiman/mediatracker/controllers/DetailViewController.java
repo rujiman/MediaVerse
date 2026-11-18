@@ -92,6 +92,7 @@ public class DetailViewController {
     @FXML private StackPane progressTrack;
     @FXML private javafx.scene.layout.Region progressFill;
     @FXML private Button primaryActionButton;
+    @FXML private Button inProgressButton;
 
     /** Bloque de episodios visible (0 = 1–50, 1 = 51–100...) en series largas. */
     private int episodeBlock = -1;
@@ -934,7 +935,8 @@ public class DetailViewController {
             Label star = new Label(starValue <= rating ? "★" : "☆");
             star.setStyle(
                     "-fx-font-size: 22px;" +
-                            "-fx-text-fill: " + (starValue <= rating ? "#ecb14d" : "#4a4170") + ";" +
+                            // Estrellas del color de la categoría (ámbar solo en películas)
+                            "-fx-text-fill: " + (starValue <= rating ? sectionAccentHex(item.getType()) : "#4a4170") + ";" +
                             "-fx-cursor: hand;"
             );
 
@@ -1423,6 +1425,45 @@ public class DetailViewController {
             viewedButton.setStyle(primaryStyle(currentItem.getType()));
         }
         updatePrimaryAction();
+        updateInProgressButton();
+    }
+
+    /**
+     * Botón "Estoy jugando / viendo / leyendo": solo para lo que no se
+     * sigue por episodios (si hay lista de episodios, marcar uno ya lo
+     * pone en curso). Activo = relleno sutil con icono de play.
+     */
+    private void updateInProgressButton() {
+        boolean hasEpisodeList = MediaTypeTheme.hasUnitProgress(currentItem.getType())
+                && currentItem.getEpisodes() != null && currentItem.getEpisodes() > 0;
+        String key = WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle());
+        boolean viewed = WatchProgressService.isViewed(key);
+        boolean show = !hasEpisodeList && !viewed;
+        inProgressButton.setVisible(show);
+        inProgressButton.setManaged(show);
+        if (!show) return;
+
+        boolean active = WatchProgressService.isInProgress(key);
+        String accent = sectionAccentHex(currentItem.getType());
+        inProgressButton.setText(MediaTypeTheme.inProgressAction(currentItem.getType()));
+        inProgressButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(
+                active ? com.rujiman.mediatracker.ui.Icons.CHECK : com.rujiman.mediatracker.ui.Icons.PLAY, 16,
+                active ? accent : "#f0eef5"));
+        inProgressButton.setGraphicTextGap(8);
+        inProgressButton.setStyle(active
+                ? "-fx-border-color: " + accent + "; -fx-background-color: " + accent + "26;"
+                : null);
+        inProgressButton.setTooltip(new Tooltip(active
+                ? "Está en «En curso». Pulsa para quitarlo"
+                : "Añadir a «En curso» en tu biblioteca y en Inicio"));
+    }
+
+    @FXML
+    private void onToggleInProgress() {
+        String key = WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle());
+        WatchProgressService.setInProgress(key, !WatchProgressService.isInProgress(key));
+        WatchProgressService.remember(currentItem);
+        updateViewedButtonStyle();
     }
 
     private String viewedLabelFor(MediaType type) {

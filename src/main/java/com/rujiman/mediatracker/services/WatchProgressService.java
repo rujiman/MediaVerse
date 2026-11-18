@@ -37,6 +37,11 @@ public class WatchProgressService {
         // puedan mostrar también lo que NO está en favoritos. null en
         // progresos antiguos hasta que se vuelva a abrir su detalle.
         public MediaItem item;
+
+        // "Lo estoy jugando / viendo / escuchando / leyendo ahora": para lo
+        // que no se sigue por episodios (juegos, pelis, música, libros...)
+        // y así también puede estar "En curso". Se quita al terminarlo.
+        public boolean inProgress;
     }
 
     /** Un título con progreso y su ficha guardada. */
@@ -98,6 +103,9 @@ public class WatchProgressService {
                         progress.userRating = obj.get("userRating").getAsInt();
                     }
 
+                    progress.inProgress = obj.has("inProgress") && !obj.get("inProgress").isJsonNull()
+                            && obj.get("inProgress").getAsBoolean();
+
                     // Ficha opcional: si está corrupta se ignora, el progreso sigue valiendo
                     if (obj.has("item") && obj.get("item").isJsonObject()) {
                         try {
@@ -139,6 +147,10 @@ public class WatchProgressService {
 
                 if (p.userRating != null) {
                     obj.addProperty("userRating", p.userRating);
+                }
+
+                if (p.inProgress) {
+                    obj.addProperty("inProgress", true);
                 }
 
                 if (p.item != null) {
@@ -262,6 +274,25 @@ public class WatchProgressService {
         String key = title.toLowerCase();
         Progress progress = cache.getOrDefault(key, new Progress());
         progress.viewed = !progress.viewed;
+        if (progress.viewed) progress.inProgress = false; // terminado: deja de estar en curso
+        cache.put(key, progress);
+        saveProgress();
+    }
+
+    /** ¿Está marcado como "lo estoy jugando/viendo/leyendo ahora"? */
+    public static boolean isInProgress(String title) {
+        ensureCorrectUserLoaded();
+        Progress p = cache.get(title.toLowerCase());
+        return p != null && p.inProgress;
+    }
+
+    /** Marca o quita "lo estoy jugando/viendo/leyendo ahora". */
+    public static void setInProgress(String title, boolean value) {
+        ensureCorrectUserLoaded();
+        String key = title.toLowerCase();
+        Progress progress = cache.getOrDefault(key, new Progress());
+        progress.inProgress = value;
+        if (value) progress.viewed = false; // si vuelves a empezarlo, ya no está terminado
         cache.put(key, progress);
         saveProgress();
     }

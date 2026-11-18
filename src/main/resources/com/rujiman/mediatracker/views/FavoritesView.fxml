@@ -4,109 +4,20 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
+<!-- Favoritos (rediseño): chips por tipo, carpetas con arrastrar y
+     tarjetas. Todo el contenido lo construye FavoritesViewController. -->
+<ScrollPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.rujiman.mediatracker.controllers.FavoritesViewController"
-            styleClass="bg-base">
+            fx:id="favoritesScroll"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            styleClass="scroll-pane-transparent, bg-base">
 
-    <top>
-        <VBox style="-fx-background-color: #1c1730; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
-            <padding><Insets top="16" right="20" bottom="12" left="20"/></padding>
-
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Button fx:id="backButton"
-                        text="← Volver"
-                        onAction="#onBack"
-                        styleClass="btn-pill-neutral"/>
-
-                <Label text="⭐ Mis favoritos" styleClass="text-title"/>
-
-                <HBox HBox.hgrow="ALWAYS"/>
-
-                <!-- Solo visible dentro de una carpeta: vuelve a la raíz -->
-                <Button fx:id="backToRootButton"
-                        text="📂 Todas las carpetas"
-                        onAction="#onBackToRoot"
-                        visible="false" managed="false"
-                        styleClass="btn-pill-neutral"/>
-
-                <Button fx:id="newFolderButton"
-                        text="+ Nueva carpeta"
-                        onAction="#onCreateFolder"
-                        styleClass="btn-pill-brand"/>
-            </HBox>
-
-            <!-- Filtros por tipo (solo tienen sentido en la raíz; dentro de
-                 una carpeta ya se ve un subconjunto concreto de favoritos) -->
-            <HBox fx:id="filterBarBox" spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 12 0 0 0;">
-                <ToggleButton fx:id="filterAll" text="Todo" selected="true"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-                <ToggleButton fx:id="filterAnime" text="🎌 Anime"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-                <ToggleButton fx:id="filterSeries" text="📺 Series"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-                <ToggleButton fx:id="filterMovie" text="🎬 Películas"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-                <ToggleButton fx:id="filterMusic" text="🎵 Música"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-                <ToggleButton fx:id="filterGame" text="🎮 Juegos"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-                <ToggleButton fx:id="filterManga" text="📖 Manga"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-                <ToggleButton fx:id="filterBook" text="📚 Libros"
-                              onAction="#onFilterChanged"
-                              styleClass="filter-toggle"/>
-            </HBox>
+    <VBox alignment="TOP_CENTER" styleClass="bg-base">
+        <VBox fx:id="favoritesRoot" spacing="24" maxWidth="1304" prefWidth="1304">
+            <padding><Insets top="32" right="32" bottom="64" left="32"/></padding>
         </VBox>
-    </top>
+    </VBox>
 
-    <center>
-        <VBox>
-            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
-
-            <!-- Estado vacío -->
-            <StackPane fx:id="statusPane" VBox.vgrow="ALWAYS">
-                <Label fx:id="statusLabel"
-                       text="Aún no tienes favoritos. ¡Busca algo y dale a la estrella! ⭐"
-                       wrapText="true"
-                       styleClass="text-dim"
-                       style="-fx-font-size: 16px;"/>
-            </StackPane>
-
-            <!-- Grid de carpetas (solo en la raíz) + favoritos -->
-            <ScrollPane fx:id="scrollPane"
-                        fitToWidth="true"
-                        VBox.vgrow="ALWAYS"
-                        visible="false"
-                        managed="false"
-                        styleClass="scroll-pane-transparent">
-                <VBox spacing="20">
-
-                    <!-- Carpetas: solo en la vista raíz, nunca dentro de otra carpeta -->
-                    <VBox fx:id="foldersSection" spacing="10" visible="false" managed="false">
-                        <Label text="Carpetas" styleClass="text-heading"/>
-                        <FlowPane fx:id="foldersGrid" hgap="14" vgap="14"/>
-                    </VBox>
-
-                    <!-- Favoritos sueltos (sin carpeta) en la raíz, o de la carpeta abierta -->
-                    <VBox fx:id="itemsSection" spacing="10">
-                        <Label fx:id="itemsSectionLabel" text="Sin carpeta" styleClass="text-heading"/>
-                        <FlowPane fx:id="resultsGrid" hgap="16" vgap="16">
-                            <padding><Insets top="4" right="4" bottom="4" left="4"/></padding>
-                        </FlowPane>
-                    </VBox>
-
-                </VBox>
-            </ScrollPane>
-
-        </VBox>
-    </center>
-
-</BorderPane>
+</ScrollPane>

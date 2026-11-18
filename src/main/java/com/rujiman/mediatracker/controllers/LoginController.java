@@ -36,12 +36,38 @@ public class LoginController {
     private static final String COLOR_ERROR = "#e74c3c";
     private static final String COLOR_SUCCESS = "#4dec9e";
 
+    @FXML private javafx.scene.layout.GridPane brandMosaic;
+    @FXML private StackPane brandPane;
+
     @FXML
     public void initialize() {
         passwordLoginField.setOnAction(e -> onLogin());
+        usernameLoginField.setOnAction(e -> passwordLoginField.requestFocus());
         confirmPasswordField.setOnAction(e -> onRegister());
         setupButtonHovers();
         showLoginPanel();
+
+        // El mosaico está girado y es más grande que su panel: se recorta
+        // para que no invada la zona del formulario
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle();
+        clip.widthProperty().bind(brandPane.widthProperty());
+        clip.heightProperty().bind(brandPane.heightProperty());
+        brandPane.setClip(clip);
+
+        // El mosaico (texto girado) se dibuja UNA vez como imagen y se mueve
+        // esa imagen: si no, JavaFX redibuja el texto en cada fotograma
+        // ajustándolo a píxeles y las letras "tiemblan".
+        brandMosaic.setCache(true);
+        brandMosaic.setCacheHint(javafx.scene.CacheHint.SPEED);
+
+        // El mosaico de la izquierda flota muy despacio, arriba y abajo
+        javafx.animation.TranslateTransition drift = new javafx.animation.TranslateTransition(Duration.seconds(9), brandMosaic);
+        drift.setFromY(-18);
+        drift.setToY(18);
+        drift.setAutoReverse(true);
+        drift.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        drift.setInterpolator(com.rujiman.mediatracker.ui.Motion.EASE_IN_OUT);
+        drift.play();
     }
 
     // CAMBIAR A REGISTRO
@@ -72,11 +98,6 @@ public class LoginController {
             LoginPanel.setVisible(false);
             RegisterPanel.setVisible(true);
 
-            // ⭐ HACER LA VENTANA UN POCO MÁS GRANDE ⭐
-            Stage stage = (Stage) mainStack.getScene().getWindow();
-            stage.setHeight(670);
-            stage.setWidth(1000);
-            stage.centerOnScreen();
             fadeIn(RegisterPanel, null);
         });
         updateWindowTitle("Mediaverse - Crear cuenta");
@@ -106,6 +127,7 @@ public class LoginController {
         loginErrorLabel.setText(message);
         loginErrorLabel.setStyle("-fx-text-fill: " + COLOR_ERROR + ";");
         loginErrorLabel.setVisible(true);
+        loginErrorLabel.setManaged(true);
     }
 
     // REGISTRO
@@ -165,12 +187,14 @@ public class LoginController {
         registerErrorLabel.setText(message);
         registerErrorLabel.setStyle("-fx-text-fill: " + COLOR_ERROR + ";");
         registerErrorLabel.setVisible(true);
+        registerErrorLabel.setManaged(true);
     }
 
     private void showRegisterSuccess(String message) {
         registerErrorLabel.setText(message);
         registerErrorLabel.setStyle("-fx-text-fill: " + COLOR_SUCCESS + ";");
         registerErrorLabel.setVisible(true);
+        registerErrorLabel.setManaged(true);
     }
 
     // ABRIR SEARCHVIEW
@@ -231,11 +255,9 @@ public class LoginController {
     }
 
     private void fadeIn(VBox vbox, Runnable onFinish) {
-        FadeTransition fade = new FadeTransition(Duration.millis(200), vbox);
-        fade.setFromValue(0);
-        fade.setToValue(1);
-        fade.setOnFinished(e -> { if (onFinish != null) onFinish.run(); });
-        fade.play();
+        // Entrada "estilo Apple": el formulario sube un poco mientras aparece
+        javafx.animation.Animation a = com.rujiman.mediatracker.ui.Motion.enter(vbox);
+        a.setOnFinished(e -> { if (onFinish != null) onFinish.run(); });
     }
 
     // HOVERS

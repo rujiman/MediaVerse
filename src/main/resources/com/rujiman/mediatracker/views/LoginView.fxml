@@ -6,208 +6,121 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 
+<!-- Login / registro (rediseño): pantalla partida.
+     Izquierda: marca + mosaico de "portadas" de cada tipo de contenido
+     (flota suavemente, ver LoginController). Derecha: formulario limpio.
+     Este es el único sitio de la app donde se usa el degradado de marca
+     a lo grande: es la "portada" de MediaVerse. -->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.rujiman.mediatracker.controllers.LoginController"
-            style="-fx-background-color: #100c1c;">
+            styleClass="login-root">
+
+    <left>
+        <StackPane fx:id="brandPane" prefWidth="460" minWidth="460" maxWidth="460" styleClass="login-brand">
+
+            <!-- Mosaico decorativo, girado; cada tarjeta lleva el color de su tipo -->
+            <!-- managed="false": el mosaico es más grande que el panel y no debe
+                 influir en su tamaño (si no, empujaba el texto de marca fuera
+                 de la ventana). Se coloca a mano con layoutX/layoutY. -->
+            <GridPane fx:id="brandMosaic" hgap="14" vgap="14" rotate="-12" opacity="0.9" mouseTransparent="true"
+                      managed="false" layoutX="-30" layoutY="-70">
+                <Label text="JUEGOS"    styleClass="login-tile, login-tile-game"   GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label text="ANIME"     styleClass="login-tile, login-tile-anime"  GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="SERIES"    styleClass="login-tile, login-tile-series" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                <Label text="PELÍCULAS" styleClass="login-tile, login-tile-movie"  GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label text="MÚSICA"    styleClass="login-tile, login-tile-music"  GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="LIBROS"    styleClass="login-tile, login-tile-book"   GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                <Label text="MANGA"     styleClass="login-tile, login-tile-manga"  GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label text="JUEGOS"    styleClass="login-tile, login-tile-game"   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label text="ANIME"     styleClass="login-tile, login-tile-anime"  GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                <Label text="SERIES"    styleClass="login-tile, login-tile-series" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Label text="MANGA"     styleClass="login-tile, login-tile-manga"  GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label text="PELÍCULAS" styleClass="login-tile, login-tile-movie"  GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+            </GridPane>
+
+            <!-- Velo para que el texto de marca se lea sobre el mosaico -->
+            <Region styleClass="login-brand-veil" mouseTransparent="true"/>
+
+            <VBox alignment="BOTTOM_LEFT" spacing="10" StackPane.alignment="BOTTOM_LEFT" maxHeight="Infinity">
+                <padding><Insets top="40" right="40" bottom="44" left="40"/></padding>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ImageView fitWidth="44" fitHeight="44" preserveRatio="true">
+                        <image><Image url="@icons/mediaverse_logo.png"/></image>
+                    </ImageView>
+                    <Label text="Mediaverse" styleClass="login-brand-name"/>
+                </HBox>
+                <Label text="Todo lo que ves, juegas, escuchas y lees. En un solo universo."
+                       wrapText="true" styleClass="login-brand-tagline"/>
+            </VBox>
+        </StackPane>
+    </left>
 
     <center>
-        <StackPane fx:id="mainStack" alignment="CENTER"
-                   style="-fx-background-color: #100c1c;">
+        <StackPane fx:id="mainStack" alignment="CENTER" styleClass="login-root">
 
-            <VBox fx:id="LoginPanel" alignment="CENTER" spacing="30"
-                  style="-fx-background-color: #100c1c;">
-                <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
-
-                <VBox alignment="CENTER" spacing="15">
-                    <ImageView fitWidth="80" fitHeight="80" preserveRatio="true">
-                        <image>
-                            <Image url="@icons/mediaverse_logo.png"/>
-                        </image>
-                    </ImageView>
-                    <!-- "Mediaverse" con el mismo degradado multicolor que
-                         el header/Inicio, en vez del rosa de marca plano. -->
-                    <Label text="Mediaverse"
-                           style="-fx-font-size: 36px; -fx-font-weight: bold;
-                                  -fx-text-fill: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
-                    <Label text="Tu gestor de media favorito"
-                           style="-fx-text-fill: #756f94; -fx-font-size: 14px;"/>
+            <!-- ===================== INICIAR SESIÓN ===================== -->
+            <VBox fx:id="LoginPanel" alignment="CENTER_LEFT" spacing="22" maxWidth="380">
+                <VBox spacing="6">
+                    <Label text="Bienvenido de nuevo" styleClass="login-title"/>
+                    <Label text="Entra para ver tu vitrina y seguir donde lo dejaste." wrapText="true" styleClass="login-subtitle"/>
                 </VBox>
 
-                <VBox alignment="TOP_CENTER" spacing="16" prefWidth="300">
-                    <VBox spacing="8">
-                        <Label text="Usuario"
-                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        <TextField fx:id="usernameLoginField"
-                                   promptText="Ingresa tu usuario"
-                                   style="-fx-background-color: #1c1730;
-                                          -fx-text-fill: #f0eef5;
-                                          -fx-prompt-text-fill: #756f94;
-                                          -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
-                                          -fx-border-width: 2;
-                                          -fx-border-radius: 8;
-                                          -fx-background-radius: 8;
-                                          -fx-padding: 12 16 12 16;
-                                          -fx-font-size: 13px;"/>
-                    </VBox>
-
-                    <VBox spacing="8">
-                        <Label text="Contraseña"
-                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        <PasswordField fx:id="passwordLoginField"
-                                       promptText="Ingresa tu contraseña"
-                                       style="-fx-background-color: #1c1730;
-                                              -fx-text-fill: #f0eef5;
-                                              -fx-prompt-text-fill: #756f94;
-                                              -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
-                                              -fx-border-width: 2;
-                                              -fx-border-radius: 8;
-                                              -fx-background-radius: 8;
-                                              -fx-padding: 12 16 12 16;
-                                              -fx-font-size: 13px;"/>
-                    </VBox>
-
-                    <Label fx:id="loginErrorLabel"
-                           visible="false"
-                           wrapText="true"
-                           style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
-
-                    <Button fx:id="loginButton"
-                            text="Iniciar Sesión"
-                            onAction="#onLogin"
-                            prefWidth="300"
-                            style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-font-size: 14px;
-                                   -fx-padding: 12 20 12 20;
-                                   -fx-background-radius: 8;
-                                   -fx-cursor: hand;"/>
-
-                    <HBox alignment="CENTER" spacing="5">
-                        <Label text="¿No tienes cuenta?"
-                               style="-fx-text-fill: #756f94; -fx-font-size: 11px;"/>
-                        <Button fx:id="switchToRegisterButton"
-                                text="Regístrate aquí"
-                                onAction="#switchToRegister"
-                                style="-fx-background-color: transparent;
-                                       -fx-text-fill: #ec4d80;
-                                       -fx-font-size: 11px;
-                                       -fx-font-weight: bold;
-                                       -fx-underline: true;
-                                       -fx-cursor: hand;
-                                       -fx-padding: 0;"/>
-                    </HBox>
-
+                <VBox spacing="8">
+                    <Label text="Usuario" styleClass="login-label"/>
+                    <TextField fx:id="usernameLoginField" promptText="Tu usuario" styleClass="login-field"/>
                 </VBox>
 
+                <VBox spacing="8">
+                    <Label text="Contraseña" styleClass="login-label"/>
+                    <PasswordField fx:id="passwordLoginField" promptText="Tu contraseña" styleClass="login-field"/>
+                </VBox>
+
+                <Label fx:id="loginErrorLabel" visible="false" managed="false" wrapText="true" styleClass="login-error"/>
+
+                <Button fx:id="loginButton" text="Iniciar sesión" onAction="#onLogin"
+                        maxWidth="Infinity" styleClass="login-primary"/>
+
+                <HBox alignment="CENTER" spacing="6">
+                    <Label text="¿No tienes cuenta?" styleClass="login-subtitle"/>
+                    <Button fx:id="switchToRegisterButton" text="Crear cuenta" onAction="#switchToRegister"
+                            styleClass="login-link"/>
+                </HBox>
             </VBox>
 
-            <VBox fx:id="RegisterPanel" alignment="CENTER" spacing="30"
-                  style="-fx-background-color: #100c1c;"
-                  visible="false">
-                <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
-
-                <VBox alignment="CENTER" spacing="15">
-                    <ImageView fitWidth="80" fitHeight="80" preserveRatio="true">
-                        <image>
-                            <Image url="@icons/mediaverse_logo.png"/>
-                        </image>
-                    </ImageView>
-                    <!-- "Crear Cuenta" con el mismo degradado multicolor -->
-                    <Label text="Crear Cuenta"
-                           style="-fx-font-size: 36px; -fx-font-weight: bold;
-                                  -fx-text-fill: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);"/>
-                    <Label text="Únete a Mediaverse"
-                           style="-fx-text-fill: #756f94; -fx-font-size: 14px;"/>
+            <!-- ===================== CREAR CUENTA ===================== -->
+            <VBox fx:id="RegisterPanel" alignment="CENTER_LEFT" spacing="20" maxWidth="380" visible="false">
+                <VBox spacing="6">
+                    <Label text="Crea tu cuenta" styleClass="login-title"/>
+                    <Label text="Monta tu vitrina y empieza a llevar la cuenta de todo." wrapText="true" styleClass="login-subtitle"/>
                 </VBox>
 
-                <VBox alignment="TOP_CENTER" spacing="16" prefWidth="300">
-                    <VBox spacing="8">
-                        <Label text="Usuario"
-                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        <TextField fx:id="usernameRegisterField"
-                                   promptText="Elige un usuario (3+ caracteres)"
-                                   style="-fx-background-color: #1c1730;
-                                          -fx-text-fill: #f0eef5;
-                                          -fx-prompt-text-fill: #756f94;
-                                          -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
-                                          -fx-border-width: 2;
-                                          -fx-border-radius: 8;
-                                          -fx-background-radius: 8;
-                                          -fx-padding: 12 16 12 16;
-                                          -fx-font-size: 13px;"/>
-                    </VBox>
-
-                    <VBox spacing="8">
-                        <Label text="Contraseña"
-                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        <PasswordField fx:id="passwordRegisterField"
-                                       promptText="Contraseña (4+ caracteres)"
-                                       style="-fx-background-color: #1c1730;
-                                              -fx-text-fill: #f0eef5;
-                                              -fx-prompt-text-fill: #756f94;
-                                              -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
-                                              -fx-border-width: 2;
-                                              -fx-border-radius: 8;
-                                              -fx-background-radius: 8;
-                                              -fx-padding: 12 16 12 16;
-                                              -fx-font-size: 13px;"/>
-                    </VBox>
-
-                    <VBox spacing="8">
-                        <Label text="Confirmar Contraseña"
-                               style="-fx-text-fill: #f0eef5; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        <PasswordField fx:id="confirmPasswordField"
-                                       promptText="Confirma tu contraseña"
-                                       style="-fx-background-color: #1c1730;
-                                              -fx-text-fill: #f0eef5;
-                                              -fx-prompt-text-fill: #756f94;
-                                              -fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
-                                              -fx-border-width: 2;
-                                              -fx-border-radius: 8;
-                                              -fx-background-radius: 8;
-                                              -fx-padding: 12 16 12 16;
-                                              -fx-font-size: 13px;"/>
-                    </VBox>
-
-                    <Label fx:id="registerErrorLabel"
-                           visible="false"
-                           wrapText="true"
-                           style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
-
-                    <Button fx:id="registerButton"
-                            text="Crear Cuenta"
-                            onAction="#onRegister"
-                            prefWidth="300"
-                            style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-font-size: 14px;
-                                   -fx-padding: 12 20 12 20;
-                                   -fx-background-radius: 8;
-                                   -fx-cursor: hand;"/>
-
-                    <HBox alignment="CENTER" spacing="5">
-                        <Label text="¿Ya tienes cuenta?"
-                               style="-fx-text-fill: #756f94; -fx-font-size: 11px;"/>
-                        <Button fx:id="switchToLoginButton"
-                                text="Inicia sesión"
-                                onAction="#switchToLogin"
-                                style="-fx-background-color: transparent;
-                                       -fx-text-fill: #ec4d80;
-                                       -fx-font-size: 11px;
-                                       -fx-font-weight: bold;
-                                       -fx-underline: true;
-                                       -fx-cursor: hand;
-                                       -fx-padding: 0;"/>
-                    </HBox>
-
-
+                <VBox spacing="8">
+                    <Label text="Usuario" styleClass="login-label"/>
+                    <TextField fx:id="usernameRegisterField" promptText="Mínimo 3 caracteres" styleClass="login-field"/>
                 </VBox>
 
+                <VBox spacing="8">
+                    <Label text="Contraseña" styleClass="login-label"/>
+                    <PasswordField fx:id="passwordRegisterField" promptText="Mínimo 4 caracteres" styleClass="login-field"/>
+                </VBox>
+
+                <VBox spacing="8">
+                    <Label text="Confirmar contraseña" styleClass="login-label"/>
+                    <PasswordField fx:id="confirmPasswordField" promptText="Repite la contraseña" styleClass="login-field"/>
+                </VBox>
+
+                <Label fx:id="registerErrorLabel" visible="false" managed="false" wrapText="true" styleClass="login-error"/>
+
+                <Button fx:id="registerButton" text="Crear cuenta" onAction="#onRegister"
+                        maxWidth="Infinity" styleClass="login-primary"/>
+
+                <HBox alignment="CENTER" spacing="6">
+                    <Label text="¿Ya tienes cuenta?" styleClass="login-subtitle"/>
+                    <Button fx:id="switchToLoginButton" text="Iniciar sesión" onAction="#switchToLogin"
+                            styleClass="login-link"/>
+                </HBox>
             </VBox>
-
         </StackPane>
     </center>
 

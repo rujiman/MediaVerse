@@ -213,92 +213,17 @@
 
             <Separator/>
 
-            <Button text="🏠 Inicio"
-                    onAction="#goHome"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav"/>
-
-            <Button text="🔍 Buscar"
-                    onAction="#goSearch"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav"/>
-
-            <Button text="⭐ Favoritos"
-                    onAction="#openFavorites"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav"/>
-
-            <Button text="📋 Pienso ver"
-                    onAction="#openPlanWatch"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-series"/>
-
-            <Button text="🎮 Pienso jugar"
-                    onAction="#openPlanPlay"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-game"/>
-
-            <Button text="🎵 Pienso escuchar"
-                    onAction="#openPlanListen"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-music"/>
-
-            <Button text="📚 Pienso leer"
-                    onAction="#openPlanRead"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-book"/>
-
-            <Separator/>
-
-            <Button text="📺 Series vistas"
-                    onAction="#openWatchedSeries"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-series"/>
-
-            <Button text="▶️ Series viendo"
-                    onAction="#openWatchingSeries"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-series"/>
-
-            <Button text="🎌 Anime vistos"
-                    onAction="#openWatchedAnime"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-anime"/>
-
-            <Button text="🎌 Anime viendo"
-                    onAction="#openWatchingAnime"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-anime"/>
-
-            <Button text="🎬 Películas vistas"
-                    onAction="#openWatchedMovies"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-movie"/>
-
-            <Button text="🎮 Juegos jugados"
-                    onAction="#openGames"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-game"/>
-
-            <Button text="🎵 Música escuchada"
-                    onAction="#openListenedMusic"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-music"/>
-
-            <Button text="📖 Manga leídos"
-                    onAction="#openReadManga"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-manga"/>
-
-            <Button text="📖 Manga leyendo"
-                    onAction="#openReadingManga"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-manga"/>
-
-            <Button text="📚 Libros leídos"
-                    onAction="#openReadBooks"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-nav-book"/>
+            <!-- Menú simplificado (rediseño): 4 entradas. "Mi biblioteca"
+                 sustituye a las 12 entradas antiguas de Pienso…/vistos/viendo.
+                 Los iconos vectoriales se ponen desde SearchController. -->
+            <Button fx:id="navHome" text="Inicio" onAction="#goHome"
+                    maxWidth="Infinity" styleClass="nav-item"/>
+            <Button fx:id="navSearch" text="Buscar" onAction="#goSearch"
+                    maxWidth="Infinity" styleClass="nav-item"/>
+            <Button fx:id="navFavorites" text="Favoritos" onAction="#openFavorites"
+                    maxWidth="Infinity" styleClass="nav-item"/>
+            <Button fx:id="navLibrary" text="Mi biblioteca" onAction="#openLibrary"
+                    maxWidth="Infinity" styleClass="nav-item"/>
 
             <Separator/>
 

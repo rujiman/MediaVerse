@@ -675,7 +675,7 @@ public class HomeController {
     private List<InProgress> collectInProgress(int max) {
         List<InProgress> result = new ArrayList<>();
         java.util.Set<String> seen = new java.util.HashSet<>();
-        MediaType[] types = {MediaType.ANIME, MediaType.SERIES, MediaType.MANGA};
+        MediaType[] types = MediaType.values();
 
         for (MediaType t : types) {
             for (FavoriteItem fav : FavoritesService.getFavoritesByType(t)) {
@@ -694,11 +694,13 @@ public class HomeController {
 
     private void addIfInProgress(List<InProgress> out, java.util.Set<String> seen, String key,
                                  MediaItem item, WatchProgressService.Progress p) {
-        if (seen.contains(key) || p == null || p.viewed || p.watchedEpisodes.isEmpty()) return;
+        if (seen.contains(key) || p == null || p.viewed) return;
         Integer total = p.totalEpisodes != null ? p.totalEpisodes : item.getEpisodes();
-        if (total == null || total <= 0) return;
+        boolean byUnits = !p.watchedEpisodes.isEmpty() && total != null && total > 0;
+        // Por episodios/capítulos, o marcado con "Estoy jugando/viendo/leyendo"
+        if (!byUnits && !p.inProgress) return;
         seen.add(key);
-        out.add(new InProgress(item, p, total));
+        out.add(new InProgress(item, p, byUnits ? total : 0));
     }
 
     private Node buildContinueCard(InProgress p, double width) {
@@ -721,17 +723,27 @@ public class HomeController {
         track.setMaxSize(barW, 6);
         track.setStyle("-fx-background-color: " + LINE + "; -fx-background-radius: 3;");
         Region fill = new Region();
-        fill.setPrefSize(barW * Math.min(1.0, (double) done / p.total()), 6);
-        fill.setMaxSize(barW * Math.min(1.0, (double) done / p.total()), 6);
+        double fraction = p.total() > 0 ? Math.min(1.0, (double) done / p.total()) : 0;
+        fill.setPrefSize(barW * fraction, 6);
+        fill.setMaxSize(barW * fraction, 6);
         fill.setStyle("-fx-background-color: " + accent + "; -fx-background-radius: 3;");
         StackPane bar = new StackPane(track, fill);
         StackPane.setAlignment(fill, Pos.CENTER_LEFT);
         bar.setMaxWidth(barW);
 
         String unit = MediaTypeTheme.unitSingular(type);
-        Label status = new Label(next <= p.total()
-                ? "Siguiente: " + unit.toLowerCase() + " " + next + " de " + p.total()
-                : done + " de " + p.total());
+        boolean byUnits = p.total() > 0;
+        if (!byUnits) {
+            // Sin episodios (juego, peli, libro...): barra llena a medias no
+            // tiene sentido; se muestra solo el estado
+            bar.setVisible(false);
+            bar.setManaged(false);
+        }
+        Label status = new Label(!byUnits
+                ? MediaTypeTheme.inProgressLabel(type)
+                : next <= p.total()
+                    ? "Siguiente: " + unit.toLowerCase() + " " + next + " de " + p.total()
+                    : done + " de " + p.total());
         status.setStyle("-fx-font-size: 12px; -fx-text-fill: " + DIM + ";");
 
         VBox text = new VBox(6, typeLabel, title, bar, status);

@@ -77,6 +77,9 @@
                                     <Button fx:id="primaryActionButton" text="Marcar episodio 1"
                                             visible="false" managed="false" onAction="#onPrimaryAction"/>
                                     <Button fx:id="viewedButton" text="Marcar como visto" onAction="#onToggleViewed"/>
+                                    <!-- "Estoy jugando/viendo/leyendo": pone en curso lo que no va por episodios -->
+                                    <Button fx:id="inProgressButton" text="Estoy jugando" styleClass="btn-secondary"
+                                            visible="false" managed="false" onAction="#onToggleInProgress"/>
                                     <Button fx:id="openExternalButton" text="Abrir en navegador"
                                             styleClass="btn-secondary" onAction="#onOpenExternal"/>
                                     <Button fx:id="trailerButton" text="Ver tráiler"

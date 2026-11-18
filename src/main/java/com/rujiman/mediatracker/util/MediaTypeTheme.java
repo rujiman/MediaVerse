@@ -151,6 +151,29 @@ public final class MediaTypeTheme {
                 : "📺 " + done + "/" + total + " vistos";
     }
 
+    /** Botón/estado de "lo estoy haciendo ahora": "Estoy jugando", "Estoy leyendo"... */
+    public static String inProgressAction(MediaType type) {
+        if (type == null) return "Lo estoy viendo";
+        return switch (type) {
+            case GAME -> "Estoy jugando";
+            case MUSIC -> "Estoy escuchando";
+            case BOOK, MANGA -> "Estoy leyendo";
+            case MOVIE -> "Estoy viéndola";
+            default -> "Estoy viéndolo";
+        };
+    }
+
+    /** Etiqueta corta de estado en curso para tarjetas: "Jugando ahora"... */
+    public static String inProgressLabel(MediaType type) {
+        if (type == null) return "En curso";
+        return switch (type) {
+            case GAME -> "Jugando ahora";
+            case MUSIC -> "Escuchando ahora";
+            case BOOK, MANGA -> "Leyendo ahora";
+            default -> "Viendo ahora";
+        };
+    }
+
     /** Texto del estado "terminado" en tarjetas: "✔ Visto", "✔ Leído"... */
     public static String doneText(MediaType type) {
         if (type == MediaType.GAME)  return "✔ Jugado";

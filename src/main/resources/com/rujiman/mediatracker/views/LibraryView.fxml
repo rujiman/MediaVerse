@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!-- "Mi biblioteca": Pendiente · En curso · Terminado, con filtro por tipo
+     y carpetas. Todo el contenido lo construye LibraryViewController. -->
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.rujiman.mediatracker.controllers.LibraryViewController"
+            fx:id="libraryScroll"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            styleClass="scroll-pane-transparent, bg-base">
+
+    <VBox alignment="TOP_CENTER" styleClass="bg-base">
+        <VBox fx:id="libraryRoot" spacing="24" maxWidth="1304" prefWidth="1304">
+            <padding><Insets top="32" right="32" bottom="64" left="32"/></padding>
+        </VBox>
+    </VBox>
+
+</ScrollPane>

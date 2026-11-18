@@ -93,6 +93,10 @@ public class SearchController {
     @FXML private Label welcomeLabel;
     @FXML private StackPane detailOverlayContainer;
     @FXML private Button backToHomeButton;
+    @FXML private Button navHome;
+    @FXML private Button navSearch;
+    @FXML private Button navFavorites;
+    @FXML private Button navLibrary;
 
     // sideMenu = panel grande de navegación (☰); profileMenu = popup
     // pequeño de "quién soy" (foto/nombre/cambiar usuario-contraseña),
@@ -167,6 +171,12 @@ public class SearchController {
 
         // Permitir buscar pulsando Enter en el campo de texto
         searchField.setOnAction(e -> onSearch());
+
+        // Iconos vectoriales del menú lateral
+        navHome.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.HOME, 18, "#e6e1f5"));
+        navSearch.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.SEARCH, 18, "#e6e1f5"));
+        navFavorites.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 18, "#e6e1f5"));
+        navLibrary.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.LIBRARY, 18, "#e6e1f5"));
 
         // Cargar la Home dentro de su contenedor y mostrarla por defecto
         loadHomeView();
@@ -1150,6 +1160,56 @@ public class SearchController {
         openPlanList(PlanService.ListKind.LISTEN);
     }
 
+    // -------------------------
+    // MI BIBLIOTECA
+    // -------------------------
+
+    /**
+     * Abre "Mi biblioteca" (Pendiente · En curso · Terminado). Recuerda el
+     * último estado, tipo y carpeta, así al volver de un detalle se vuelve
+     * exactamente al mismo sitio.
+     */
+    @FXML
+    private void openLibrary() {
+        if (navMenuOpen) closeNavMenu();
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/LibraryView.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
+            LibraryViewController controller = loader.getController();
+            controller.setOnOpenItem(this::openDetailFromLibrary);
+            openOverlay(root);
+            setWindowTitle("Mediaverse - Mi biblioteca");
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir Mi biblioteca: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /** Detalle abierto desde la biblioteca: "Volver" regresa a la biblioteca. */
+    private void openDetailFromLibrary(MediaItem item, PlanService.ListKind planKind, String planItemId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
+            );
+            javafx.scene.Parent detailRoot = loader.load();
+            DetailViewController controller = loader.getController();
+            controller.setOnBackAction(this::openLibrary);
+            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended,
+                    () -> openDetailFromLibrary(item, planKind, planItemId)));
+            controller.loadItem(item);
+            // Si viene de "Pendiente", el detalle sabe de qué lista es
+            // (para que "Mover a Favoritos" funcione como en las listas de plan)
+            if (planKind != null) controller.setPlanContext(planKind, planItemId);
+            openOverlay(detailRoot);
+            setWindowTitle("Mediaverse - " + item.getTitle());
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir DetailView desde la biblioteca: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     private void openPlanRead() {
         openPlanList(PlanService.ListKind.READ);
@@ -1400,13 +1460,21 @@ public class SearchController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/rujiman/mediatracker/views/LoginView.fxml")
             );
-            Scene scene = new Scene(loader.load(), 800, 600);
+            Scene scene = new Scene(loader.load(),
+                    com.rujiman.mediatracker.ui.WindowSize.loginWidth(),
+                    com.rujiman.mediatracker.ui.WindowSize.loginHeight());
+            // El login rediseñado usa clases de theme.css: hay que cargarla
+            // también en esta Scene nueva (antes tenía estilos en línea)
+            scene.getStylesheets().add(
+                    getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
+            );
+            com.rujiman.mediatracker.ui.Motion.install(scene);
 
             Stage stage = (Stage) searchField.getScene().getWindow();
+            stage.setMaximized(false);
             stage.setScene(scene);
             stage.setTitle("Mediaverse - Iniciar sesión");
-            stage.setWidth(800);
-            stage.setHeight(600);
+            stage.sizeToScene();
             stage.centerOnScreen();
 
         } catch (Exception e) {
