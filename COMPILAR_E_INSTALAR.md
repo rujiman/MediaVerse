@@ -59,11 +59,12 @@ En resumen:
 ```
 MediaVerse/
 ├── src/main/java/com/rujiman/mediatracker/
-│   ├── controllers/     Controladores JavaFX
-│   ├── models/          Modelos de datos
-│   ├── services/        Lógica de negocio y acceso a datos
-│   └── util/            Utilidades (ConfigLoader, etc.)
-├── src/main/resources/  FXML, CSS, imágenes
+│   ├── controllers/     Controladores JavaFX (Inicio, Buscar, Detalle, Favoritos, Mi biblioteca, Login)
+│   ├── models/          Modelos de datos (MediaItem, FavoriteItem, PlanItem…)
+│   ├── services/        APIs, persistencia JSON y actualizaciones (UpdateService)
+│   ├── ui/              Piezas visuales compartidas: Motion, Icons, Fonts, CollectionUI, Dialogs, Palette, Layout
+│   └── util/            AppInfo (versión), ConfigLoader, MediaTypeTheme, TextUtil
+├── src/main/resources/  FXML, CSS (theme.css), fuentes Inter, iconos
 ├── .env.example         Plantilla de configuración
 ├── pom.xml              Dependencias Maven
 └── mediaverse_logo.ico  Icono de la app
@@ -73,12 +74,14 @@ MediaVerse/
 
 ## Versiones futuras
 
-Para sacar una nueva versión:
+Para sacar una nueva versión, sigue la sección **"Publicar una versión"** de [BUILD_EXE.md](./BUILD_EXE.md). Resumen:
 
-1. Actualiza `<version>` en `pom.xml`
+1. Sube la versión en `util/AppInfo.java` (`VERSION`) y en `pom.xml`
 2. Añade las novedades en `CHANGELOG.md`
-3. Ejecuta `mvn clean package` y genera el nuevo portable con `jpackage`
-4. Crea un nuevo Release en GitHub y sube el zip
+3. `mvn clean package` y genera el portable con `jpackage`
+4. Crea una Release en GitHub con la etiqueta `v` + versión (p. ej. `v1.3.0`) y sube **`MediaVerse.jar`** y **`MediaVerse-portable.zip`**
+
+Las apps ya instaladas detectan la Release y se actualizan solas.
 
 ---
 

@@ -1,5 +1,6 @@
 package com.rujiman.mediatracker.controllers;
 
+import com.rujiman.mediatracker.ui.Palette;
 import com.rujiman.mediatracker.services.AuthService;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
@@ -32,9 +33,6 @@ public class LoginController {
     @FXML private Label registerErrorLabel;
     @FXML private Button switchToLoginButton;
 
-    private static final String COLOR_PRIMARY = "#ec4d80";
-    private static final String COLOR_ERROR = "#e74c3c";
-    private static final String COLOR_SUCCESS = "#4dec9e";
 
     @FXML private javafx.scene.layout.GridPane brandMosaic;
     @FXML private StackPane brandPane;
@@ -125,7 +123,7 @@ public class LoginController {
 
     private void showLoginError(String message) {
         loginErrorLabel.setText(message);
-        loginErrorLabel.setStyle("-fx-text-fill: " + COLOR_ERROR + ";");
+        loginErrorLabel.setStyle("-fx-text-fill: " + Palette.ERROR + ";");
         loginErrorLabel.setVisible(true);
         loginErrorLabel.setManaged(true);
     }
@@ -185,14 +183,14 @@ public class LoginController {
 
     private void showRegisterError(String message) {
         registerErrorLabel.setText(message);
-        registerErrorLabel.setStyle("-fx-text-fill: " + COLOR_ERROR + ";");
+        registerErrorLabel.setStyle("-fx-text-fill: " + Palette.ERROR + ";");
         registerErrorLabel.setVisible(true);
         registerErrorLabel.setManaged(true);
     }
 
     private void showRegisterSuccess(String message) {
         registerErrorLabel.setText(message);
-        registerErrorLabel.setStyle("-fx-text-fill: " + COLOR_SUCCESS + ";");
+        registerErrorLabel.setStyle("-fx-text-fill: " + Palette.SUCCESS + ";");
         registerErrorLabel.setVisible(true);
         registerErrorLabel.setManaged(true);
     }

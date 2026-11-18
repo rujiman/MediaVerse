@@ -6,8 +6,9 @@ MediaVerse necesita claves de dos servicios externos para funcionar. Ambos son *
 |-----|-------------|-----|
 | TMDB | ✅ Sí | Series, películas, plataformas de streaming |
 | IGDB | ✅ Sí | Videojuegos |
-| AniList | ❌ No | Anime (sin configuración, funciona solo) |
+| AniList | ❌ No | Anime y manga (sin configuración, funciona solo) |
 | Deezer | ❌ No | Música (sin configuración, funciona solo) |
+| Google Books | ❌ Opcional | Libros con sinopsis (sin clave se usa Open Library) |
 
 ---
 
@@ -57,6 +58,21 @@ IGDB_CLIENT_SECRET=tu_client_secret
 
 ---
 
+## 📚 Google Books — Libros (opcional)
+
+Sin clave, los libros salen de **Open Library** (gratis, sin registro, pero sin sinopsis). Google Books sin clave **no funciona** (su cupo anónimo es 0). Si quieres sinopsis:
+
+1. Entra en [Google Cloud Console](https://console.cloud.google.com/apis/library/books.googleapis.com) y crea un proyecto
+2. Activa **Books API**
+3. En **Credenciales**, crea una **Clave de API**
+
+Pégala en tu `.env`:
+```
+GOOGLE_BOOKS_API_KEY=tu_clave
+```
+
+---
+
 ## Fichero `.env` completo
 
 ```ini
@@ -66,6 +82,9 @@ TMDB_API_KEY=
 # IGDB — Videojuegos (obligatorio)
 IGDB_CLIENT_ID=
 IGDB_CLIENT_SECRET=
+
+# Google Books — Libros con sinopsis (opcional)
+GOOGLE_BOOKS_API_KEY=
 ```
 
 Reglas importantes al editar el fichero:
@@ -87,6 +106,7 @@ Para comprobar cada API:
 - **Juegos**: busca "Elden Ring" → deben aparecer resultados
 - **Anime**: busca "Naruto" → deben aparecer resultados (sin configuración)
 - **Música**: busca "Bohemian Rhapsody" → deben aparecer resultados (sin configuración)
+- **Manga y libros**: busca "Berserk" o "Harry Potter" y usa los filtros *Manga* / *Libros*
 
 ---
 

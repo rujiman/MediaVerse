@@ -1,5 +1,9 @@
 package com.rujiman.mediatracker.controllers;
 
+import com.rujiman.mediatracker.ui.CollectionUI;
+import com.rujiman.mediatracker.ui.Dialogs;
+import com.rujiman.mediatracker.ui.Palette;
+import com.rujiman.mediatracker.ui.Layout;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
@@ -170,11 +174,6 @@ public class DetailViewController {
         }
     }
 
-    private static final String COLOR_PRIMARY = "#ec4d80";
-    private static final String COLOR_BG_CARD = "#1c1730";
-    private static final String COLOR_TEXT = "#f0eef5";
-    private static final String COLOR_TEXT_DIM = "#756f94";
-    private static final String COLOR_GREEN = "#4dec9e";
 
     /**
      * Devuelve el hex de acento de la sección del item, según la paleta
@@ -185,23 +184,19 @@ public class DetailViewController {
      */
     /** @deprecated Usar {@link MediaTypeTheme#accentHex(MediaType)} directamente. */
     @Deprecated
-    private String sectionAccentHex(MediaType type) {
-        return MediaTypeTheme.accentHex(type);
-    }
-
     /**
      * Banda superior: fondo = color del tipo mezclado con el fondo de la app,
      * badge del tipo, botón "Volver" con icono y póster desenfocado detrás.
      */
     private void styleHero(MediaItem item) {
-        String accent = sectionAccentHex(item.getType());
-        Color tint = Color.web("#100c1c").interpolate(Color.web(accent), 0.16);
+        String accent = MediaTypeTheme.accentHex(item.getType());
+        Color tint = Color.web(Palette.BG).interpolate(Color.web(accent), 0.16);
         heroBand.setStyle("-fx-background-color: " + toHex(tint) + ";");
 
         typeBadge.setText(MediaTypeTheme.label(item.getType()).toUpperCase());
-        typeBadge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: #120c1c;");
+        typeBadge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: " + Palette.ON_ACCENT + ";");
 
-        backButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.BACK, 18, "#e6e1f5"));
+        backButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.BACK, 18, Palette.TEXT_SOFT));
         backButton.setGraphicTextGap(4);
 
         // Fondo: el póster muy desenfocado y oscurecido, a todo el ancho
@@ -228,16 +223,6 @@ public class DetailViewController {
                 (int) Math.round(c.getRed() * 255), (int) Math.round(c.getGreen() * 255), (int) Math.round(c.getBlue() * 255));
     }
 
-    /** Recorta la imagen al centro para rellenar w×h sin deformarse (object-fit: cover). */
-    private void cropToFill(ImageView view, Image img, double w, double h) {
-        double iw = img.getWidth(), ih = img.getHeight();
-        if (iw <= 0 || ih <= 0) return;
-        double target = w / h;
-        double cw = iw, ch = iw / target;
-        if (ch > ih) { ch = ih; cw = ih * target; }
-        view.setViewport(new javafx.geometry.Rectangle2D((iw - cw) / 2, (ih - ch) / 2, cw, ch));
-    }
-
     private void fadeTo(javafx.scene.Node n, double to) {
         FadeTransition f = new FadeTransition(com.rujiman.mediatracker.ui.Motion.BASE, n);
         f.setToValue(to);
@@ -247,15 +232,15 @@ public class DetailViewController {
 
     /** Estilo del botón de acción principal: relleno del color del tipo. */
     private String primaryStyle(MediaType type) {
-        return "-fx-background-color: " + sectionAccentHex(type) + "; -fx-text-fill: #120c1c;"
+        return "-fx-background-color: " + MediaTypeTheme.accentHex(type) + "; -fx-text-fill: " + Palette.ON_ACCENT + ";"
                 + "-fx-font-family: 'Inter ExtraBold'; -fx-font-size: 15px; -fx-background-radius: 14;"
                 + "-fx-padding: 0 22; -fx-min-height: 48; -fx-cursor: hand;";
     }
 
     @FXML
     public void initialize() {
-        detailScroll.setStyle("-fx-background-color: #100c1c;");
-        detailContainer.setStyle("-fx-background-color: #100c1c;");
+        detailScroll.setStyle("-fx-background-color: " + Palette.BG + ";");
+        detailContainer.setStyle("-fx-background-color: " + Palette.BG + ";");
 
         // El viewport interno del ScrollPane no hereda el color de fondo por
         // CSS normal, y su Skin no existe hasta que el nodo está realmente
@@ -263,29 +248,7 @@ public class DetailViewController {
         // ejecutarse antes de que el Skin se construya. En su lugar, forzamos
         // el estilo cada vez que cambia el Skin (se dispara de forma fiable
         // en cuanto el ScrollPane es renderizable).
-        detailScroll.skinProperty().addListener((obs, oldSkin, newSkin) -> {
-            if (newSkin != null) {
-                applyViewportBackground();
-            }
-        });
-
-        // Por si el Skin ya existía en el momento de inicializar (poco común,
-        // pero cubre ese caso también)
-        if (detailScroll.getSkin() != null) {
-            applyViewportBackground();
-        }
-    }
-
-    /**
-     * Fuerza el fondo oscuro en el viewport interno del ScrollPane,
-     * evitando el hueco blanco/gris por defecto cuando el contenido
-     * es más corto que el área visible.
-     */
-    private void applyViewportBackground() {
-        javafx.scene.Node viewport = detailScroll.lookup(".viewport");
-        if (viewport != null) {
-            viewport.setStyle("-fx-background-color: #100c1c;");
-        }
+        CollectionUI.darkViewport(detailScroll);
     }
 
     /**
@@ -320,7 +283,7 @@ public class DetailViewController {
                 detailImage.setImage(img);
                 heroBackdrop.setImage(img);
                 Runnable onLoaded = () -> {
-                    cropToFill(detailImage, img, 240, 360);
+                    CollectionUI.cropToFill(detailImage, img, 240, 360);
                     fadeTo(detailImage, 1);
                     fadeTo(heroBackdrop, 0.45);
                 };
@@ -352,7 +315,7 @@ public class DetailViewController {
         // Se limpia cualquier resto de HTML (<br>, <i>, &quot;...) que traiga la API
         String description = com.rujiman.mediatracker.util.TextUtil.cleanHtml(item.getDescription());
         detailDescription.setText(description != null && !description.isBlank() ? description : "Sin descripción.");
-        descriptionHeaderLabel.setStyle("-fx-text-fill: " + sectionAccentHex(item.getType()) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
+        descriptionHeaderLabel.setStyle("-fx-text-fill: " + MediaTypeTheme.accentHex(item.getType()) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         // Géneros: un chip individual por cada género, en vez de texto
         // plano separado por comas (más legible y más bonito).
@@ -448,7 +411,7 @@ public class DetailViewController {
      */
     private void renderPlatformsLoading() {
         detailPlatforms.setText("Plataformas: buscando...");
-        detailPlatforms.setStyle("-fx-text-fill: " + COLOR_TEXT_DIM + ";");
+        detailPlatforms.setStyle("-fx-text-fill: " + Palette.DIM + ";");
         detailPlatforms.setVisible(true);
     }
 
@@ -528,7 +491,7 @@ public class DetailViewController {
         trailerButton.setVisible(canHaveTrailer);
         trailerButton.setManaged(canHaveTrailer);
         trailerButton.setText("Ver tráiler");
-        trailerButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.PLAY, 16, "#f0eef5"));
+        trailerButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.PLAY, 16, Palette.TEXT));
         trailerButton.setGraphicTextGap(8);
         trailerButton.setDisable(false);
     }
@@ -936,7 +899,7 @@ public class DetailViewController {
             star.setStyle(
                     "-fx-font-size: 22px;" +
                             // Estrellas del color de la categoría (ámbar solo en películas)
-                            "-fx-text-fill: " + (starValue <= rating ? sectionAccentHex(item.getType()) : "#4a4170") + ";" +
+                            "-fx-text-fill: " + (starValue <= rating ? MediaTypeTheme.accentHex(item.getType()) : "#4a4170") + ";" +
                             "-fx-cursor: hand;"
             );
 
@@ -980,7 +943,7 @@ public class DetailViewController {
             // ANIME/SERIES: episodios. MANGA: capítulos (mismo sistema).
             jumpToEpisodeLabel.setText(type == MediaType.MANGA
                     ? "Ya he leído hasta el capítulo" : "Ya he visto hasta el episodio");
-            episodesHeaderLabel.setStyle("-fx-text-fill: " + sectionAccentHex(type) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
+            episodesHeaderLabel.setStyle("-fx-text-fill: " + MediaTypeTheme.accentHex(type) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
 
             Integer total = item.getEpisodes();
             if (total != null && total > 0) {
@@ -1061,7 +1024,7 @@ public class DetailViewController {
     private void buildEpisodesList(int totalEpisodes) {
         episodesList.getChildren().clear();
         MediaType type = currentItem.getType();
-        String accent = sectionAccentHex(type);
+        String accent = MediaTypeTheme.accentHex(type);
         WatchProgressService.Progress progress = WatchProgressService.getProgress(WatchProgressService.keyFor(type, currentItem.getTitle()));
         episodesHeaderLabel.setText(MediaTypeTheme.unitPlural(type) + " (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
 
@@ -1081,8 +1044,8 @@ public class DetailViewController {
                 Button tab = new Button(from + "–" + to);
                 boolean active = bIdx == episodeBlock;
                 tab.setStyle("-fx-background-radius: 999; -fx-padding: 6 14; -fx-font-size: 13px; -fx-cursor: hand;"
-                        + (active ? "-fx-background-color: #f0eef5; -fx-text-fill: #120c1c; -fx-font-family: 'Inter SemiBold';"
-                                  : "-fx-background-color: transparent; -fx-border-color: #3a3160; -fx-border-radius: 999; -fx-text-fill: #e6e1f5;"));
+                        + (active ? "-fx-background-color: " + Palette.TEXT + "; -fx-text-fill: " + Palette.ON_ACCENT + "; -fx-font-family: 'Inter SemiBold';"
+                                  : "-fx-background-color: transparent; -fx-border-color: " + Palette.LINE_STRONG + "; -fx-border-radius: 999; -fx-text-fill: " + Palette.TEXT_SOFT + ";"));
                 tab.setOnAction(e -> {
                     episodeBlock = block;
                     buildEpisodesList(totalEpisodes);
@@ -1103,8 +1066,8 @@ public class DetailViewController {
             ep.setMinSize(56, 44);
             ep.setPrefSize(56, 44);
             ep.setStyle("-fx-background-radius: 12; -fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"
-                    + (watched ? "-fx-background-color: " + accent + "; -fx-text-fill: #120c1c;"
-                               : "-fx-background-color: #1a1530; -fx-border-color: #2a2347; -fx-border-radius: 12; -fx-text-fill: #f0eef5;"));
+                    + (watched ? "-fx-background-color: " + accent + "; -fx-text-fill: " + Palette.ON_ACCENT + ";"
+                               : "-fx-background-color: " + Palette.PANEL + "; -fx-border-color: " + Palette.LINE + "; -fx-border-radius: 12; -fx-text-fill: " + Palette.TEXT + ";"));
             ep.setTooltip(new Tooltip(MediaTypeTheme.unitSingular(type) + " " + i
                     + (watched ? " · marcado" : "") + "\nMayús + clic: marcar hasta aquí"));
             // Clic normal: marcar/desmarcar este episodio
@@ -1239,7 +1202,7 @@ public class DetailViewController {
      */
     private void checkIfFavorite() {
         boolean isFav = FavoritesService.isFavorite(currentItem.getTitle(), currentItem.getType());
-        String accentHex = sectionAccentHex(currentItem.getType());
+        String accentHex = MediaTypeTheme.accentHex(currentItem.getType());
 
         if (isFav) {
             // Buscar el favorito para saber su estado
@@ -1258,7 +1221,7 @@ public class DetailViewController {
         } else {
             currentFavorite = null;
             favoriteButton.setText(null);
-            favoriteButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 20, "#f0eef5"));
+            favoriteButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 20, Palette.TEXT));
             favoriteButton.setTooltip(new Tooltip("Añadir a favoritos"));
         }
     }
@@ -1313,13 +1276,13 @@ public class DetailViewController {
         PlanService.ListKind kind = listKindForType(item.getType());
         boolean inPlan = PlanService.isInPlan(kind, item.getTitle());
 
-        String accent = sectionAccentHex(item.getType());
+        String accent = MediaTypeTheme.accentHex(item.getType());
         planButton.setText(null);
         if (inPlan) {
             planButton.setGraphic(com.rujiman.mediatracker.ui.Icons.filled(com.rujiman.mediatracker.ui.Icons.BOOKMARK, 20, accent));
             planButton.setTooltip(new Tooltip("Quitar de \"" + planButtonLabelFor(item.getType()) + "\""));
         } else {
-            planButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.BOOKMARK, 20, "#f0eef5"));
+            planButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.BOOKMARK, 20, Palette.TEXT));
             planButton.setTooltip(new Tooltip(capitalize(planButtonLabelFor(item.getType()))));
         }
     }
@@ -1414,7 +1377,7 @@ public class DetailViewController {
             // Hecho: pasa a secundario con un check del color del tipo
             viewedButton.setText(MediaTypeTheme.doneText(currentItem.getType()).replace("✔ ", ""));
             viewedButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CHECK, 16,
-                    sectionAccentHex(currentItem.getType())));
+                    MediaTypeTheme.accentHex(currentItem.getType())));
             viewedButton.setGraphicTextGap(8);
             viewedButton.setStyle(null);
             viewedButton.getStyleClass().add("btn-secondary");
@@ -1444,11 +1407,11 @@ public class DetailViewController {
         if (!show) return;
 
         boolean active = WatchProgressService.isInProgress(key);
-        String accent = sectionAccentHex(currentItem.getType());
+        String accent = MediaTypeTheme.accentHex(currentItem.getType());
         inProgressButton.setText(MediaTypeTheme.inProgressAction(currentItem.getType()));
         inProgressButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(
                 active ? com.rujiman.mediatracker.ui.Icons.CHECK : com.rujiman.mediatracker.ui.Icons.PLAY, 16,
-                active ? accent : "#f0eef5"));
+                active ? accent : Palette.TEXT));
         inProgressButton.setGraphicTextGap(8);
         inProgressButton.setStyle(active
                 ? "-fx-border-color: " + accent + "; -fx-background-color: " + accent + "26;"
@@ -1511,7 +1474,7 @@ public class DetailViewController {
             primaryActionButton.setStyle(primaryStyle(type));
         } else {
             primaryActionButton.setText("Completado");
-            primaryActionButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CHECK, 16, sectionAccentHex(type)));
+            primaryActionButton.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CHECK, 16, MediaTypeTheme.accentHex(type)));
             primaryActionButton.setGraphicTextGap(8);
             primaryActionButton.setStyle(null);
             if (!primaryActionButton.getStyleClass().contains("btn-secondary")) primaryActionButton.getStyleClass().add("btn-secondary");
@@ -1520,7 +1483,7 @@ public class DetailViewController {
         WatchProgressService.Progress p = WatchProgressService.getProgress(WatchProgressService.keyFor(type, currentItem.getTitle()));
         int done = p.watchedEpisodes.size();
         progressCountLabel.setText(done + " de " + total + " " + MediaTypeTheme.unitPlural(type).toLowerCase());
-        progressFill.setStyle("-fx-background-color: " + sectionAccentHex(type) + ";");
+        progressFill.setStyle("-fx-background-color: " + MediaTypeTheme.accentHex(type) + ";");
         double width = progressTrack.getPrefWidth() * Math.min(1.0, (double) done / total);
         javafx.animation.Timeline grow = new javafx.animation.Timeline(new javafx.animation.KeyFrame(
                 com.rujiman.mediatracker.ui.Motion.SLOW,
@@ -1648,8 +1611,8 @@ public class DetailViewController {
         dialog.setTitle("Abrir plataforma");
         dialog.setHeaderText(null);
         dialog.setContentText("¿Dónde quieres buscar \"" + currentItem.getTitle() + "\"?");
-        styleDialogDark(dialog.getDialogPane());
-        darkenDialogWindow(dialog.getDialogPane());
+        Dialogs.styleDark(dialog.getDialogPane());
+        Dialogs.darkenWindow(dialog.getDialogPane());
 
         dialog.showAndWait().ifPresent(selection -> openExternalUrlDirect(options.get(selection)));
     }
@@ -1664,53 +1627,4 @@ public class DetailViewController {
         }
     }
 
-    /**
-     * Mismo estilo oscuro ("Constelaciones") usado en los diálogos de
-     * carpetas (FavoritesViewController/WatchlistViewController). No es
-     * un helper compartido en una clase de utilidades común: se duplica
-     * aquí igual que en esos controllers.
-     */
-    private void styleDialogDark(DialogPane pane) {
-        pane.getStylesheets().add(
-                getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm()
-        );
-        pane.getStyleClass().add("bg-panel-flat");
-        pane.setStyle("-fx-background-color: #1c1730; -fx-text-fill: #f0eef5;");
-        pane.applyCss();
-
-        javafx.scene.Node headerPanel = pane.lookup(".header-panel");
-        if (headerPanel != null) {
-            headerPanel.setStyle("-fx-background-color: #1c1730;");
-        } else {
-            Platform.runLater(() -> {
-                javafx.scene.Node hp = pane.lookup(".header-panel");
-                if (hp != null) hp.setStyle("-fx-background-color: #1c1730;");
-            });
-        }
-
-        forceLabelColorRecursive(pane, "#f0eef5");
-    }
-
-    private void forceLabelColorRecursive(javafx.scene.Parent parent, String hexColor) {
-        for (javafx.scene.Node node : parent.getChildrenUnmodifiable()) {
-            if (node instanceof Label label) {
-                label.setStyle("-fx-text-fill: " + hexColor + ";");
-            }
-            if (node instanceof javafx.scene.Parent childParent) {
-                forceLabelColorRecursive(childParent, hexColor);
-            }
-        }
-    }
-
-    private void darkenDialogWindow(DialogPane pane) {
-        if (pane.getScene() != null) {
-            pane.getScene().setFill(Color.web("#100c1c"));
-        } else {
-            pane.sceneProperty().addListener((obs, oldScene, newScene) -> {
-                if (newScene != null) {
-                    newScene.setFill(Color.web("#100c1c"));
-                }
-            });
-        }
-    }
 }

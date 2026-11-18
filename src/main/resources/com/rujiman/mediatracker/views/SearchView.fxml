@@ -76,6 +76,10 @@
 
                 <HBox HBox.hgrow="ALWAYS"/>
 
+                <!-- Aviso de actualización: solo aparece si GitHub tiene una versión nueva -->
+                <Button fx:id="updateButton" text="Actualizar" visible="false" managed="false"
+                        onAction="#onUpdate" styleClass="update-pill"/>
+
                 <StackPane fx:id="profileIconContainer"
                            prefWidth="32" prefHeight="32"
                            maxWidth="32" maxHeight="32"
@@ -242,7 +246,7 @@
                       -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
                       -fx-background-radius: 12;"
                prefWidth="220" maxWidth="220"
-               prefHeight="340" maxHeight="340"
+               prefHeight="400" maxHeight="400"
                StackPane.alignment="TOP_RIGHT">
         <StackPane.margin><Insets top="64" right="20"/></StackPane.margin>
 
@@ -282,6 +286,14 @@
                     maxWidth="Infinity"
                     styleClass="btn-flat-brand"
                     style="-fx-font-size: 12px;"/>
+
+            <Button text="Buscar actualizaciones"
+                    onAction="#onCheckUpdates"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"
+                    style="-fx-font-size: 12px;"/>
+
+            <Label fx:id="versionLabel" text="MediaVerse" styleClass="text-dim"/>
 
             <Separator/>
 

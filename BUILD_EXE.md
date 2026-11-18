@@ -53,6 +53,7 @@ Copy-Item target\MediaVerse.jar input-clean\
   --main-jar MediaVerse.jar `
   --main-class com.rujiman.mediatracker.Main `
   --name MediaVerse `
+  --app-version 1.2.0 `
   --type app-image `
   --icon mediaverse_logo.ico `
   --module-path "C:\javafx\javafx-jmods-25" `
@@ -93,6 +94,26 @@ Compress-Archive -Path dist\MediaVerse -DestinationPath MediaVerse-portable.zip
 ```
 
 Sube `MediaVerse-portable.zip` a GitHub Releases. El usuario lo descarga, descomprime, pone su `.env` en `app\` y ejecuta `MediaVerse.exe`. No necesita instalar nada.
+
+---
+
+## Paso 7: Publicar una versión (con actualización automática)
+
+Desde la 1.2, las apps instaladas se actualizan solas leyendo la **última Release** de GitHub. Para que funcione:
+
+1. **Sube la versión** en `src/main/java/com/rujiman/mediatracker/util/AppInfo.java` (`VERSION = "1.3.0"`) y en `pom.xml`. **Antes** de compilar.
+2. Compila y genera el portable (pasos 2 a 6).
+3. En GitHub → **Releases → Draft a new release**:
+   - **Tag**: `v1.3.0` (la `v` + la misma versión que `AppInfo.VERSION`)
+   - **Notas**: las novedades (las verá el usuario en el aviso de actualización)
+   - **Archivos**, con estos nombres EXACTOS:
+     - `MediaVerse.jar` → el de `target\` (lo descarga el actualizador, ~45 MB)
+     - `MediaVerse-portable.zip` → para instalaciones nuevas
+4. Publica la Release. Las apps la detectarán al abrirse y mostrarán **"Actualizar a 1.3.0"**.
+
+**¿Cuándo hace falta reinstalar en vez de actualizar?** Si cambias la versión de Java o JavaFX (el `runtime\` cambia y no basta con el jar). En ese caso escribe `[instalación completa]` en las notas de la Release: la app abrirá la página de descarga en vez de actualizarse sola.
+
+**Enlace fijo para la web de descarga:** `https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-portable.zip` siempre apunta al zip de la última versión.
 
 ---
 

@@ -1,5 +1,8 @@
 package com.rujiman.mediatracker.controllers;
 
+import com.rujiman.mediatracker.ui.Dialogs;
+import com.rujiman.mediatracker.ui.Palette;
+import com.rujiman.mediatracker.ui.Layout;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
@@ -48,9 +51,9 @@ public class FavoritesViewController {
     @FXML private ScrollPane favoritesScroll;
     @FXML private VBox favoritesRoot;
 
-    private static final double PAGE_W = 1240;
-    private static final double CARD_W = 176, POSTER_H = 264;
-    private static final String TEXT = "#f0eef5", DIM = "#a59fc0", PANEL = "#1a1530", LINE = "#2a2347";
+    private static final double PAGE_W = Layout.PAGE_W;
+    private static final double CARD_W = Layout.CARD_W, POSTER_H = Layout.POSTER_H;
+    private static final String TEXT = Palette.TEXT, DIM = Palette.DIM, PANEL = Palette.PANEL, LINE = Palette.LINE;
 
     // Se recuerda el filtro y la carpeta al volver de un detalle
     private static MediaType typeFilter = null;
@@ -68,12 +71,7 @@ public class FavoritesViewController {
 
     @FXML
     public void initialize() {
-        favoritesScroll.skinProperty().addListener((o, a, b) -> {
-            if (b != null) {
-                Node viewport = favoritesScroll.lookup(".viewport");
-                if (viewport != null) viewport.setStyle("-fx-background-color: #100c1c;");
-            }
-        });
+        CollectionUI.darkViewport(favoritesScroll);
         loadFavorites();
     }
 
@@ -153,10 +151,10 @@ public class FavoritesViewController {
 
     private Node buildTypeChips() {
         FlowPane chips = new FlowPane(8, 8);
-        chips.getChildren().add(typeChip(null, "Todo", "#f0eef5"));
+        chips.getChildren().add(typeChip(null, "Todo", Palette.TEXT));
         for (MediaType t : new MediaType[]{MediaType.GAME, MediaType.ANIME, MediaType.SERIES, MediaType.MOVIE,
                 MediaType.MUSIC, MediaType.BOOK, MediaType.MANGA}) {
-            chips.getChildren().add(typeChip(t, plural(t), MediaTypeTheme.accentHex(t)));
+            chips.getChildren().add(typeChip(t, MediaTypeTheme.plural(t), MediaTypeTheme.accentHex(t)));
         }
         return chips;
     }
@@ -164,12 +162,12 @@ public class FavoritesViewController {
     private Node typeChip(MediaType t, String label, String dot) {
         boolean active = typeFilter == t;
         Button chip = new Button(label);
-        chip.setGraphic(new Circle(4, javafx.scene.paint.Color.web(active && t == null ? "#120c1c" : dot)));
+        chip.setGraphic(new Circle(4, javafx.scene.paint.Color.web(active && t == null ? Palette.ON_ACCENT : dot)));
         chip.setGraphicTextGap(8);
         chip.setStyle("-fx-background-radius: 999; -fx-border-radius: 999; -fx-min-height: 36; -fx-padding: 0 14;"
                 + "-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-cursor: hand;"
-                + (active ? "-fx-background-color: #f0eef5; -fx-text-fill: #120c1c; -fx-border-color: #f0eef5;"
-                          : "-fx-background-color: transparent; -fx-text-fill: #e6e1f5; -fx-border-color: #3a3160;"));
+                + (active ? "-fx-background-color: " + Palette.TEXT + "; -fx-text-fill: " + Palette.ON_ACCENT + "; -fx-border-color: " + Palette.TEXT + ";"
+                          : "-fx-background-color: transparent; -fx-text-fill: " + Palette.TEXT_SOFT + "; -fx-border-color: " + Palette.LINE_STRONG + ";"));
         chip.setOnAction(e -> {
             typeFilter = t;
             refresh();
@@ -179,7 +177,7 @@ public class FavoritesViewController {
 
     private Node buildBreadcrumb(PlanFolder folder) {
         Button back = new Button("Favoritos");
-        back.setGraphic(Icons.of(Icons.BACK, 16, "#e6e1f5"));
+        back.setGraphic(Icons.of(Icons.BACK, 16, Palette.TEXT_SOFT));
         back.getStyleClass().add("btn-ghost");
         back.setOnAction(e -> {
             currentFolderId = null;
@@ -224,7 +222,7 @@ public class FavoritesViewController {
         box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(48));
         box.setMaxWidth(PAGE_W);
-        box.setStyle("-fx-border-color: #3a3160; -fx-border-style: segments(6, 4); -fx-border-radius: 20;");
+        box.setStyle("-fx-border-color: " + Palette.LINE_STRONG + "; -fx-border-style: segments(6, 4); -fx-border-radius: 20;");
         return box;
     }
 
@@ -239,7 +237,7 @@ public class FavoritesViewController {
         StackPane posterBox = CollectionUI.poster(fav.getImageUrl(), CARD_W, POSTER_H, accent, 16, false);
 
         Label badge = new Label(MediaTypeTheme.label(type).toUpperCase());
-        badge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: #120c1c; -fx-background-radius: 999;"
+        badge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: " + Palette.ON_ACCENT + "; -fx-background-radius: 999;"
                 + "-fx-padding: 3 10; -fx-font-family: 'Inter ExtraBold'; -fx-font-size: 10px;");
         StackPane.setAlignment(badge, Pos.TOP_LEFT);
         StackPane.setMargin(badge, new Insets(10));
@@ -319,9 +317,9 @@ public class FavoritesViewController {
         alert.setContentText("¿Quitar \"" + fav.getTitle() + "\" de favoritos?\nTu progreso y tu nota se conservan.");
         DialogPane pane = alert.getDialogPane();
         pane.getStylesheets().add(getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm());
-        pane.setStyle("-fx-background-color: #1c1730;");
-        pane.lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: #f0eef5;"));
-        pane.sceneProperty().addListener((o, a, s) -> { if (s != null) s.setFill(javafx.scene.paint.Color.web("#100c1c")); });
+        pane.setStyle("-fx-background-color: " + Palette.PANEL_ALT + ";");
+        pane.lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: " + Palette.TEXT + ";"));
+        pane.sceneProperty().addListener((o, a, s) -> { if (s != null) s.setFill(javafx.scene.paint.Color.web(Palette.BG)); });
         alert.showAndWait().ifPresent(b -> {
             if (b == ButtonType.OK) {
                 FavoritesService.removeFavorite(fav.getId());
@@ -351,7 +349,7 @@ public class FavoritesViewController {
             } else {
                 Region empty = new Region();
                 empty.setMinSize(cell, cell);
-                empty.setStyle("-fx-background-color: #241d3d; -fx-background-radius: 10;");
+                empty.setStyle("-fx-background-color: " + Palette.PANEL_3 + "; -fx-background-radius: 10;");
                 tile = empty;
             }
             collage.add(tile, i % 2, i / 2);
@@ -365,7 +363,7 @@ public class FavoritesViewController {
         Button more = new Button();
         more.setGraphic(Icons.of(Icons.EDIT, 14, TEXT));
         more.setTooltip(new Tooltip("Renombrar o eliminar"));
-        more.setStyle("-fx-background-color: #241d3d; -fx-background-radius: 8; -fx-min-width: 30; -fx-min-height: 30; -fx-cursor: hand;");
+        more.setStyle("-fx-background-color: " + Palette.PANEL_3 + "; -fx-background-radius: 8; -fx-min-width: 30; -fx-min-height: 30; -fx-cursor: hand;");
         more.setOnAction(e -> showFolderOptions(more, folder));
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -396,7 +394,7 @@ public class FavoritesViewController {
             e.consume();
         });
         target.setOnDragEntered(e -> {
-            if (draggedId != null) target.setStyle(base + "-fx-border-color: #ec4d80; -fx-border-width: 2;");
+            if (draggedId != null) target.setStyle(base + "-fx-border-color: " + Palette.BRAND + "; -fx-border-width: 2;");
         });
         target.setOnDragExited(e -> target.setStyle(base));
         target.setOnDragDropped(e -> {
@@ -470,15 +468,4 @@ public class FavoritesViewController {
         return null;
     }
 
-    private String plural(MediaType t) {
-        return switch (t) {
-            case GAME -> "Juegos";
-            case SERIES -> "Series";
-            case ANIME -> "Anime";
-            case MUSIC -> "Música";
-            case MOVIE -> "Películas";
-            case BOOK -> "Libros";
-            case MANGA -> "Manga";
-        };
-    }
 }

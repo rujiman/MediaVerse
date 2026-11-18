@@ -1,5 +1,9 @@
 package com.rujiman.mediatracker.controllers;
 
+import com.rujiman.mediatracker.ui.CollectionUI;
+import com.rujiman.mediatracker.ui.Dialogs;
+import com.rujiman.mediatracker.ui.Palette;
+import com.rujiman.mediatracker.ui.Layout;
 import com.rujiman.mediatracker.models.FavoriteItem;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
@@ -74,9 +78,9 @@ public class LibraryViewController {
     private static MediaType typeFilter = null;   // null = Todo
     private static String currentFolderId = null;
 
-    private static final double PAGE_W = 1240;
-    private static final double CARD_W = 176, POSTER_H = 264;
-    private static final String TEXT = "#f0eef5", DIM = "#a59fc0", PANEL = "#1a1530", LINE = "#2a2347";
+    private static final double PAGE_W = Layout.PAGE_W;
+    private static final double CARD_W = Layout.CARD_W, POSTER_H = Layout.POSTER_H;
+    private static final String TEXT = Palette.TEXT, DIM = Palette.DIM, PANEL = Palette.PANEL, LINE = Palette.LINE;
 
     private OpenItemAction onOpenItem;
     private String draggedEntryId;
@@ -85,15 +89,8 @@ public class LibraryViewController {
 
     @FXML
     public void initialize() {
-        libraryScroll.skinProperty().addListener((o, a, b) -> {
-            if (b != null) applyViewportBackground();
-        });
+        CollectionUI.darkViewport(libraryScroll);
         refresh();
-    }
-
-    private void applyViewportBackground() {
-        Node viewport = libraryScroll.lookup(".viewport");
-        if (viewport != null) viewport.setStyle("-fx-background-color: #100c1c;");
     }
 
     private String namespace() {
@@ -170,7 +167,7 @@ public class LibraryViewController {
             Button b = new Button(stateLabel(s));
             boolean active = s == state;
             b.setStyle("-fx-background-radius: 10; -fx-min-height: 40; -fx-padding: 0 18; -fx-font-family: 'Inter SemiBold'; -fx-font-size: 14px; -fx-cursor: hand;"
-                    + (active ? "-fx-background-color: #f0eef5; -fx-text-fill: #120c1c;" : "-fx-background-color: transparent; -fx-text-fill: #cfc9e6;"));
+                    + (active ? "-fx-background-color: " + Palette.TEXT + "; -fx-text-fill: " + Palette.ON_ACCENT + ";" : "-fx-background-color: transparent; -fx-text-fill: " + Palette.TEXT_MUTED + ";"));
             b.setOnAction(e -> {
                 state = s;
                 currentFolderId = null;
@@ -192,10 +189,10 @@ public class LibraryViewController {
 
     private Node buildTypeChips() {
         FlowPane chips = new FlowPane(8, 8);
-        chips.getChildren().add(typeChip(null, "Todo", "#f0eef5"));
+        chips.getChildren().add(typeChip(null, "Todo", Palette.TEXT));
         for (MediaType t : new MediaType[]{MediaType.GAME, MediaType.ANIME, MediaType.SERIES, MediaType.MOVIE,
                 MediaType.MUSIC, MediaType.BOOK, MediaType.MANGA}) {
-            chips.getChildren().add(typeChip(t, plural(t), MediaTypeTheme.accentHex(t)));
+            chips.getChildren().add(typeChip(t, MediaTypeTheme.plural(t), MediaTypeTheme.accentHex(t)));
         }
         Label hint = new Label(stateHint());
         hint.setStyle("-fx-font-size: 14px; -fx-text-fill: " + DIM + ";");
@@ -205,12 +202,12 @@ public class LibraryViewController {
     private Node typeChip(MediaType t, String label, String dot) {
         boolean active = typeFilter == t;
         Button chip = new Button(label);
-        chip.setGraphic(new Circle(4, javafx.scene.paint.Color.web(active && t == null ? "#120c1c" : dot)));
+        chip.setGraphic(new Circle(4, javafx.scene.paint.Color.web(active && t == null ? Palette.ON_ACCENT : dot)));
         chip.setGraphicTextGap(8);
         chip.setStyle("-fx-background-radius: 999; -fx-border-radius: 999; -fx-min-height: 36; -fx-padding: 0 14;"
                 + "-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-cursor: hand;"
-                + (active ? "-fx-background-color: #f0eef5; -fx-text-fill: #120c1c; -fx-border-color: #f0eef5;"
-                          : "-fx-background-color: transparent; -fx-text-fill: #e6e1f5; -fx-border-color: #3a3160;"));
+                + (active ? "-fx-background-color: " + Palette.TEXT + "; -fx-text-fill: " + Palette.ON_ACCENT + "; -fx-border-color: " + Palette.TEXT + ";"
+                          : "-fx-background-color: transparent; -fx-text-fill: " + Palette.TEXT_SOFT + "; -fx-border-color: " + Palette.LINE_STRONG + ";"));
         chip.setOnAction(e -> {
             typeFilter = t;
             refresh();
@@ -220,7 +217,7 @@ public class LibraryViewController {
 
     private Node buildBreadcrumb(PlanFolder folder) {
         Button back = new Button("Mi biblioteca");
-        back.setGraphic(Icons.of(Icons.BACK, 16, "#e6e1f5"));
+        back.setGraphic(Icons.of(Icons.BACK, 16, Palette.TEXT_SOFT));
         back.getStyleClass().add("btn-ghost");
         back.setOnAction(e -> {
             currentFolderId = null;
@@ -264,7 +261,7 @@ public class LibraryViewController {
         box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(48));
         box.setMaxWidth(PAGE_W);
-        box.setStyle("-fx-border-color: #3a3160; -fx-border-style: segments(6, 4); -fx-border-radius: 20;");
+        box.setStyle("-fx-border-color: " + Palette.LINE_STRONG + "; -fx-border-style: segments(6, 4); -fx-border-radius: 20;");
         return box;
     }
 
@@ -276,10 +273,10 @@ public class LibraryViewController {
         MediaType type = e.item().getType();
         String accent = MediaTypeTheme.accentHex(type);
 
-        StackPane posterBox = poster(e.item().getImageUrl(), CARD_W, POSTER_H, accent);
+        StackPane posterBox = CollectionUI.poster(e.item().getImageUrl(), CARD_W, POSTER_H, accent, 16, false);
 
         Label badge = new Label(MediaTypeTheme.label(type).toUpperCase());
-        badge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: #120c1c; -fx-background-radius: 999;"
+        badge.setStyle("-fx-background-color: " + accent + "; -fx-text-fill: " + Palette.ON_ACCENT + "; -fx-background-radius: 999;"
                 + "-fx-padding: 3 10; -fx-font-family: 'Inter ExtraBold'; -fx-font-size: 10px;");
         StackPane.setAlignment(badge, Pos.TOP_LEFT);
         StackPane.setMargin(badge, new Insets(10));
@@ -345,50 +342,6 @@ public class LibraryViewController {
         return card;
     }
 
-    private StackPane poster(String url, double w, double h, String accent) {
-        StackPane box = new StackPane();
-        box.setMinSize(w, h);
-        box.setMaxSize(w, h);
-        box.setStyle("-fx-background-color: " + accent + "22; -fx-background-radius: 16 16 0 0;");
-        if (url != null && !url.isBlank()) {
-            ImageView img = new ImageView();
-            img.setFitWidth(w);
-            img.setFitHeight(h);
-            img.setPreserveRatio(false);
-            img.setSmooth(true);
-            Rectangle clip = new Rectangle(w, h + 16);
-            clip.setArcWidth(32);
-            clip.setArcHeight(32);
-            img.setClip(clip);
-            try {
-                Image image = new Image(url, w * 2, h * 2, true, true, true);
-                img.setImage(image);
-                img.setOpacity(0);
-                Runnable ready = () -> {
-                    cropToFill(img, image, w, h);
-                    javafx.animation.FadeTransition f = new javafx.animation.FadeTransition(Motion.BASE, img);
-                    f.setToValue(1);
-                    f.play();
-                };
-                if (image.getProgress() >= 1.0) ready.run();
-                else image.progressProperty().addListener((o, a, b) -> {
-                    if (b.doubleValue() >= 1.0 && !image.isError()) ready.run();
-                });
-            } catch (Exception ignored) {}
-            box.getChildren().add(img);
-        }
-        return box;
-    }
-
-    private void cropToFill(ImageView view, Image img, double w, double h) {
-        double iw = img.getWidth(), ih = img.getHeight();
-        if (iw <= 0 || ih <= 0) return;
-        double target = w / h;
-        double cw = iw, ch = iw / target;
-        if (ch > ih) { ch = ih; cw = ih * target; }
-        view.setViewport(new javafx.geometry.Rectangle2D((iw - cw) / 2, (ih - ch) / 2, cw, ch));
-    }
-
     // ===========================================================
     // CARPETAS
     // ===========================================================
@@ -407,14 +360,11 @@ public class LibraryViewController {
             Node tile;
             if (i < inside.size()) {
                 Entry e = inside.get(i);
-                StackPane p = poster(e.item().getImageUrl(), cell, cell, MediaTypeTheme.accentHex(e.item().getType()));
-                p.setStyle("-fx-background-color: #241d3d; -fx-background-radius: 10;");
-                ((ImageView) (p.getChildren().isEmpty() ? new ImageView() : p.getChildren().get(0))).setClip(roundClip(cell, cell, 10));
-                tile = p;
+                tile = CollectionUI.poster(e.item().getImageUrl(), cell, cell, MediaTypeTheme.accentHex(e.item().getType()), 10, true);
             } else {
                 Region empty = new Region();
                 empty.setMinSize(cell, cell);
-                empty.setStyle("-fx-background-color: #241d3d; -fx-background-radius: 10;");
+                empty.setStyle("-fx-background-color: " + Palette.PANEL_3 + "; -fx-background-radius: 10;");
                 tile = empty;
             }
             collage.add(tile, i % 2, i / 2);
@@ -428,7 +378,7 @@ public class LibraryViewController {
         Button more = new Button();
         more.setGraphic(Icons.of(Icons.EDIT, 14, TEXT));
         more.setTooltip(new Tooltip("Renombrar o eliminar"));
-        more.setStyle("-fx-background-color: #241d3d; -fx-background-radius: 8; -fx-min-width: 30; -fx-min-height: 30; -fx-cursor: hand;");
+        more.setStyle("-fx-background-color: " + Palette.PANEL_3 + "; -fx-background-radius: 8; -fx-min-width: 30; -fx-min-height: 30; -fx-cursor: hand;");
         more.setOnAction(e -> showFolderOptions(more, folder));
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -451,13 +401,6 @@ public class LibraryViewController {
         return card;
     }
 
-    private Rectangle roundClip(double w, double h, double r) {
-        Rectangle clip = new Rectangle(w, h);
-        clip.setArcWidth(r * 2);
-        clip.setArcHeight(r * 2);
-        return clip;
-    }
-
     /** Hace que un nodo acepte tarjetas soltadas: folderId null = sacar de la carpeta. */
     private void makeDropTarget(Node target, String folderId) {
         String base = target.getStyle() == null ? "" : target.getStyle();
@@ -466,7 +409,7 @@ public class LibraryViewController {
             e.consume();
         });
         target.setOnDragEntered(e -> {
-            if (draggedEntryId != null) target.setStyle(base + "-fx-border-color: #ec4d80; -fx-border-width: 2;");
+            if (draggedEntryId != null) target.setStyle(base + "-fx-border-color: " + Palette.BRAND + "; -fx-border-width: 2;");
         });
         target.setOnDragExited(e -> target.setStyle(base));
         target.setOnDragDropped(e -> {
@@ -509,7 +452,7 @@ public class LibraryViewController {
     private void showFolderOptions(Node anchor, PlanFolder folder) {
         MenuItem rename = new MenuItem("Renombrar…");
         rename.setOnAction(e -> {
-            TextInputDialog d = textDialog("Renombrar carpeta", folder.getName());
+            TextInputDialog d = CollectionUI.textDialog(window(), "Renombrar carpeta", folder.getName());
             d.showAndWait().ifPresent(n -> {
                 if (!n.trim().isEmpty()) {
                     FolderService.renameFolder(namespace(), folder.getId(), n.trim());
@@ -529,7 +472,7 @@ public class LibraryViewController {
 
     /** Crea una carpeta; si viene de una tarjeta, la mete directamente dentro. */
     private void createFolder(Entry moveInto) {
-        TextInputDialog d = textDialog("Nueva carpeta", "");
+        TextInputDialog d = CollectionUI.textDialog(window(), "Nueva carpeta", "");
         d.showAndWait().ifPresent(n -> {
             String name = n.trim();
             if (name.isEmpty()) return;
@@ -539,18 +482,8 @@ public class LibraryViewController {
         });
     }
 
-    private TextInputDialog textDialog(String title, String value) {
-        TextInputDialog d = new TextInputDialog(value);
-        d.setTitle(title);
-        d.setHeaderText(null);
-        d.setContentText("Nombre:");
-        if (libraryRoot.getScene() != null) d.initOwner(libraryRoot.getScene().getWindow());
-        DialogPane pane = d.getDialogPane();
-        pane.getStylesheets().add(getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm());
-        pane.setStyle("-fx-background-color: #1c1730;");
-        pane.lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: #f0eef5;"));
-        pane.sceneProperty().addListener((o, a, s) -> { if (s != null) s.setFill(javafx.scene.paint.Color.web("#100c1c")); });
-        return d;
+    private javafx.stage.Window window() {
+        return libraryRoot.getScene() != null ? libraryRoot.getScene().getWindow() : null;
     }
 
     private PlanFolder findFolder(String id) {
@@ -645,15 +578,4 @@ public class LibraryViewController {
         return MediaTypeTheme.doneText(e.item().getType());
     }
 
-    private String plural(MediaType t) {
-        return switch (t) {
-            case GAME -> "Juegos";
-            case SERIES -> "Series";
-            case ANIME -> "Anime";
-            case MUSIC -> "Música";
-            case MOVIE -> "Películas";
-            case BOOK -> "Libros";
-            case MANGA -> "Manga";
-        };
-    }
 }

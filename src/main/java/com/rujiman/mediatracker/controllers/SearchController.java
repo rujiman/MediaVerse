@@ -1,5 +1,9 @@
 package com.rujiman.mediatracker.controllers;
 
+import com.rujiman.mediatracker.ui.CollectionUI;
+import com.rujiman.mediatracker.ui.Dialogs;
+import com.rujiman.mediatracker.ui.Palette;
+import com.rujiman.mediatracker.ui.Layout;
 import com.rujiman.mediatracker.models.MediaItem;
 import com.rujiman.mediatracker.models.MediaType;
 import com.rujiman.mediatracker.util.MediaTypeTheme;
@@ -97,6 +101,11 @@ public class SearchController {
     @FXML private Button navSearch;
     @FXML private Button navFavorites;
     @FXML private Button navLibrary;
+    @FXML private Button updateButton;
+    @FXML private Label versionLabel;
+
+    /** Versión nueva detectada en GitHub (null si no hay). */
+    private com.rujiman.mediatracker.services.UpdateService.Release pendingUpdate;
 
     // sideMenu = panel grande de navegación (☰); profileMenu = popup
     // pequeño de "quién soy" (foto/nombre/cambiar usuario-contraseña),
@@ -173,10 +182,14 @@ public class SearchController {
         searchField.setOnAction(e -> onSearch());
 
         // Iconos vectoriales del menú lateral
-        navHome.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.HOME, 18, "#e6e1f5"));
-        navSearch.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.SEARCH, 18, "#e6e1f5"));
-        navFavorites.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 18, "#e6e1f5"));
-        navLibrary.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.LIBRARY, 18, "#e6e1f5"));
+        navHome.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.HOME, 18, Palette.TEXT_SOFT));
+        navSearch.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.SEARCH, 18, Palette.TEXT_SOFT));
+        navFavorites.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 18, Palette.TEXT_SOFT));
+        navLibrary.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.LIBRARY, 18, Palette.TEXT_SOFT));
+
+        // Versión instalada y comprobación de actualizaciones en segundo plano
+        versionLabel.setText("MediaVerse " + com.rujiman.mediatracker.util.AppInfo.VERSION);
+        checkForUpdates(false);
 
         // Cargar la Home dentro de su contenedor y mostrarla por defecto
         loadHomeView();
@@ -285,20 +298,20 @@ public class SearchController {
      * visualmente qué filtro estaba activo.
      */
     private void updateFilterButtonStyles() {
-        updateSingleFilterStyle(filterAll, "#ec4d80");
-        updateSingleFilterStyle(filterAnime, "#ec4dc0");
-        updateSingleFilterStyle(filterSeries, "#8b5cf6");
-        updateSingleFilterStyle(filterMovie, "#ecb14d");
-        updateSingleFilterStyle(filterMusic, "#4dec9e");
-        updateSingleFilterStyle(filterGame, "#4dd9ec");
+        updateSingleFilterStyle(filterAll, Palette.BRAND);
+        updateSingleFilterStyle(filterAnime, MediaTypeTheme.accentHex(MediaType.ANIME));
+        updateSingleFilterStyle(filterSeries, MediaTypeTheme.accentHex(MediaType.SERIES));
+        updateSingleFilterStyle(filterMovie, MediaTypeTheme.accentHex(MediaType.MOVIE));
+        updateSingleFilterStyle(filterMusic, MediaTypeTheme.accentHex(MediaType.MUSIC));
+        updateSingleFilterStyle(filterGame, MediaTypeTheme.accentHex(MediaType.GAME));
         updateSingleFilterStyle(filterManga, MediaTypeTheme.accentHex(MediaType.MANGA));
         updateSingleFilterStyle(filterBook, MediaTypeTheme.accentHex(MediaType.BOOK));
     }
 
     private void updateSingleFilterStyle(ToggleButton btn, String accentHexWhenSelected) {
         boolean selected = btn.isSelected();
-        String bgColor = selected ? accentHexWhenSelected : "#1c1730";
-        String textColor = selected ? "white" : "#f0eef5";
+        String bgColor = selected ? accentHexWhenSelected : Palette.PANEL_ALT;
+        String textColor = selected ? "white" : Palette.TEXT;
         String fontWeight = selected ? "-fx-font-weight: bold;" : "";
 
         btn.setStyle(
@@ -318,10 +331,6 @@ public class SearchController {
      */
     /** @deprecated Usar {@link MediaTypeTheme#accentHex(MediaType)} directamente. */
     @Deprecated
-    private String sectionAccentHex(MediaType type) {
-        return MediaTypeTheme.accentHex(type);
-    }
-
     /**
      * Multiplica la velocidad de desplazamiento de la rueda del ratón
      * en un ScrollPane vertical, ya que el valor por defecto de JavaFX
@@ -1145,21 +1154,6 @@ public class SearchController {
     // "PIENSO VER / JUGAR / ESCUCHAR"
     // -------------------------
 
-    @FXML
-    private void openPlanWatch() {
-        openPlanList(PlanService.ListKind.WATCH);
-    }
-
-    @FXML
-    private void openPlanPlay() {
-        openPlanList(PlanService.ListKind.PLAY);
-    }
-
-    @FXML
-    private void openPlanListen() {
-        openPlanList(PlanService.ListKind.LISTEN);
-    }
-
     // -------------------------
     // MI BIBLIOTECA
     // -------------------------
@@ -1210,243 +1204,130 @@ public class SearchController {
         }
     }
 
-    @FXML
-    private void openPlanRead() {
-        openPlanList(PlanService.ListKind.READ);
-    }
-
-    /**
-     * Abre la lista de plan (Pienso ver/jugar/escuchar) en el overlay,
-     * con su propia navegación de carpetas. Mismo patrón que
-     * openWatchlist(): "Volver" desde aquí cierra el overlay; al pinchar
-     * un item, se abre su detalle apilado encima con setPlanContext() ya
-     * configurado, para que "Mover a Favoritos" aparezca correctamente.
-     */
-    private void openPlanList(PlanService.ListKind kind) {
-        if (navMenuOpen) closeNavMenu();
-
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/rujiman/mediatracker/views/PlanListView.fxml")
-            );
-            javafx.scene.Parent planRoot = loader.load();
-
-            PlanListViewController controller = loader.getController();
-            controller.setOnBackAction(this::closeOverlay);
-            controller.setOnOpenItemAction((item, listKind, planItemId) ->
-                    openDetailViewFromPlan(item, listKind, planItemId));
-            controller.setListKind(kind);
-
-            openOverlay(planRoot);
-
-            String listLabel = switch (kind) {
-                case WATCH -> "Pienso ver";
-                case PLAY -> "Pienso jugar";
-                case LISTEN -> "Pienso escuchar";
-                case READ -> "Pienso leer";
-            };
-            setWindowTitle("Mediaverse - " + listLabel);
-
-        } catch (Exception e) {
-            System.err.println("❌ Error al abrir lista de plan: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Abre el detalle de un item de una lista de plan, apilado sobre esa
-     * misma lista (igual patrón que favoritos/watchlist). Llama a
-     * setPlanContext() justo después de loadItem() para que el botón
-     * "Mover a Favoritos" aparezca en el detalle. Al volver, se reabre
-     * la lista de plan ya actualizada (por ejemplo, si se acaba de mover
-     * el item a favoritos, ya no aparecerá aquí).
-     */
-    private void openDetailViewFromPlan(MediaItem item, PlanService.ListKind kind, String planItemId) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
-            );
-            javafx.scene.Parent detailRoot = loader.load();
-
-            DetailViewController controller = loader.getController();
-            controller.setOnBackAction(() -> openPlanList(kind));
-            // Las recomendaciones se apilan como cualquier otro detalle:
-            // su "Volver" reabre ESTE detalle, no la lista de plan
-            // directamente. Importante: el detalle de una recomendación
-            // NO tiene contexto de plan propio (no viene de esta lista),
-            // así que se abre con openDetailView() normal, no con
-            // openDetailViewFromPlan().
-            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended,
-                    () -> openDetailViewFromPlan(item, kind, planItemId)));
-            controller.loadItem(item);
-            controller.setPlanContext(kind, planItemId);
-
-            openOverlay(detailRoot);
-            setWindowTitle("Mediaverse - " + item.getTitle());
-
-        } catch (Exception e) {
-            System.err.println("❌ Error al abrir DetailView desde plan: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     // -------------------------
-    // SECCIONES
+    // ACTUALIZACIONES (GitHub Releases)
     // -------------------------
 
-    @FXML
-    private void openWatchedMovies() {
-        openWatchlist(MediaType.MOVIE,
-                progress -> progress.viewed,
-                "🎬 Películas vistas",
-                "Todavía no has visto ninguna película.\nMárcala como vista desde su detalle.");
+    /**
+     * Pregunta a GitHub si hay una versión nueva, sin bloquear la UI. Si la
+     * hay, aparece el botón "Actualizar a X" en la cabecera. Con
+     * manual=true (desde el menú de perfil) también avisa si ya estás al día.
+     */
+    private void checkForUpdates(boolean manual) {
+        Thread t = new Thread(() -> {
+            var release = com.rujiman.mediatracker.services.UpdateService.checkLatest();
+            javafx.application.Platform.runLater(() -> {
+                if (release.isPresent()) {
+                    pendingUpdate = release.get();
+                    updateButton.setText("Actualizar a " + pendingUpdate.version());
+                    updateButton.setVisible(true);
+                    updateButton.setManaged(true);
+                    com.rujiman.mediatracker.ui.Motion.popIn(updateButton);
+                    if (manual) onUpdate();
+                } else if (manual) {
+                    showInfo("Ya tienes la última versión (" + com.rujiman.mediatracker.util.AppInfo.VERSION + ").");
+                }
+            });
+        }, "update-check");
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML
-    private void openGames() {
-        openWatchlist(MediaType.GAME,
-                progress -> progress.viewed,
-                "🎮 Juegos jugados",
-                "Todavía no has jugado a ninguno de tus juegos favoritos.\nMárcalo como jugado desde su detalle.");
-    }
-
-    @FXML
-    private void openListenedMusic() {
-        openWatchlist(MediaType.MUSIC,
-                progress -> progress.viewed,
-                "🎵 Música escuchada",
-                "Todavía no has marcado ninguna canción como escuchada.\nMárcala desde su detalle.");
-    }
-
-    @FXML
-    private void openWatchedSeries() {
-        openWatchlist(MediaType.SERIES,
-                progress -> progress.viewed,
-                "📺 Series vistas",
-                "Todavía no has terminado ninguna serie.\nMárcala como vista desde su detalle, o completa todos sus episodios.");
-    }
-
-    @FXML
-    private void openWatchingSeries() {
-        openWatchlist(MediaType.SERIES,
-                progress -> !progress.viewed && !progress.watchedEpisodes.isEmpty(),
-                "▶️ Series viendo",
-                "No tienes ninguna serie a medias ahora mismo.\nMarca algún episodio como visto desde su detalle para que aparezca aquí.");
-    }
-
-    @FXML
-    private void openWatchedAnime() {
-        openWatchlist(MediaType.ANIME,
-                progress -> progress.viewed,
-                "🎌 Anime vistos",
-                "Todavía no has terminado ningún anime.\nMárcalo como visto desde su detalle, o completa todos sus episodios.");
-    }
-
-    @FXML
-    private void openWatchingAnime() {
-        openWatchlist(MediaType.ANIME,
-                progress -> !progress.viewed && !progress.watchedEpisodes.isEmpty(),
-                "🎌 Anime viendo",
-                "No tienes ningún anime a medias ahora mismo.\nMarca algún episodio como visto desde su detalle para que aparezca aquí.");
-    }
-
-    @FXML
-    private void openReadBooks() {
-        openWatchlist(MediaType.BOOK,
-                progress -> progress.viewed,
-                "📚 Libros leídos",
-                "Todavía no has marcado ningún libro como leído.\nMárcalo desde su detalle.");
-    }
-
-    @FXML
-    private void openReadManga() {
-        openWatchlist(MediaType.MANGA,
-                progress -> progress.viewed,
-                "📖 Manga leídos",
-                "Todavía no has terminado ningún manga.\nMárcalo como leído desde su detalle, o completa todos sus capítulos.");
-    }
-
-    @FXML
-    private void openReadingManga() {
-        openWatchlist(MediaType.MANGA,
-                progress -> !progress.viewed && !progress.watchedEpisodes.isEmpty(),
-                "📖 Manga leyendo",
-                "No tienes ningún manga a medias ahora mismo.\nMarca algún capítulo como leído desde su detalle para que aparezca aquí.");
+    private void onCheckUpdates() {
+        if (profileMenuOpen) closeProfileMenu();
+        checkForUpdates(true);
     }
 
     /**
-     * Abre la lista de seguimiento (Series/Anime vistos/viendo) en el
-     * overlay, configurada con el tipo y criterio de progreso dados.
-     * Las 4 variantes del menú lateral comparten esta misma lógica;
-     * solo cambian el MediaType, el predicado de progreso y los textos.
+     * Botón "Actualizar a X": muestra las novedades y, si se acepta,
+     * descarga el nuevo MediaVerse.jar con barra de progreso, cierra la app
+     * y la vuelve a abrir ya actualizada. Si esta instalación no se puede
+     * actualizar sola (ejecución desde el IDE, o la versión pide instalación
+     * completa), abre la página de descarga.
      */
-    private void openWatchlist(MediaType type, java.util.function.Predicate<com.rujiman.mediatracker.services.WatchProgressService.Progress> progressFilter,
-                               String displayTitle, String emptyMessage) {
-        if (navMenuOpen) closeNavMenu();
+    @FXML
+    private void onUpdate() {
+        var release = pendingUpdate;
+        if (release == null) return;
+        boolean auto = com.rujiman.mediatracker.services.UpdateService.canSelfUpdate(release);
 
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        com.rujiman.mediatracker.ui.Dialogs.own(confirm, searchField);
+        confirm.setTitle("Nueva versión de MediaVerse");
+        confirm.setHeaderText("MediaVerse " + release.version() + " está disponible");
+        String notes = release.notes() != null && !release.notes().isBlank()
+                ? release.notes().replace(com.rujiman.mediatracker.util.AppInfo.FULL_INSTALL_MARK, "").trim()
+                : "Mejoras y correcciones.";
+        if (notes.length() > 600) notes = notes.substring(0, 600) + "…";
+        confirm.setContentText(notes + "\n\n" + (auto
+                ? "La app se cerrará, se actualizará y se volverá a abrir sola. Tus datos no se tocan."
+                : "Se abrirá la página de descarga para instalar la nueva versión."));
+        com.rujiman.mediatracker.ui.Dialogs.styleDark(confirm.getDialogPane());
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        if (!auto) {
+            openInBrowser(release.pageUrl());
+            return;
+        }
+
+        // Diálogo de progreso de la descarga
+        ProgressBar bar = new ProgressBar(0);
+        bar.setPrefWidth(320);
+        bar.setStyle("-fx-accent: #ec4d80;");
+        Label status = new Label("Descargando MediaVerse " + release.version() + "…");
+        Dialog<Void> progress = new Dialog<>();
+        com.rujiman.mediatracker.ui.Dialogs.own(progress, searchField);
+        progress.setTitle("Actualizando MediaVerse");
+        progress.getDialogPane().setContent(new javafx.scene.layout.VBox(12, status, bar));
+        com.rujiman.mediatracker.ui.Dialogs.styleDark(progress.getDialogPane());
+        progress.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        progress.getDialogPane().lookupButton(ButtonType.CANCEL).setVisible(false);
+
+        javafx.concurrent.Task<java.nio.file.Path> download = new javafx.concurrent.Task<>() {
+            @Override protected java.nio.file.Path call() throws Exception {
+                return com.rujiman.mediatracker.services.UpdateService.downloadJar(release,
+                        p -> updateProgress(p < 0 ? -1 : p, 1));
+            }
+        };
+        bar.progressProperty().bind(download.progressProperty());
+        download.setOnSucceeded(e -> {
+            try {
+                status.setText("Reiniciando…");
+                com.rujiman.mediatracker.services.UpdateService.installAndRestart(download.getValue());
+                javafx.application.Platform.exit();
+                System.exit(0);
+            } catch (Exception ex) {
+                progress.close();
+                showInfo("No se pudo instalar la actualización: " + ex.getMessage());
+            }
+        });
+        download.setOnFailed(e -> {
+            progress.close();
+            showInfo("No se pudo descargar la actualización: " + download.getException().getMessage()
+                    + "\nPuedes descargarla a mano desde GitHub.");
+        });
+        Thread t = new Thread(download, "update-download");
+        t.setDaemon(true);
+        t.start();
+        progress.show();
+    }
+
+    private void openInBrowser(String url) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/rujiman/mediatracker/views/WatchlistView.fxml")
-            );
-            javafx.scene.Parent watchlistRoot = loader.load();
-
-            WatchlistViewController controller = loader.getController();
-            controller.setOnBackAction(this::closeOverlay);
-            controller.setOnOpenDetailAction(item -> openDetailViewFromWatchlist(item, type, progressFilter, displayTitle, emptyMessage));
-            controller.setFilter(type, progressFilter, displayTitle, emptyMessage);
-
-            openOverlay(watchlistRoot);
-            setWindowTitle("Mediaverse - " + stripLeadingEmoji(displayTitle));
-
+            java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
         } catch (Exception e) {
-            System.err.println("❌ Error al abrir lista de seguimiento: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ No se pudo abrir el navegador: " + e.getMessage());
         }
     }
 
-    /**
-     * Quita el emoji y espacio inicial de un texto tipo "📺 Series vistas",
-     * dejando solo "Series vistas". Se usa para componer títulos de
-     * ventana más limpios, ya que algunos emojis no se renderizan bien
-     * en la barra de título nativa de Windows (aparecen como un
-     * cuadrado de carácter no soportado).
-     */
-    private String stripLeadingEmoji(String text) {
-        if (text == null) return "";
-        return text.replaceFirst("^[^a-zA-Z0-9¡¿]+\\s*", "").trim();
-    }
-
-    /**
-     * Abre el detalle de un item de una lista de seguimiento, apilado
-     * sobre esa misma lista (igual patrón que favoritos): al pulsar
-     * "Volver" desde el detalle, se reabre la lista ya actualizada (por
-     * ejemplo, si se acaba de terminar una serie, desaparece de
-     * "viendo" y pasa a "vistas" la próxima vez que se entre ahí).
-     */
-    private void openDetailViewFromWatchlist(MediaItem item, MediaType type,
-                                             java.util.function.Predicate<com.rujiman.mediatracker.services.WatchProgressService.Progress> progressFilter,
-                                             String displayTitle, String emptyMessage) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
-            );
-            javafx.scene.Parent detailRoot = loader.load();
-
-            DetailViewController controller = loader.getController();
-            controller.setOnBackAction(() -> openWatchlist(type, progressFilter, displayTitle, emptyMessage));
-            // Mismo patrón de encadenado: las recomendaciones se apilan
-            // sobre este detalle, no directamente sobre la watchlist.
-            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended,
-                    () -> openDetailViewFromWatchlist(item, type, progressFilter, displayTitle, emptyMessage)));
-            controller.loadItem(item);
-
-            openOverlay(detailRoot);
-            setWindowTitle("Mediaverse - " + item.getTitle());
-
-        } catch (Exception e) {
-            System.err.println("❌ Error al abrir DetailView desde lista de seguimiento: " + e.getMessage());
-            e.printStackTrace();
-        }
+    private void showInfo(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        com.rujiman.mediatracker.ui.Dialogs.own(alert, searchField);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        com.rujiman.mediatracker.ui.Dialogs.styleDark(alert.getDialogPane());
+        alert.show();
     }
 
     // -------------------------

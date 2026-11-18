@@ -7,6 +7,8 @@ import com.rujiman.mediatracker.util.ConfigLoader;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +81,7 @@ public class TMDBService {
     // ============================
     public List<MediaItem> searchSeries(String query) {
 
-        String url = API_URL + "/search/tv?api_key=" + getKey() + "&query=" + query.replace(" ", "%20");
+        String url = API_URL + "/search/tv?api_key=" + getKey() + "&query=" + encode(query);
 
         Request request = new Request.Builder().url(url).build();
 
@@ -103,7 +105,7 @@ public class TMDBService {
     // ============================
     public List<MediaItem> searchMovies(String query) {
 
-        String url = API_URL + "/search/movie?api_key=" + getKey() + "&query=" + query.replace(" ", "%20");
+        String url = API_URL + "/search/movie?api_key=" + getKey() + "&query=" + encode(query);
 
         Request request = new Request.Builder().url(url).build();
 
@@ -470,4 +472,14 @@ public class TMDBService {
 
         return results;
     }
+
+    /**
+     * Codifica el texto de búsqueda para la URL. Antes solo se cambiaban
+     * los espacios por %20, y un título con "&", "#" o "?" (p. ej.
+     * "Fast & Furious") rompía la petición.
+     */
+    private static String encode(String query) {
+        return URLEncoder.encode(query, StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
 }

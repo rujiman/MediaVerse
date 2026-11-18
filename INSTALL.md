@@ -36,6 +36,11 @@ MediaVerse/
 
 Doble clic en `MediaVerse.exe`. Listo.
 
+### 5. Actualizar
+
+- **Desde la 1.2 en adelante:** cuando haya una versión nueva aparecerá arriba a la derecha el botón **"Actualizar a X"**. Púlsalo: la app descarga la actualización, se cierra y se vuelve a abrir actualizada. También puedes comprobarlo en el menú de perfil → *Buscar actualizaciones*.
+- **Si tienes la 1.0 o la 1.1** (sin actualizador): descarga el zip nuevo, descomprímelo, copia tu `app\.env` de la carpeta vieja a la nueva y borra la vieja. Tus datos están en `Documentos\MediaVerse\userdata` y no se pierden.
+
 > **No necesitas Java instalado.** El runtime de Java 25 va incluido dentro del zip en la carpeta `runtime\`.
 
 ---

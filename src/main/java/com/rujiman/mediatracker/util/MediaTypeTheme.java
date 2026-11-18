@@ -94,6 +94,20 @@ public final class MediaTypeTheme {
         };
     }
 
+    /** Nombre en plural para cabeceras y filtros: "Juegos", "Películas"... */
+    public static String plural(MediaType type) {
+        if (type == null) return "Todo";
+        return switch (type) {
+            case GAME   -> "Juegos";
+            case SERIES -> "Series";
+            case ANIME  -> "Anime";
+            case MUSIC  -> "Música";
+            case MOVIE  -> "Películas";
+            case BOOK   -> "Libros";
+            case MANGA  -> "Manga";
+        };
+    }
+
     /** Icono emoji decorativo para secciones del dashboard. */
     public static String emoji(MediaType type) {
         if (type == null) return "🎯";

@@ -63,6 +63,42 @@ public final class CollectionUI {
         return box;
     }
 
+    /**
+     * Como cropToFill pero esperando a que la imagen termine de cargar.
+     * En imágenes verticales centra un poco más arriba (las caras suelen
+     * estar arriba). onReady (opcional) se ejecuta al aplicarlo.
+     */
+    public static void cropWhenReady(ImageView view, Image img, double w, double h, Runnable onReady) {
+        Runnable apply = () -> {
+            double iw = img.getWidth(), ih = img.getHeight();
+            if (iw <= 0 || ih <= 0) return;
+            double target = w / h;
+            double cw = iw, ch = iw / target;
+            if (ch > ih) { ch = ih; cw = ih * target; }
+            double y = (ih - ch) * (ih > iw ? 0.3 : 0.5);
+            view.setViewport(new Rectangle2D((iw - cw) / 2, y, cw, ch));
+            if (onReady != null) onReady.run();
+        };
+        if (img.getProgress() >= 1.0 && !img.isError()) apply.run();
+        else img.progressProperty().addListener((o, a, b) -> {
+            if (b.doubleValue() >= 1.0 && !img.isError()) apply.run();
+        });
+    }
+
+    /**
+     * Fondo oscuro para el "viewport" interno de un ScrollPane, que no
+     * hereda el fondo por CSS y deja un hueco gris. Se aplica en cuanto
+     * existe el Skin del ScrollPane.
+     */
+    public static void darkViewport(javafx.scene.control.ScrollPane scroll) {
+        Runnable apply = () -> {
+            Node viewport = scroll.lookup(".viewport");
+            if (viewport != null) viewport.setStyle("-fx-background-color: " + Palette.BG + ";");
+        };
+        scroll.skinProperty().addListener((o, a, b) -> { if (b != null) apply.run(); });
+        if (scroll.getSkin() != null) apply.run();
+    }
+
     /** Recorta al centro para rellenar w×h sin deformar (object-fit: cover). */
     public static void cropToFill(ImageView view, Image img, double w, double h) {
         double iw = img.getWidth(), ih = img.getHeight();

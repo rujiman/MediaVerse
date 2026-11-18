@@ -1,19 +1,20 @@
 # 🎬 MediaVerse
 
-**Tu universo de entretenimiento en una sola app.** Gestiona y organiza todo lo que ves, juegas y escuchas.
+**Tu universo de entretenimiento en una sola app.** Gestiona, organiza y presume de todo lo que ves, juegas, escuchas y lees.
 
 ---
 
 ## ✨ Características
 
-- **Series y Películas** — búsqueda y detalle desde TMDB, con plataformas de streaming incluidas
-- **Anime** — catálogo completo desde AniList vía GraphQL
-- **Videojuegos** — base de datos de IGDB con géneros y plataformas
-- **Música** — canciones y álbumes desde Deezer con previsualización de 30 segundos
-- **Sistema de favoritos** con carpetas personalizadas y valoración personal (1-5 estrellas)
-- **Listas de seguimiento** — "Pienso Ver", "Pienso Jugar", "Pienso Escuchar"
-- **Dashboard personalizado** — elige qué favoritos aparecen en tu pantalla de inicio
-- **Progreso por episodios** — marca capítulos vistos uno a uno o de golpe
+- **Vitrina de perfil** — tu pantalla de inicio es un perfil para *flexear* tus gustos: favorito absoluto + ranking por categoría, portada personalizable (imagen, color sólido o degradado, con desenfoque ajustable) y exportación como imagen PNG
+- **7 tipos de contenido** — series y películas (TMDB), anime y manga (AniList), videojuegos (IGDB), música (Deezer) y libros (Google Books / Open Library)
+- **Mi biblioteca** — todo lo tuyo en un sitio: *Pendiente · En curso · Terminado*, con filtro por tipo y carpetas (arrastrando las tarjetas)
+- **Favoritos** con carpetas (arrastrar y soltar) y valoración personal (1-5 estrellas)
+- **Progreso** por episodios o capítulos (clic, Mayús + clic para marcar hasta uno, bloques de 50 en series largas) y estado *"Estoy jugando / viendo / leyendo"* para el resto
+- **Continúa donde lo dejaste** en la pantalla de inicio
+- **Ficha de detalle** con póster, progreso, tráiler, plataformas de streaming y recomendaciones
+- **Actualizaciones automáticas** — la app avisa cuando hay versión nueva y se actualiza sola con un botón
+- **Diseño moderno** — tipografía Inter, animaciones suaves y paleta "Constelaciones" con un color por tipo
 - **Datos 100% locales** — nada sale de tu ordenador
 
 ---
@@ -27,6 +28,12 @@
 5. Doble clic en `MediaVerse.exe`
 
 **No necesitas instalar Java ni ninguna otra cosa.** El runtime está incluido dentro del zip.
+
+### 🔄 Actualizar
+
+A partir de la versión 1.2, la app comprueba sola si hay una versión nueva en GitHub: aparece el botón **"Actualizar a X"** arriba a la derecha y, al pulsarlo, se descarga, se reinicia y listo. También puedes comprobarlo desde el menú de perfil → *Buscar actualizaciones*.
+
+Si vienes de la **1.0 o la 1.1** (no tienen actualizador), actualiza a mano una vez: descarga el zip nuevo, copia tu `app\.env` a la carpeta nueva y borra la vieja. **Tus datos no se pierden**: viven en `Documentos\MediaVerse`, fuera de la app.
 
 > El `.env` debe colocarse en la subcarpeta `app\` del zip descomprimido, junto al `MediaVerse.jar`. Ver [INSTALL.md](./INSTALL.md) para el detalle paso a paso.
 
@@ -58,7 +65,8 @@ MediaVerse guarda todo en local, en tu carpeta personal:
     ├── dashboard/
     ├── progreso/
     ├── plan/
-    └── carpetas/
+    ├── carpetas/
+    └── <usuario>_banner_*.png   (portada de la vitrina, si subes una)
 ```
 
 Puedes hacer backup, mover o sincronizar esta carpeta con Google Drive o OneDrive cuando quieras. Ningún dato se envía a ningún servidor.
@@ -70,9 +78,12 @@ Puedes hacer backup, mover o sincronizar esta carpeta con Google Drive o OneDriv
 | Servicio | Uso | Requiere registro |
 |----------|-----|-------------------|
 | TMDB | Series, películas, plataformas | Sí (gratuito) |
-| AniList | Anime | No |
+| AniList | Anime y manga | No |
 | IGDB | Videojuegos | Sí (gratuito) |
 | Deezer | Música | No |
+| Google Books | Libros (con sinopsis) | Opcional (gratuito) |
+| Open Library | Libros (respaldo, sin clave) | No |
+| GitHub Releases | Comprobar actualizaciones | No |
 
 ---
 

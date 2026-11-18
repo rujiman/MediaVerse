@@ -2,6 +2,39 @@
 
 ---
 
+## [1.2.0] — 2026-11-18
+
+### ✨ Novedades
+
+- **Manga** (AniList, progreso por capítulos) y **libros** (Google Books, con Open Library como respaldo sin clave)
+- **Inicio rediseñado como vitrina de perfil**: favorito absoluto + ranking 2–5 por categoría, contadores, portada personalizable (favorito, imagen propia o color sólido; desenfoque/degradado con intensidad ajustable), cambio de foto desde la propia vitrina, reordenar arrastrando y **exportar la vitrina como PNG**
+- **Continúa donde lo dejaste** en Inicio (máx. 3)
+- **Mi biblioteca**: Pendiente · En curso · Terminado, filtro por tipo y carpetas con arrastrar y soltar. Sustituye a las 12 entradas antiguas del menú (Pienso ver/jugar/escuchar, …vistos, …viendo)
+- **Estado "Estoy jugando / viendo / escuchando / leyendo"** para lo que no va por episodios
+- **Favoritos rediseñados** con el mismo sistema de carpetas arrastrando (las carpetas existentes se conservan)
+- **Detalle tipo ficha**: banda con el color del tipo y el póster desenfocado, una acción principal, barra de progreso, episodios en cuadrícula por bloques de 50 con Mayús + clic
+- **Login y registro** nuevos, en pantalla partida con mosaico animado
+- **Menú lateral** de 4 entradas y cabecera siempre visible (logo clicable para volver a Inicio)
+- **Actualizaciones automáticas** desde GitHub Releases con un botón
+- Las listas *En curso / Terminado* incluyen también títulos que no son favoritos
+
+### 🎨 Diseño
+- Tipografía **Inter** incluida en la app, iconos vectoriales, sistema de animaciones (`Motion`) con curvas tipo iOS, contraste de texto mejorado
+
+### 🐛 Correcciones
+- Las descripciones ya no muestran restos de HTML (`<br>`, `&quot;`…)
+- Búsquedas de TMDB con `&`, `#` o `?` en el título
+- Títulos iguales de distinto tipo (p. ej. el anime y el manga de *Berserk*) ya no comparten favorito ni progreso
+- Los diálogos ya no mandan la app al fondo al cerrarse
+- Portadas y fotos de perfil sin deformar
+
+### 🔨 Cambios técnicos
+- Eliminado código muerto (pantallas y clases sin uso, ~1.500 líneas) y las dependencias sin usar (SQLite, Hibernate)
+- Código compartido en `ui/` (`CollectionUI`, `Dialogs`, `Palette`, `Layout`, `Motion`, `Icons`) en vez de copias por controlador
+- `AppInfo` con la versión y `UpdateService` para las actualizaciones
+
+---
+
 ## [1.1.0] — 2026-06-30
 
 ### 🔨 Cambios técnicos
@@ -38,12 +71,15 @@
 
 ## Roadmap
 
-### v1.2 (ideas)
-- Estadísticas de uso (horas vistas, juegos completados, etc.)
-- Modo claro
-- Búsqueda avanzada con filtros por género, año, plataforma
-- Mejores recomendaciones basadas en historial personal
+### Próximas versiones (ideas)
+- MediaVerse Wrapped: resumen anual de lo que has visto, jugado y leído
+- Calendario de estrenos de tus series y animes
+- Logros y rachas
+- Búsqueda global rápida con Ctrl+K
+- Contraseñas cifradas (hash) en el login local
+- Página web de descarga con tráiler de la app
+- Perfil público para compartir tu vitrina (red social)
 
 ---
 
-**Última actualización**: 2026-06-30
+**Última actualización**: 2026-11-18
