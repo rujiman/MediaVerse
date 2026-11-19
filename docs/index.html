@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#100c1c">
   <link rel="icon" href="assets/favicon.png">
   <link rel="preload" href="fonts/Inter-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=202611191802">
+  <link rel="stylesheet" href="styles.css?v=20261119180627">
 </head>
 <body>
 
@@ -165,39 +165,13 @@
         <p>Mi biblioteca separa lo pendiente, lo que tienes en curso y lo terminado. Tanto ahí como en Favoritos filtras por tipo y creas tus propias carpetas: para meter algo, lo arrastras encima. Pruébalo aquí mismo.</p>
       </div>
 
-      <div class="demo" data-demo>
-        <div class="demo-top">
-          <div class="demo-switch" role="tablist" aria-label="Sección">
-            <button role="tab" aria-selected="true" data-view="library">Mi biblioteca</button>
-            <button role="tab" aria-selected="false" data-view="favorites">Favoritos</button>
-          </div>
-          <button class="demo-new" type="button" data-new-folder>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-            Nueva carpeta
-          </button>
+      <div class="demo-wrap">
+        <div class="demo-switch" role="tablist" aria-label="Pantalla de la app">
+          <button role="tab" aria-selected="true" data-view="library">Mi biblioteca</button>
+          <button role="tab" aria-selected="false" data-view="favorites">Favoritos</button>
         </div>
-
-        <div class="demo-status" data-status-bar role="group" aria-label="Estado">
-          <button data-status="pending">Pendiente</button>
-          <button data-status="progress" aria-pressed="true">En curso</button>
-          <button data-status="done">Terminado</button>
-        </div>
-
-        <div class="demo-chips" role="group" aria-label="Tipo">
-          <button data-type="all" aria-pressed="true">Todo</button>
-          <button data-type="game" style="--c:var(--c-game)">Juegos</button>
-          <button data-type="anime" style="--c:var(--c-anime)">Anime</button>
-          <button data-type="series" style="--c:var(--c-series)">Series</button>
-          <button data-type="movie" style="--c:var(--c-movie)">Películas</button>
-          <button data-type="music" style="--c:var(--c-music)">Música</button>
-          <button data-type="book" style="--c:var(--c-book)">Libros</button>
-          <button data-type="manga" style="--c:var(--c-manga)">Manga</button>
-        </div>
-
-        <div class="demo-folders" data-folders></div>
-
-        <ul class="demo-grid" data-grid aria-live="polite"></ul>
-        <p class="demo-hint">Arrastra una tarjeta encima de una carpeta para guardarla ahí.</p>
+        <div class="demo" data-demo></div>
+        <p class="demo-hint">Arrastra una tarjeta encima de una carpeta para guardarla ahí. Pulsa una carpeta para abrirla.</p>
       </div>
     </article>
 
@@ -286,6 +260,6 @@
   <p class="credits">Datos de TMDB, AniList, IGDB, Deezer, Google Books y Open Library. Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.</p>
 </footer>
 
-<script src="app.js?v=202611191802"></script>
+<script src="app.js?v=20261119180627"></script>
 </body>
 </html>
