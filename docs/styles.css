@@ -267,6 +267,9 @@ main > section:not(.hero) {
 .feature--wide .shot { width: 100%; max-width: 1040px; justify-self: center; }
 .shot--tall a { display: block; border-radius: 20px; cursor: zoom-in; }
 
+/* Vitrina: texto a la izquierda y la imagen, más ancha, a la derecha */
+.feature.feature--showcase { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
+
 /* Vitrina exportada: se ve entera, con su pie debajo */
 .shot--tall { aspect-ratio: auto; overflow: visible; background: none; border: 0; box-shadow: none; }
 .shot--tall img {
@@ -454,6 +457,7 @@ main > section:not(.hero) {
   .mosaic { left: 50%; top: -150px; margin-left: -340px; grid-template-columns: repeat(4, 150px); }
   .tile { height: 200px; }
   .feature, .feature:nth-of-type(even) { grid-template-columns: 1fr; gap: 28px; }
+  .feature.feature--showcase { grid-template-columns: 1fr; }
   .feature:nth-of-type(even) .feature-text { order: 0; }
   .facts, .steps { grid-template-columns: 1fr; gap: 28px; }
   .type-list li { grid-template-columns: 1fr; gap: 4px; }
