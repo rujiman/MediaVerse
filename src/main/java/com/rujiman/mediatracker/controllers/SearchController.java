@@ -128,6 +128,19 @@ public class SearchController {
     @FXML
     public void initialize() {
 
+        // Ctrl+K (Cmd+K en Mac): ir a buscar desde cualquier pantalla
+        searchField.sceneProperty().addListener((obs, oldScene, scene) -> {
+            if (scene == null) return;
+            scene.getAccelerators().put(
+                    new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.K, javafx.scene.input.KeyCombination.SHORTCUT_DOWN),
+                    () -> {
+                        // Desde cualquier pantalla te lleva a Buscar, listo para escribir
+                        goSearch();
+                        searchField.requestFocus();
+                        searchField.selectAll();
+                    });
+        });
+
         // Recorte circular: la imagen rellena el círculo sin deformarse (estilo "cover")
         clipCircular(profileIcon, 16);   // radio = mitad de 32 (icono del header)
         clipCircular(profilePicture, 32); // radio = mitad de 64 (popup de perfil, antes 80px)
@@ -450,8 +463,6 @@ public class SearchController {
             return;
         }
 
-        // Si se busca con un detalle abierto encima, se cierra para ver los resultados
-        closeOverlayNow();
 
         // Deshabilitar mientras busca, para evitar búsquedas duplicadas
         searchButton.setDisable(true);
@@ -906,10 +917,11 @@ public class SearchController {
         detailOverlayContainer.setVisible(true);
         detailOverlayContainer.setOpacity(1);
 
-        // Con un overlay abierto, los filtros de búsqueda no aplican a lo
-        // que se ve: se ocultan (la barra de búsqueda sí se queda).
+        // Con un overlay abierto, la barra y los filtros de búsqueda no
+        // aplican a lo que se ve: se ocultan.
         filterBarBox.setVisible(false);
         filterBarBox.setManaged(false);
+        updateSearchBar();
 
         // Entrada "estilo Apple": la vista sube un poco mientras aparece
         overlayFade = com.rujiman.mediatracker.ui.Motion.enter(content);
@@ -933,6 +945,18 @@ public class SearchController {
         boolean show = searchContentBox.isVisible() && !detailOverlayContainer.isVisible();
         filterBarBox.setVisible(show);
         filterBarBox.setManaged(show);
+        updateSearchBar();
+    }
+
+    /**
+     * La barra de búsqueda solo aparece en la pantalla de Buscar. En el resto
+     * (Favoritos, Mi biblioteca, fichas) se oculta para que no parezca que
+     * busca dentro de esa sección. Ctrl+K lleva a Buscar desde cualquier sitio.
+     */
+    private void updateSearchBar() {
+        boolean show = searchContentBox.isVisible() && !detailOverlayContainer.isVisible();
+        searchBarBox.setVisible(show);
+        searchBarBox.setManaged(show);
     }
 
     /**
@@ -1351,6 +1375,130 @@ public class SearchController {
 
     private void openInBrowser(String url) {
         com.rujiman.mediatracker.util.Browser.open(url);
+    }
+
+    // -------------------------
+    // COPIA DE SEGURIDAD
+    // -------------------------
+    @FXML
+    private void onBackup() {
+        if (profileMenuOpen) closeProfileMenu();
+        ButtonType export = new ButtonType("Guardar copia", ButtonBar.ButtonData.OK_DONE);
+        ButtonType restore = new ButtonType("Restaurar una copia", ButtonBar.ButtonData.OTHER);
+        Alert choose = new Alert(Alert.AlertType.NONE, "", export, restore, ButtonType.CANCEL);
+        Dialogs.own(choose, searchField);
+        choose.setTitle("Copia de seguridad");
+        choose.setHeaderText("Tus datos en un solo archivo");
+        choose.setContentText("Guarda favoritos, progreso, vitrina, carpetas y claves en un .zip para no perderlos "
+                + "o pasarlos a otro ordenador. Restaurar sustituye los datos actuales por los de la copia "
+                + "(antes se guarda una copia automática de lo que tienes ahora).");
+        Dialogs.styleDark(choose.getDialogPane());
+        ButtonType picked = choose.showAndWait().orElse(ButtonType.CANCEL);
+        javafx.stage.Window owner = searchField.getScene().getWindow();
+
+        if (picked == export) {
+            javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
+            fc.setTitle("Guardar copia de seguridad");
+            fc.setInitialFileName(BackupService.suggestedName());
+            fc.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("Copia de MediaVerse (*.zip)", "*.zip"));
+            java.io.File file = fc.showSaveDialog(owner);
+            if (file == null) return;
+            try {
+                int n = BackupService.exportTo(file.toPath());
+                showInfo("Copia guardada (" + n + " archivos):\n" + file.getAbsolutePath());
+            } catch (Exception ex) {
+                showInfo("No se pudo guardar la copia: " + ex.getMessage());
+            }
+        } else if (picked == restore) {
+            javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
+            fc.setTitle("Elige una copia de MediaVerse");
+            fc.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("Copia de MediaVerse (*.zip)", "*.zip"));
+            java.io.File file = fc.showOpenDialog(owner);
+            if (file == null) return;
+            if (!BackupService.looksLikeBackup(file.toPath())) {
+                showInfo("Ese archivo no parece una copia de MediaVerse.");
+                return;
+            }
+            Alert sure = new Alert(Alert.AlertType.CONFIRMATION);
+            Dialogs.own(sure, searchField);
+            sure.setHeaderText("¿Restaurar esta copia?");
+            sure.setContentText("Se sustituirán tus datos actuales. MediaVerse se cerrará al terminar: vuelve a abrirla para ver los datos restaurados.");
+            Dialogs.styleDark(sure.getDialogPane());
+            if (sure.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+            try {
+                java.nio.file.Path safety = BackupService.importFrom(file.toPath());
+                Alert done = new Alert(Alert.AlertType.INFORMATION);
+                Dialogs.own(done, searchField);
+                done.setHeaderText("Copia restaurada");
+                done.setContentText("Tus datos anteriores quedan guardados en:\n" + safety + "\n\nMediaVerse se cerrará ahora. Ábrela de nuevo.");
+                Dialogs.styleDark(done.getDialogPane());
+                done.showAndWait();
+                // Salir sin guardar nada más: los datos en memoria son los viejos
+                javafx.application.Platform.exit();
+                System.exit(0);
+            } catch (Exception ex) {
+                showInfo("No se pudo restaurar la copia: " + ex.getMessage());
+            }
+        }
+    }
+
+    // -------------------------
+    // ACERCA DE
+    // -------------------------
+    @FXML
+    private void onAbout() {
+        if (profileMenuOpen) closeProfileMenu();
+        Dialog<Void> d = new Dialog<>();
+        Dialogs.own(d, searchField);
+        d.setTitle("Acerca de MediaVerse");
+        Dialogs.styleDark(d.getDialogPane());
+        d.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        ImageView logo = new ImageView(new Image(getClass().getResourceAsStream("/com/rujiman/mediatracker/views/icons/mediaverse_logo.png")));
+        logo.setFitWidth(56);
+        logo.setFitHeight(56);
+        Label name = new Label("MediaVerse " + com.rujiman.mediatracker.util.AppInfo.VERSION);
+        name.setStyle("-fx-font-family: 'Inter ExtraBold'; -fx-font-size: 24px; -fx-text-fill: " + Palette.TEXT + ";");
+        Label tag = new Label("Tu vitrina de todo lo que ves, juegas, escuchas y lees.");
+        tag.setStyle("-fx-font-size: 14px; -fx-text-fill: " + Palette.TEXT_MUTED + ";");
+        HBox head = new HBox(16, logo, new VBox(2, name, tag));
+        head.setAlignment(Pos.CENTER_LEFT);
+
+        Label author = new Label("Hecha por Rujiman como Trabajo de Fin de Grado de DAM.");
+        author.setStyle("-fx-font-size: 13px; -fx-text-fill: " + Palette.TEXT_SOFT + ";");
+
+        HBox links = new HBox(8,
+                aboutLink("Web", "https://rujiman.github.io/MediaVerse/"),
+                aboutLink("Novedades", "https://github.com/" + com.rujiman.mediatracker.util.AppInfo.GITHUB_REPO + "/releases"),
+                aboutLink("Código en GitHub", "https://github.com/" + com.rujiman.mediatracker.util.AppInfo.GITHUB_REPO));
+
+        Label data = new Label("Datos de TMDB, AniList, IGDB, Deezer, Google Books y Open Library.\n"
+                + "Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.");
+        data.setWrapText(true);
+        data.setStyle("-fx-font-size: 12px; -fx-text-fill: " + Palette.DIM + ";");
+
+        Button folder = new Button("Abrir carpeta de datos");
+        folder.getStyleClass().add("btn-secondary-sm");
+        folder.setOnAction(e -> {
+            try {
+                java.awt.Desktop.getDesktop().open(BackupService.dataDir().toFile());
+            } catch (Exception ex) {
+                showInfo("Tus datos están en:\n" + BackupService.dataDir());
+            }
+        });
+
+        VBox box = new VBox(16, head, author, links, data, folder);
+        box.setPadding(new javafx.geometry.Insets(8, 4, 4, 4));
+        box.setPrefWidth(460);
+        d.getDialogPane().setContent(box);
+        d.showAndWait();
+    }
+
+    private Button aboutLink(String text, String url) {
+        Button b = new Button(text);
+        b.getStyleClass().add("btn-secondary-sm");
+        b.setOnAction(e -> openInBrowser(url));
+        return b;
     }
 
     private void showInfo(String message) {

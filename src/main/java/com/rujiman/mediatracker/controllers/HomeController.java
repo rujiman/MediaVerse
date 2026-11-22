@@ -285,7 +285,21 @@ public class HomeController {
         sub.setStyle("-fx-font-size: 14px; -fx-text-fill: " + DIM + ";");
 
         VBox nameBox = new VBox(2, nameRow, sub);
-        nameBox.setPadding(new Insets(14, 32, 18, 32));
+
+        // ── Tus números: salen del progreso guardado ────────────────────
+        WatchProgressService.Stats st = WatchProgressService.getStats();
+        HBox stats = new HBox(28,
+                stat(formatInt(st.episodes()), st.episodes() == 1 ? "episodio visto" : "episodios vistos"),
+                stat(formatInt(st.finished()), st.finished() == 1 ? "terminado" : "terminados"),
+                stat(formatInt(st.inProgress()), "en curso"),
+                stat(st.rated() == 0 ? "–" : String.format(java.util.Locale.forLanguageTag("es"), "%.1f", st.averageRating()), "tu nota media"));
+        stats.setAlignment(Pos.BOTTOM_RIGHT);
+
+        Region nameSpacer = new Region();
+        HBox.setHgrow(nameSpacer, Priority.ALWAYS);
+        HBox nameAndStats = new HBox(16, nameBox, nameSpacer, stats);
+        nameAndStats.setAlignment(Pos.BOTTOM_LEFT);
+        nameAndStats.setPadding(new Insets(14, 32, 18, 32));
 
         // ── Contadores por tipo ─────────────────────────────────────────
         FlowPane chips = new FlowPane(8, 8);
@@ -296,7 +310,7 @@ public class HomeController {
             chips.getChildren().add(chip(MediaTypeTheme.accentHex(t), MediaTypeTheme.plural(t) + "  " + count));
         }
 
-        banner.getChildren().addAll(cover, identity, nameBox, chips);
+        banner.getChildren().addAll(cover, identity, nameAndStats, chips);
         return banner;
     }
 
@@ -1021,6 +1035,21 @@ public class HomeController {
         return b;
     }
 
+    /** Un número grande con su etiqueta debajo (estadísticas del perfil). */
+    private Node stat(String value, String label) {
+        Label v = new Label(value);
+        v.setStyle("-fx-font-family: 'Inter ExtraBold'; -fx-font-size: 24px; -fx-text-fill: " + TEXT + ";");
+        Label l = new Label(label);
+        l.setStyle("-fx-font-size: 12px; -fx-text-fill: " + DIM + ";");
+        VBox box = new VBox(0, v, l);
+        box.setAlignment(Pos.BOTTOM_RIGHT);
+        return box;
+    }
+
+    private static String formatInt(int n) {
+        return java.text.NumberFormat.getIntegerInstance(java.util.Locale.forLanguageTag("es")).format(n);
+    }
+
     private Node chip(String dotColor, String text) {
         Label l = new Label(text);
         l.setGraphic(new Circle(4, javafx.scene.paint.Color.web(dotColor)));
@@ -1123,9 +1152,19 @@ public class HomeController {
 
         FlowPane grid = new FlowPane(10, 10);
 
-        Runnable updateLimitState = () -> limitLabel.setText("Seleccionados: " + selectedIds.size() + " / " + max);
-
         List<javafx.scene.layout.StackPane> cards = new ArrayList<>();
+
+        // Cada cambio repinta TODAS las tarjetas: al quitar una, las demás se
+        // desbloquean al momento y se puede elegir otra sin guardar y volver a abrir.
+        Runnable updateLimitState = () -> {
+            boolean full = selectedIds.size() >= max;
+            limitLabel.setText("Seleccionados: " + selectedIds.size() + " / " + max
+                    + (full ? "  ·  Quita uno para poder elegir otro" : ""));
+            for (javafx.scene.layout.StackPane c : cards) {
+                Object refresh = c.getProperties().get("refresh");
+                if (refresh instanceof Runnable r) r.run();
+            }
+        };
 
         for (FavoriteItem fav : candidates) {
             javafx.scene.layout.StackPane card = buildSelectableCard(fav, selectedIds, max, updateLimitState, accentHex);
@@ -1281,6 +1320,7 @@ public class HomeController {
         };
 
         updateBorder.run();
+        card.getProperties().put("refresh", updateBorder);
 
         card.setOnMouseClicked(e -> {
             boolean selected = selectedIds.contains(fav.getId());
@@ -1290,8 +1330,7 @@ public class HomeController {
                 if (selectedIds.size() >= max) return; // protección extra
                 selectedIds.add(fav.getId());
             }
-            updateBorder.run();
-            onChange.run();
+            onChange.run(); // repinta esta y todas las demás
         });
 
         return card;

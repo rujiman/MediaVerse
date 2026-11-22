@@ -61,7 +61,7 @@
                          Constelaciones que ya usamos en Login), en vez
                          del rosa de marca plano de antes. -->
                     <TextField fx:id="searchField"
-                               promptText="Buscar anime, series, pelis , música o videojuegos..."
+                               promptText="Busca series, pelis, anime, manga, juegos, música o libros   (Ctrl+K)"
                                prefWidth="340"
                                styleClass="text-field-base"
                                style="-fx-border-color: linear-gradient(from 0% 0% to 100% 0%, #4dd9ec, #8b5cf6, #ec4dc0, #ecb14d);
@@ -246,7 +246,7 @@
                       -fx-effect: dropshadow(gaussian, #000000cc, 16, 0, 0, 4);
                       -fx-background-radius: 12;"
                prefWidth="220" maxWidth="220"
-               prefHeight="440" maxHeight="440"
+               prefHeight="520" maxHeight="520"
                StackPane.alignment="TOP_RIGHT">
         <StackPane.margin><Insets top="64" right="20"/></StackPane.margin>
 
@@ -289,6 +289,18 @@
 
             <Button text="Claves de API"
                     onAction="#onApiKeys"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"
+                    style="-fx-font-size: 12px;"/>
+
+            <Button text="Copia de seguridad"
+                    onAction="#onBackup"
+                    maxWidth="Infinity"
+                    styleClass="btn-flat-brand"
+                    style="-fx-font-size: 12px;"/>
+
+            <Button text="Acerca de MediaVerse"
+                    onAction="#onAbout"
                     maxWidth="Infinity"
                     styleClass="btn-flat-brand"
                     style="-fx-font-size: 12px;"/>

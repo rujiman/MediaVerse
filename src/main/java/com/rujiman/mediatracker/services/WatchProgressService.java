@@ -210,6 +210,22 @@ public class WatchProgressService {
         if (progress != null && progress.item == null) remember(item);
     }
 
+    /** Resumen para las estadísticas del perfil. */
+    public record Stats(int episodes, int finished, int inProgress, double averageRating, int rated) {}
+
+    public static Stats getStats() {
+        ensureCorrectUserLoaded();
+        int episodes = 0, finished = 0, inProgress = 0, rated = 0, ratingSum = 0;
+        for (Progress p : cache.values()) {
+            int watched = p.watchedEpisodes != null ? p.watchedEpisodes.size() : 0;
+            episodes += watched;
+            if (p.viewed) finished++;
+            else if (p.inProgress || watched > 0) inProgress++;
+            if (p.userRating != null && p.userRating > 0) { rated++; ratingSum += p.userRating; }
+        }
+        return new Stats(episodes, finished, inProgress, rated == 0 ? 0 : (double) ratingSum / rated, rated);
+    }
+
     /** Todos los títulos de un tipo que tienen progreso y ficha guardada. */
     public static java.util.List<Tracked> getTracked(MediaType type) {
         ensureCorrectUserLoaded();
