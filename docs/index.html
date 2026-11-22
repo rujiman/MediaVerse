@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MediaVerse · Tu vitrina de todo lo que ves, juegas, escuchas y lees</title>
+  <title>MediaVerse: tu vitrina de todo lo que ves, juegas, escuchas y lees</title>
   <meta name="description" content="App gratuita para Windows y Linux: guarda tus series, películas, anime, manga, juegos, música y libros, lleva tu progreso y presume de tus favoritos.">
   <meta property="og:title" content="MediaVerse">
   <meta property="og:description" content="Tu vitrina de todo lo que ves, juegas, escuchas y lees. Gratis para Windows y Linux.">
@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#100c1c">
   <link rel="icon" href="assets/favicon.png">
   <link rel="preload" href="fonts/Inter-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20261119180627">
+  <link rel="stylesheet" href="styles.css?v=20261122114309">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
 <main>
 
   <!-- ============ HERO ============ -->
-  <section class="hero" id="descargar">
+  <section class="hero" id="descargar" data-hero>
     <div class="hero-text">
       <h1>Tu vitrina de todo lo que ves, juegas, escuchas y lees.</h1>
       <p class="lead">
@@ -58,35 +58,40 @@
       </div>
     </div>
 
-    <div class="mosaic-wrap" aria-hidden="true">
-      <div class="mosaic">
-        <div class="tile t-game"><b>Juegos</b><i>IGDB</i></div>
-        <div class="tile t-anime"><b>Anime</b><i>AniList</i></div>
-        <div class="tile t-series"><b>Series</b><i>TMDB</i></div>
-        <div class="tile t-movie"><b>Películas</b><i>TMDB</i></div>
-        <div class="tile t-music"><b>Música</b><i>Deezer</i></div>
-        <div class="tile t-book"><b>Libros</b><i>Google Books</i></div>
-        <div class="tile t-manga"><b>Manga</b><i>AniList</i></div>
-        <div class="tile t-game"><b>Juegos</b><i>IGDB</i></div>
-        <div class="tile t-anime"><b>Anime</b><i>AniList</i></div>
-        <div class="tile t-series"><b>Series</b><i>TMDB</i></div>
-        <div class="tile t-manga"><b>Manga</b><i>AniList</i></div>
-        <div class="tile t-movie"><b>Películas</b><i>TMDB</i></div>
-        <div class="tile t-book"><b>Libros</b><i>Google Books</i></div>
-        <div class="tile t-music"><b>Música</b><i>Deezer</i></div>
-        <div class="tile t-game"><b>Juegos</b><i>IGDB</i></div>
-        <div class="tile t-anime"><b>Anime</b><i>AniList</i></div>
-        <div class="tile t-series"><b>Series</b><i>TMDB</i></div>
-        <div class="tile t-movie"><b>Películas</b><i>TMDB</i></div>
-        <div class="tile t-manga"><b>Manga</b><i>AniList</i></div>
-        <div class="tile t-music"><b>Música</b><i>Deezer</i></div>
+    <div class="stage" aria-hidden="true" data-stage>
+      <svg class="arc" viewBox="0 0 1200 400" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="arcGrad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="#4dd9ec" stop-opacity="0"/>
+            <stop offset=".18" stop-color="#4dd9ec"/>
+            <stop offset=".45" stop-color="#8b5cf6"/>
+            <stop offset=".7" stop-color="#ec4dc0"/>
+            <stop offset=".88" stop-color="#ecb14d"/>
+            <stop offset="1" stop-color="#ecb14d" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="arcGlow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+        </defs>
+        <path class="arc-glow" d="M20 390 C 220 40, 980 40, 1180 390" pathLength="1"/>
+        <path class="arc-line" d="M20 390 C 220 40, 980 40, 1180 390" pathLength="1"/>
+      </svg>
+      <div class="halo"></div>
+      <div class="app">
+        <div class="app-bar"><i></i><i></i><i></i><span>MediaVerse</span></div>
+        <img src="assets/shots/hero-app.webp" alt="" width="2000" height="1240" fetchpriority="high">
       </div>
+      <div class="float f1" data-depth="18"><div class="tile t-game"><b>Juegos</b><i>IGDB</i></div></div>
+      <div class="float f2" data-depth="12"><div class="tile t-anime"><b>Anime</b><i>AniList</i></div></div>
+      <div class="float f3" data-depth="22"><div class="tile t-series"><b>Series</b><i>TMDB</i></div></div>
+      <div class="float f4" data-depth="14"><div class="tile t-movie"><b>Películas</b><i>TMDB</i></div></div>
+      <div class="float f5" data-depth="20"><div class="tile t-book"><b>Libros</b><i>Google Books</i></div></div>
+      <div class="float f6" data-depth="10"><div class="tile t-manga"><b>Manga</b><i>AniList</i></div></div>
+      <div class="float f7" data-depth="16"><div class="tile t-music"><b>Música</b><i>Deezer</i></div></div>
     </div>
   </section>
 
   <!-- ============ TRÁILER ============ -->
   <section class="trailer" id="trailer" aria-labelledby="trailer-title">
-    <h2 id="trailer-title">Míralo en un minuto</h2>
+    <h2 id="trailer-title">Míralo en 30 segundos</h2>
     <div class="video-frame" data-video>
       <video controls preload="metadata" poster="assets/trailer-poster.jpg" playsinline>
         <source src="assets/trailer.mp4" type="video/mp4">
@@ -121,14 +126,13 @@
     <article class="feature feature--showcase">
       <div class="feature-text">
         <h2>Un perfil para presumir</h2>
-        <p>Tu pantalla de inicio es tu vitrina: tu favorito absoluto de cada cosa en grande y tu top 5 al lado. Elige portada, ordénalo arrastrando y expórtalo como imagen para subirlo a donde quieras.</p>
+        <p>Tu pantalla de inicio es tu vitrina: tu favorito absoluto de cada cosa en grande y tu top 5 al lado. Elige portada, ordénalo arrastrando y expórtalo como imagen para subirlo a donde quieras. La de al lado es una exportación real: haz clic para verla a tamaño completo.</p>
       </div>
       <figure class="shot shot--tall" style="--c:#ec4dc0">
         <a href="assets/shots/vitrina-grande.webp" target="_blank" rel="noopener" aria-label="Ver la vitrina a tamaño completo">
         <img src="assets/shots/vitrina.webp" alt="Vitrina de perfil exportada desde MediaVerse: favorito absoluto y top 5 de juegos, anime, series y películas, y portadas de música, libros y manga" loading="lazy" width="2000" height="2239">
         </a>
-        <figcaption>Así queda la imagen que genera «Compartir perfil». Haz clic para verla a tamaño completo.</figcaption>
-      </figure>
+              </figure>
     </article>
 
     <article class="feature">
@@ -260,6 +264,6 @@
   <p class="credits">Datos de TMDB, AniList, IGDB, Deezer, Google Books y Open Library. Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.</p>
 </footer>
 
-<script src="app.js?v=20261119180627"></script>
+<script src="app.js?v=20261122114309"></script>
 </body>
 </html>

@@ -4,6 +4,42 @@
 // 3. Pestañas de instalación, tráiler y cabecera.
 
 const REPO = "rujiman/MediaVerse";
+
+// --- Entrada del hero (un solo momento al cargar) y parallax suave de las tarjetas
+document.documentElement.classList.add("js");
+(function setupHero() {
+  const hero = document.querySelector("[data-hero]");
+  if (!hero) return;
+  const go = () => requestAnimationFrame(() => hero.classList.add("is-in"));
+  const img = hero.querySelector(".app img");
+  Promise.all([
+    document.fonts ? document.fonts.ready : Promise.resolve(),
+    img && !img.complete ? new Promise((r) => { img.onload = img.onerror = r; }) : Promise.resolve(),
+  ]).then(go);
+  setTimeout(go, 1500); // por si algo tarda: nunca se queda en blanco
+
+  // Parallax con inercia (solo ratón y sin "reducir movimiento")
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!fine || calm) return;
+  const floats = [...hero.querySelectorAll(".float")];
+  let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+  const loop = () => {
+    x += (tx - x) * 0.08; y += (ty - y) * 0.08;
+    floats.forEach((f) => {
+      const d = Number(f.dataset.depth || 12);
+      f.style.transform = `translate3d(${x * d}px, ${y * d}px, 0)`;
+    });
+    raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.001 ? requestAnimationFrame(loop) : 0;
+  };
+  hero.addEventListener("pointermove", (e) => {
+    const r = hero.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width - 0.5;
+    ty = (e.clientY - r.top) / r.height - 0.5;
+    if (!raf) raf = requestAnimationFrame(loop);
+  });
+  hero.addEventListener("pointerleave", () => { tx = 0; ty = 0; if (!raf) raf = requestAnimationFrame(loop); });
+})();
 const DL = `https://github.com/${REPO}/releases/latest/download/`;
 const FILES = {
   windows: { url: DL + "MediaVerse-portable.zip", label: "Descargar para Windows" },
