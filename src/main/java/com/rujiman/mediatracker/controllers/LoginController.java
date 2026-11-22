@@ -43,7 +43,7 @@ public class LoginController {
         usernameLoginField.setOnAction(e -> passwordLoginField.requestFocus());
         confirmPasswordField.setOnAction(e -> onRegister());
         setupButtonHovers();
-        if (com.rujiman.mediatracker.util.ConfigLoader.hasRequiredKeys()) {
+        if (!com.rujiman.mediatracker.util.ConfigLoader.needsSetup()) {
             showLoginPanel();
         } else {
             showSetupPanel();

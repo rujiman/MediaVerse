@@ -462,18 +462,21 @@ public class SearchController {
             protected List<MediaItem> call() {
                 List<MediaItem> allResults = new ArrayList<>();
 
-                updateMessage("Buscando series en TMDB...");
-                try {
-                    allResults.addAll(tmdbService.searchSeries(query));
-                } catch (Exception e) {
-                    System.err.println("⚠️ Error buscando series: " + e.getMessage());
-                }
+                boolean tmdb = com.rujiman.mediatracker.util.ConfigLoader.hasTmdb();
+                if (tmdb) {
+                    updateMessage("Buscando series en TMDB...");
+                    try {
+                        allResults.addAll(tmdbService.searchSeries(query));
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Error buscando series: " + e.getMessage());
+                    }
 
-                updateMessage("Buscando películas en TMDB...");
-                try {
-                    allResults.addAll(tmdbService.searchMovies(query));
-                } catch (Exception e) {
-                    System.err.println("⚠️ Error buscando películas: " + e.getMessage());
+                    updateMessage("Buscando películas en TMDB...");
+                    try {
+                        allResults.addAll(tmdbService.searchMovies(query));
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Error buscando películas: " + e.getMessage());
+                    }
                 }
 
                 updateMessage("Buscando anime en AniList...");
@@ -490,11 +493,13 @@ public class SearchController {
                     System.err.println("⚠️ Error buscando música: " + e.getMessage());
                 }
 
-                updateMessage("Buscando videojuegos en IGDB...");
-                try {
-                    allResults.addAll(gameService.search(query));
-                } catch (Exception e) {
-                    System.err.println("⚠️ Error buscando videojuegos: " + e.getMessage());
+                if (com.rujiman.mediatracker.util.ConfigLoader.hasIgdb()) {
+                    updateMessage("Buscando videojuegos en IGDB...");
+                    try {
+                        allResults.addAll(gameService.search(query));
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Error buscando videojuegos: " + e.getMessage());
+                    }
                 }
 
                 updateMessage("Buscando manga en AniList...");
@@ -595,6 +600,15 @@ public class SearchController {
         }
 
         renderResults(filtered);
+
+        // Filtro de un tipo sin conectar: explicar por qué no sale nada
+        if (filtered.isEmpty()) {
+            boolean noTmdb = (typeFilter == MediaType.SERIES || typeFilter == MediaType.MOVIE)
+                    && !com.rujiman.mediatracker.util.ConfigLoader.hasTmdb();
+            boolean noIgdb = typeFilter == MediaType.GAME && !com.rujiman.mediatracker.util.ConfigLoader.hasIgdb();
+            if (noTmdb) statusLabel.setText("Para buscar series y películas, conecta TMDB en tu perfil → Claves de API");
+            if (noIgdb) statusLabel.setText("Para buscar juegos, conecta Twitch (IGDB) en tu perfil → Claves de API");
+        }
     }
 
     /**

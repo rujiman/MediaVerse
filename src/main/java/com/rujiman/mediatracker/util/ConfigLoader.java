@@ -170,10 +170,26 @@ public class ConfigLoader {
         return value != null && !value.isBlank();
     }
 
-    /** ¿Están las claves sin las que la app no funciona (TMDB e IGDB)? */
+    /** ¿Están las claves de TMDB e IGDB? */
     public static boolean hasRequiredKeys() {
         return isSet("TMDB_API_KEY") && isSet("IGDB_CLIENT_ID") && isSet("IGDB_CLIENT_SECRET");
     }
+
+    /** ¿Hay que enseñar el asistente de claves antes del login? Solo si nunca se pasó por él y faltan claves. */
+    public static boolean needsSetup() {
+        return !isSet("SETUP_DONE") && !hasRequiredKeys();
+    }
+
+    /** Recuerda que el usuario ya pasó por el asistente (aunque saltara pasos). */
+    public static void markSetupDone() throws IOException {
+        saveUserKeys(Map.of("SETUP_DONE", "1"));
+    }
+
+    /** ¿Se puede buscar en TMDB (series y películas)? */
+    public static boolean hasTmdb() { return isSet("TMDB_API_KEY"); }
+
+    /** ¿Se puede buscar en IGDB (juegos)? */
+    public static boolean hasIgdb() { return isSet("IGDB_CLIENT_ID") && isSet("IGDB_CLIENT_SECRET"); }
 
     /** Guarda claves en userdata/claves_api.env y las aplica al momento. */
     public static synchronized void saveUserKeys(Map<String, String> keys) throws IOException {

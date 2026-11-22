@@ -73,7 +73,9 @@ public class TMDBService {
     private final Gson gson = new Gson();
 
     private String getKey() {
-        return ConfigLoader.getTMDBKey();
+        // Sin clave no se lanza nada: TMDB responde 401 y cada método devuelve vacío
+        String key = ConfigLoader.get("TMDB_API_KEY");
+        return key == null ? "" : key.trim();
     }
 
     // ============================

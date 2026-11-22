@@ -126,7 +126,17 @@ public final class ApiKeysWizard {
 
     private void next() {
         if (index + 1 < steps.size()) show(index + 1);
-        else onDone.run();
+        else finish();
+    }
+
+    /** Termina el asistente y recuerda que ya se pasó por él (aunque se saltaran pasos). */
+    private void finish() {
+        try {
+            ConfigLoader.markSetupDone();
+        } catch (Exception ignored) {
+            // si no se puede guardar, como mucho se vuelve a ofrecer la próxima vez
+        }
+        onDone.run();
     }
 
     private Node buildPage(Step step) {
@@ -154,11 +164,17 @@ public final class ApiKeysWizard {
         title.getStyleClass().add("login-title");
         title.setWrapText(true);
         String sub = index == 0 && firstRun
-                ? "MediaVerse busca en servicios gratuitos que piden una clave personal. Te guiamos para conectarlos; solo se hace una vez.\n\n" + step.subtitle()
+                ? "MediaVerse busca en servicios gratuitos que piden una clave personal. Conecta solo los que te interesen: anime, manga y música funcionan sin nada.\n\n" + step.subtitle()
                 : step.subtitle();
         Label subtitle = new Label(sub);
         subtitle.getStyleClass().add("login-subtitle");
         subtitle.setWrapText(true);
+        Label skipNote = new Label(step.optional() ? ""
+                : "¿No te interesa? Sáltalo: el resto de la app funciona igual y puedes añadirla luego en perfil → Claves de API.");
+        skipNote.setWrapText(true);
+        skipNote.setStyle("-fx-font-size: 13px; -fx-text-fill: " + Palette.DIM + ";");
+        skipNote.setVisible(!step.optional());
+        skipNote.setManaged(!step.optional());
 
         // --- Instrucciones numeradas
         VBox howTo = new VBox(10);
@@ -223,16 +239,17 @@ public final class ApiKeysWizard {
             back.setOnAction(e -> show(index - 1));
             footer.getChildren().add(back);
         }
-        if (step.optional()) {
-            Button skip = new Button("Saltar este paso");
-            skip.getStyleClass().add("login-link");
-            skip.setOnAction(e -> next());
-            footer.getChildren().add(skip);
-        } else if (!firstRun && ConfigLoader.hasRequiredKeys()) {
-            Button keep = new Button("Dejar como está");
-            keep.getStyleClass().add("login-link");
-            keep.setOnAction(e -> next());
-            footer.getChildren().add(keep);
+        // Todos los pasos se pueden saltar: hay quien solo quiere anime, música o libros
+        boolean alreadySet = step.fields().stream().allMatch(f -> ConfigLoader.isSet(f.key()));
+        Button skip = new Button(alreadySet ? "Dejar como está" : "Saltar este paso");
+        skip.getStyleClass().add("login-link");
+        skip.setOnAction(e -> next());
+        footer.getChildren().add(skip);
+        if (firstRun && index + 1 < steps.size()) {
+            Button skipAll = new Button("Saltar todo");
+            skipAll.getStyleClass().add("login-link");
+            skipAll.setOnAction(e -> finish());
+            footer.getChildren().add(skipAll);
         }
         if (!firstRun) {
             Button cancel = new Button("Cerrar");
@@ -289,7 +306,7 @@ public final class ApiKeysWizard {
         });
         inputs.values().forEach(in -> in.setOnAction(e -> primary.fire()));
 
-        List<Node> children = new ArrayList<>(List.of(header, new VBox(8, title, subtitle), howTo, fieldsBox,
+        List<Node> children = new ArrayList<>(List.of(header, new VBox(8, title, subtitle, skipNote), howTo, fieldsBox,
                 status, primary, saveAnyway));
         if (!footer.getChildren().isEmpty()) children.add(footer);
         page.getChildren().setAll(children);
