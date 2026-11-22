@@ -39,6 +39,17 @@ jobs:
         with:
           ref: ${{ env.TAG }}
 
+      - name: Comprobar que la versión de la app coincide con la etiqueta
+        run: |
+          VERSION="${TAG#v}"
+          APP=$(grep -oP 'VERSION = "\K[^"]+' src/main/java/com/rujiman/mediatracker/util/AppInfo.java)
+          POM=$(grep -m1 -oP '(?<=<version>)[0-9][^<]*(?=</version>)' pom.xml)
+          echo "Etiqueta: $VERSION, AppInfo: $APP, pom: $POM"
+          if [ "$APP" != "$VERSION" ] || [ "$POM" != "$VERSION" ]; then
+            echo "::error::AppInfo.VERSION ($APP) o pom.xml ($POM) no coinciden con la etiqueta $TAG. Sube la versión antes de etiquetar."
+            exit 1
+          fi
+
       - name: Notas desde el CHANGELOG
         run: |
           VERSION="${TAG#v}"

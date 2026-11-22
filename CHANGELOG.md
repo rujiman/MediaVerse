@@ -2,6 +2,17 @@
 
 ---
 
+## [1.3.5] — 2026-11-22
+
+### ✨ Novedades
+- **El asistente de claves se puede saltar entero.** Cada paso tiene "Saltar este paso" y, la primera vez, "Saltar todo": quien solo quiere anime, manga, música o libros no necesita ninguna clave. Una vez saltado no vuelve a aparecer; las claves se añaden cuando se quiera en perfil → Claves de API
+- Sin clave de TMDB o de Twitch, la búsqueda simplemente no consulta esos servicios, y al filtrar por series, películas o juegos explica cómo conectarlos
+
+### 🐛 Correcciones
+- La 1.3.4 se publicó con el número de versión antiguo dentro, así que la app volvía a ofrecer la misma actualización después de instalarla. Ahora el proceso de publicación comprueba que la versión de la app coincide con la etiqueta antes de compilar
+
+---
+
 ## [1.3.3] — 2026-11-18
 
 ### ✨ Novedades
@@ -131,4 +142,4 @@
 
 ---
 
-**Última actualización**: 2026-11-18 (1.3.3)
+**Última actualización**: 2026-11-18 (1.3.5)

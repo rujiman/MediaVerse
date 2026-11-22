@@ -23,7 +23,7 @@
 3. Confirma la contraseña y pulsa **Crear cuenta**; después inicia sesión
 
 ### Claves de API (la primera vez)
-Antes del primer login, un asistente te guía para conectar **TMDB** (películas y series) y **Twitch/IGDB** (juegos), y opcionalmente **Google Books** (sinopsis de libros). Cada paso tiene un botón que abre la página del servicio y comprueba la clave al pegarla.
+Antes del primer login, un asistente te guía para conectar **TMDB** (películas y series) y **Twitch/IGDB** (juegos), y opcionalmente **Google Books** (sinopsis de libros). Cada paso tiene un botón que abre la página del servicio y comprueba la clave al pegarla. **Todos los pasos se pueden saltar** (o "Saltar todo"): anime, manga, música y libros funcionan sin claves, y las demás se pueden añadir más tarde.
 
 ### Perfil
 Pulsa tu foto (arriba a la derecha) para cambiar el nombre de usuario o la contraseña, cambiar tus **claves de API**, buscar actualizaciones o cerrar sesión. La foto de perfil se cambia desde la vitrina de Inicio (ver más abajo).
