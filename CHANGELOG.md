@@ -2,6 +2,13 @@
 
 ---
 
+## [1.3.6] — 2026-11-22
+
+### 🐛 Correcciones
+- **Al actualizar ya no aparece una ventana de terminal.** El paso que cambia la app por la versión nueva se ejecuta oculto (se nota a partir de la siguiente actualización, porque esta todavía la instala la versión anterior)
+
+---
+
 ## [1.3.5] — 2026-11-22
 
 ### ✨ Novedades
@@ -142,4 +149,4 @@
 
 ---
 
-**Última actualización**: 2026-11-18 (1.3.5)
+**Última actualización**: 2026-11-18 (1.3.6)

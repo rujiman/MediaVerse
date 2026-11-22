@@ -173,8 +173,8 @@ public final class UpdateService {
      *    Java), así que terminaba al instante sin esperar. Ahora se espera
      *    con "ping", que funciona siempre.
      *  - El script se lanzaba en la misma consola que la app; al cerrarse
-     *    la app, Windows cerraba también el script. Ahora se abre con
-     *    "start" en su propia ventana (minimizada).
+     *    la app, Windows cerraba también el script. Ahora lo lanza
+     *    PowerShell como proceso aparte y sin ventana (launchHidden).
      * Además espera a que termine este proceso (por su PID), reintenta el
      * cambio de jar y deja un registro en %TEMP%\mediaverse-update.log.
      * Si algo falla, vuelve a abrir la versión anterior para que la app no
@@ -220,11 +220,34 @@ public final class UpdateService {
                 "");
         // UTF-8 + chcp 65001: rutas con tildes o ñ (C:\Users\Rubén\...) llegan bien
         Files.writeString(script, bat, StandardCharsets.UTF_8);
-        // "start" abre el script en su propia consola, independiente de la app
-        new ProcessBuilder("cmd.exe", "/c", "start", "\"MediaVerse\"", "/min", script.toString())
-                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
-                .redirectError(ProcessBuilder.Redirect.DISCARD)
-                .start();
+        launchHidden(script);
+    }
+
+    /**
+     * Ejecuta el .bat sin ninguna ventana a la vista. PowerShell lanza
+     * "cmd /c script" oculto y como proceso independiente (sigue vivo cuando
+     * la app se cierra). El comando va en -EncodedCommand (Base64 UTF-16LE),
+     * así las rutas con espacios, comillas, tildes o ñ no rompen nada.
+     * Si PowerShell no está disponible, se usa una ventana minimizada que se
+     * cierra sola al terminar.
+     */
+    private static void launchHidden(Path script) throws Exception {
+        String path = script.toString().replace("'", "''");
+        String ps = "Start-Process -FilePath $env:ComSpec -ArgumentList @('/c', ('\"' + '" + path + "' + '\"')) -WindowStyle Hidden";
+        String encoded = java.util.Base64.getEncoder().encodeToString(ps.getBytes(StandardCharsets.UTF_16LE));
+        try {
+            new ProcessBuilder("powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                    "-WindowStyle", "Hidden", "-EncodedCommand", encoded)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD)
+                    .start()
+                    .waitFor(10, TimeUnit.SECONDS); // a que PowerShell haya lanzado el script
+        } catch (Exception e) {
+            new ProcessBuilder("cmd.exe", "/c", "start", "\"MediaVerse\"", "/min", "cmd.exe", "/c", script.toString())
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD)
+                    .start();
+        }
     }
 
     /**
