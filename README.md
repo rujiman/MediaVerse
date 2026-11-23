@@ -16,7 +16,7 @@
 - **Episodios por temporadas** en las series, con tu progreso en cada una
 - **Estrenos** — próximos episodios y lanzamientos de lo que sigues, agrupados por fecha, con aviso de novedades
 - **Reseñas** personales con aviso de spoilers, y **Mis reseñas** para verlas todas
-- **Logros y rachas** — 67 logros en 5 dificultades (con 7 secretos), rachas de hasta un año, mapa de actividad, aviso con sonido y medallas en tu perfil
+- **Logros y rachas** — 67 logros en 5 dificultades (con 7 secretos), rachas sin límite (la *Racha infinita* sube de nivel cada año), mapa de actividad, aviso con sonido y medallas en tu perfil
 - **Ficha de detalle** con póster, progreso, tráiler, plataformas de streaming, tu reseña y recomendaciones
 - **Copia de seguridad** de todos tus datos en un `.zip`
 - **Actualizaciones automáticas** — la app avisa cuando hay versión nueva y se actualiza sola con un botón

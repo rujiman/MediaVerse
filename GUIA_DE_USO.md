@@ -150,6 +150,7 @@ Pulsa las estrellas de **Tu nota** (1 a 5). Pulsar la misma estrella otra vez la
 - **67 logros** en 9 categorías y 5 dificultades: **Fácil · Normal · Difícil · Épico · Legendario**. Cada uno muestra su progreso ("625 / 2.000") o la fecha en que lo conseguiste
 - **7 secretos**: se ven como "???" con una pista hasta que los descubres
 - **Rachas**: cada día que marcas algo, sumas. Arriba verás tu racha actual, la mejor y un **mapa de actividad** de las últimas semanas
+- **Racha infinita**: se consigue con un año seguido y **sube de nivel cada año más** (Nivel 2 a los dos años, Nivel 3 a los tres…), sin final
 - Lo que marcas de golpe para ponerte al día (*Marcar temporada*, *Ya he visto hasta…*) cuenta para los logros de cantidad, pero **no** para rachas ni maratones
 - Al conseguir un logro sale un **aviso abajo a la derecha** con sonido. El sonido se quita en Logros → **Sonido al desbloquear**
 - **Chincheta**: fija hasta 3 logros conseguidos para que salgan como medallas en tu perfil

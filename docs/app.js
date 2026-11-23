@@ -415,7 +415,7 @@ addEventListener("scroll", () => header.classList.toggle("scrolled", scrollY > 8
     { n: "???", d: "Nadie llega antes que tú", lv: 3, c: "#ec4d80", i: "lock", secret: true },
     { n: "Medio año", d: "Ten actividad 180 días seguidos", lv: 4, c: "#ec4d80", i: "flame", p: [12, 180] },
     { n: "Final boss", d: "Termina 500 juegos", lv: 5, c: "#4dd9ec", i: "game", p: [41, 500] },
-    { n: "Un año entero", d: "Ten actividad 365 días seguidos", lv: 5, c: "#ec4d80", i: "flame", p: [12, 365] },
+    { n: "Racha infinita", d: "Un año seguido; cada año más, sube de nivel", lv: 5, c: "#ec4d80", i: "flame", p: [12, 365] },
     { n: "???", d: "Las dos caras de una historia", lv: 3, c: "#ec4d80", i: "lock", secret: true },
   ];
   const svg = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[k]}"/></svg>`;
