@@ -179,7 +179,7 @@ addEventListener("scroll", () => header.classList.toggle("scrolled", scrollY > 8
   };
   // Como en la app: cada estado de la biblioteca y Favoritos tienen sus propias carpetas
   const folders = {
-    "library:progress": [{ name: "Con amigos", ids: [1, 9] }],
+    "library:progress": [{ name: "Para el finde", ids: [1, 9] }],
     "library:pending":  [{ name: "Para el verano", ids: [8, 11, 14] }],
     "library:done":     [],
     "favorites":        [{ name: "anime", ids: [7, 5] }, { name: "Lo mejor de lo mejor", ids: [2, 12] }],
@@ -336,4 +336,159 @@ addEventListener("scroll", () => header.classList.toggle("scrolled", scrollY > 8
     state.view = b.dataset.view; state.folder = null; state.type = "all"; render();
   }));
   render();
+})();
+
+// --- Novedades 1.3.7 – 1.4: progreso por temporadas, logros y su aviso
+(function setupSeasons() {
+  const box = document.querySelector("[data-seasons]");
+  if (!box) return;
+  const seasons = [10, 8, 12];                 // episodios por temporada
+  const total = seasons.reduce((a, b) => a + b, 0);
+  const starts = seasons.map((_, i) => seasons.slice(0, i).reduce((a, b) => a + b, 0) + 1);
+  const watched = new Set(Array.from({ length: 13 }, (_, i) => i + 1)); // T1 entera y 3 de la T2
+  let current = null;
+
+  const seasonOf = (n) => starts.findLastIndex((s) => n >= s);
+  const label = (n) => `T${seasonOf(n) + 1} · E${n - starts[seasonOf(n)] + 1}`;
+  const next = () => { for (let i = 1; i <= total; i++) if (!watched.has(i)) return i; return -1; };
+
+  function render() {
+    if (current === null) current = next() > 0 ? seasonOf(next()) : seasons.length - 1;
+    const n = next();
+    const chips = seasons.map((count, i) => {
+      let done = 0;
+      for (let e = starts[i]; e < starts[i] + count; e++) if (watched.has(e)) done++;
+      const text = done === count ? "✓" : done ? `${done}/${count}` : count;
+      return `<button type="button" aria-pressed="${i === current}" class="${done === count ? "is-done" : ""}" data-s="${i}">T${i + 1}<small>${text}</small></button>`;
+    }).join("");
+    let grid = "";
+    for (let e = starts[current]; e < starts[current] + seasons[current]; e++) {
+      grid += `<button type="button" class="${watched.has(e) ? "is-on" : ""}" data-e="${e}" aria-label="${label(e)}${watched.has(e) ? ", visto" : ""}">${e - starts[current] + 1}</button>`;
+    }
+    box.innerHTML = `
+      <div class="s-head"><b>Tu progreso</b><small>${watched.size} de ${total} episodios</small></div>
+      <div class="s-bar"><i style="width:${(watched.size / total) * 100}%"></i></div>
+      <div class="s-chips">${chips}</div>
+      <div class="s-grid">${grid}</div>
+      <button type="button" class="s-main" data-next ${n < 0 ? "disabled" : ""}>${n < 0 ? "Completado" : "Marcar " + label(n)}</button>`;
+  }
+
+  box.addEventListener("click", (ev) => {
+    const b = ev.target.closest("button");
+    if (!b) return;
+    if (b.dataset.s) current = +b.dataset.s;
+    else if (b.dataset.e) {
+      const e = +b.dataset.e;
+      if (ev.shiftKey) { watched.clear(); for (let i = 1; i <= e; i++) watched.add(i); }
+      else watched.has(e) ? watched.delete(e) : watched.add(e);
+    } else if (b.hasAttribute("data-next")) {
+      const n = next();
+      if (n > 0) { watched.add(n); current = seasonOf(n); }
+    }
+    render();
+  });
+  render();
+})();
+
+(function setupAchievements() {
+  const root = document.querySelector("[data-ach]");
+  if (!root) return;
+  const ICONS = {
+    tv: "M4 7h16v11H4z M9 3l3 4 3-4",
+    flame: "M12 3c.5 3 5 5.5 5 10.5a5 5 0 0 1-10 0c0-2.6 1.6-3.9 2.2-5.6.9 1 1.6 2 1.8 3.1 1-2.3 1.4-5.2 1-8z",
+    book: "M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z M5 17a3 3 0 0 1 3-3h10",
+    film: "M4 5h16v14H4z M8 5v14 M16 5v14 M4 9.5h4 M4 14.5h4 M16 9.5h4 M16 14.5h4",
+    game: "M7 8h10a4 4 0 0 1 4 4v1a3 3 0 0 1-5.4 1.8L14.5 14h-5l-1.1.8A3 3 0 0 1 3 13v-1a4 4 0 0 1 4-4z M8 10.5v3 M6.5 12h3",
+    moon: "M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z",
+    lock: "M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3",
+    star: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",
+  };
+  const NAMES = ["", "Fácil", "Normal", "Difícil", "Épico", "Legendario"];
+  const LIST = [
+    { n: "Sofá reservado", d: "Ve 500 episodios", lv: 2, c: "#8b5cf6", i: "tv", done: "3 nov" },
+    { n: "Maratoniano", d: "Ve 10 episodios en un mismo día", lv: 3, c: "#8b5cf6", i: "tv", done: "23 nov" },
+    { n: "Noctámbulo", d: "Marca algo entre las 2 y las 5", lv: 2, c: "#ec4d80", i: "moon", done: "19 nov" },
+    { n: "Una semana", d: "Ten actividad 7 días seguidos", lv: 1, c: "#ec4d80", i: "flame", done: "20 nov" },
+    { n: "Mando gastado", d: "Ve 2.000 episodios", lv: 3, c: "#8b5cf6", i: "tv", p: [1781, 2000] },
+    { n: "Tomo tras tomo", d: "Lee 1.000 capítulos de manga", lv: 2, c: "#ef4444", i: "book", p: [500, 1000] },
+    { n: "Director de culto", d: "Ve 1.000 películas", lv: 5, c: "#ecb14d", i: "film", p: [212, 1000] },
+    { n: "???", d: "Nadie llega antes que tú", lv: 3, c: "#ec4d80", i: "lock", secret: true },
+    { n: "Medio año", d: "Ten actividad 180 días seguidos", lv: 4, c: "#ec4d80", i: "flame", p: [12, 180] },
+    { n: "Final boss", d: "Termina 500 juegos", lv: 5, c: "#4dd9ec", i: "game", p: [41, 500] },
+    { n: "Un año entero", d: "Ten actividad 365 días seguidos", lv: 5, c: "#ec4d80", i: "flame", p: [12, 365] },
+    { n: "???", d: "Las dos caras de una historia", lv: 3, c: "#ec4d80", i: "lock", secret: true },
+  ];
+  const svg = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[k]}"/></svg>`;
+  const pips = (lv, c) => `<span class="pips" style="--c:${c}">${[1, 2, 3, 4, 5].map((i) => `<i class="${i <= lv ? "on" : ""}"></i>`).join("")}</span>`;
+  const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "."); // 1.781, como en la app
+  let level = 0;
+
+  // Mapa de actividad: 18 semanas, siempre igual (semilla fija)
+  const heat = root.querySelector("[data-heat]");
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  let cells = "";
+  for (let i = 0; i < 18 * 7; i++) {
+    const r = rnd(), recent = i > 18 * 7 - 14;
+    const l = recent ? 1 + Math.floor(r * 3) : r < 0.45 ? 0 : 1 + Math.floor(r * 2.9);
+    cells += `<i data-l="${l}"></i>`;
+  }
+  heat.innerHTML = cells;
+
+  const filters = root.querySelector("[data-ach-filters]");
+  function renderFilters() {
+    filters.innerHTML = NAMES.map((name, i) => `<button type="button" aria-pressed="${level === i}" data-lv="${i}">${i ? pips(i, "#ec4d80") : ""}${i ? name : "Todas"}</button>`).join("");
+  }
+  const grid = root.querySelector("[data-ach-grid]");
+  function renderGrid() {
+    grid.innerHTML = LIST.filter((a) => !level || a.lv === level).slice(0, 8).map((a) => {
+      const foot = a.done ? `<span class="a-foot">Conseguido el ${a.done}</span>`
+        : a.p ? `<span class="a-bar"><i style="width:${(a.p[0] / a.p[1]) * 100}%"></i></span><span class="a-foot">${fmt(a.p[0])} / ${fmt(a.p[1])}</span>`
+        : `<span class="a-foot">Secreto</span>`;
+      return `<li class="${a.done ? "is-done" : ""} ${a.secret ? "secret" : ""}" style="--c:${a.done ? a.c : "#a59fc0"}">
+        <div class="a-top"><span class="a-icon">${svg(a.i)}</span><span class="a-diff">${pips(a.lv, a.done ? a.c : "#3a3160")}${NAMES[a.lv]}</span></div>
+        <b>${a.n}</b><p>${a.d}</p>${foot}</li>`;
+    }).join("") || `<li><p>Ningún logro de este nivel en el ejemplo.</p></li>`;
+  }
+  filters.addEventListener("click", (ev) => {
+    const b = ev.target.closest("button");
+    if (!b) return;
+    level = +b.dataset.lv;
+    renderFilters(); renderGrid();
+  });
+  renderFilters(); renderGrid();
+
+  // El aviso aparece una vez al llegar a la sección y se va a los 5 segundos
+  const toast = root.querySelector("[data-toast]");
+  const show = () => { toast.classList.add("is-in"); setTimeout(() => toast.classList.remove("is-in"), 5000); };
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); setTimeout(show, 700); }
+    }, { threshold: 0.5 });
+    io.observe(root.closest("article") || root); // la sección, por si la captura real sustituye al panel
+  } else {
+    show();
+  }
+})();
+
+// --- Capturas reales: si existe la imagen de un hueco [data-shot], sustituye a la réplica.
+// Basta con dejar el archivo en assets/shots/ con ese nombre; si no está, se queda la réplica.
+(function setupRealShots() {
+  document.querySelectorAll("[data-shot]").forEach((el) => {
+    const img = new Image();
+    img.onload = () => {
+      const fig = document.createElement("figure");
+      fig.className = "shot shot--auto shot--real";
+      fig.style.setProperty("--c", el.dataset.c || "#ec4d80");
+      img.alt = el.dataset.alt || "";
+      img.width = img.naturalWidth; img.height = img.naturalHeight;
+      img.loading = "lazy";
+      fig.appendChild(img);
+      // Lo que debe seguir encima de la captura (el aviso de logro)
+      el.querySelectorAll("[data-keep]").forEach((k) => fig.appendChild(k));
+      if (el.hasAttribute("data-ach")) fig.setAttribute("data-ach-real", "");
+      el.replaceWith(fig);
+    };
+    img.src = el.dataset.shot + "?v=" + (document.querySelector('script[src^="app.js"]')?.src.split("v=")[1] || "1");
+  });
 })();

@@ -1,1 +1,9 @@
-Pon aquí las capturas: vitrina.png, detalle.png y biblioteca.png (16:10, p. ej. 1600x1000).
+Capturas de la web (formato .webp, ventana de la app a 1440 px de ancho aprox.).
+Si un archivo de esta lista existe, la web lo usa en lugar de su replica en HTML:
+
+  estrenos.webp    Pantalla Estrenos (con algo en "Esta semana")
+  resena.webp      Ficha de un titulo con "Tu resena" escrita (zona de cabecera + resena)
+  temporadas.webp  Ficha de una serie con los chips T1/T2/T3 y la cuadricula de episodios
+  logros.webp      Pantalla Logros (racha, mapa de actividad y primeras tarjetas)
+
+Ya en uso: vitrina.webp, vitrina-grande.webp (exportacion PNG de la vitrina), banner.webp (recorte de la banda de perfil), hero-app.webp.

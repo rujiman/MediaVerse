@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#100c1c">
   <link rel="icon" href="assets/favicon.png">
   <link rel="preload" href="fonts/Inter-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20261122114309">
+  <link rel="stylesheet" href="styles.css?v=20261123110000">
 </head>
 <body>
 
@@ -23,6 +23,7 @@
   <nav class="top-nav" aria-label="Secciones">
     <a href="#trailer">Tráiler</a>
     <a href="#tipos">Qué guarda</a>
+    <a href="#logros">Logros</a>
     <a href="#instalar">Instalar</a>
     <a class="top-cta" href="#descargar">Descargar</a>
   </nav>
@@ -33,6 +34,7 @@
   <!-- ============ HERO ============ -->
   <section class="hero" id="descargar" data-hero>
     <div class="hero-text">
+      <a class="news-pill" href="#logros"><span>Nuevo en la 1.4</span>Logros, rachas, estrenos y reseñas</a>
       <h1>Tu vitrina de todo lo que ves, juegas, escuchas y lees.</h1>
       <p class="lead">
         Guarda series, películas, anime, manga, juegos, música y libros en un solo sitio.
@@ -91,10 +93,10 @@
 
   <!-- ============ TRÁILER ============ -->
   <section class="trailer" id="trailer" aria-labelledby="trailer-title">
-    <h2 id="trailer-title">Míralo en 30 segundos</h2>
+    <h2 id="trailer-title">Míralo en menos de un minuto</h2>
     <div class="video-frame" data-video>
-      <video controls preload="metadata" poster="assets/trailer-poster.jpg" playsinline>
-        <source src="assets/trailer.mp4" type="video/mp4">
+      <video controls preload="metadata" poster="assets/trailer-poster.jpg?v=141" playsinline>
+        <source src="assets/trailer.mp4?v=142" type="video/mp4">
       </video>
       <div class="video-soon">
         <img src="assets/logo.png" alt="" width="72" height="72">
@@ -129,21 +131,48 @@
         <p>Tu pantalla de inicio es tu vitrina: tu favorito absoluto de cada cosa en grande y tu top 5 al lado. Elige portada, ordénalo arrastrando y expórtalo como imagen para subirlo a donde quieras. La de al lado es una exportación real: haz clic para verla a tamaño completo.</p>
       </div>
       <figure class="shot shot--tall" style="--c:#ec4dc0">
-        <a href="assets/shots/vitrina-grande.webp" target="_blank" rel="noopener" aria-label="Ver la vitrina a tamaño completo">
-        <img src="assets/shots/vitrina.webp" alt="Vitrina de perfil exportada desde MediaVerse: favorito absoluto y top 5 de juegos, anime, series y películas, y portadas de música, libros y manga" loading="lazy" width="2000" height="2239">
+        <a href="assets/shots/vitrina-grande.webp?v=14" target="_blank" rel="noopener" aria-label="Ver la vitrina a tamaño completo">
+        <img src="assets/shots/vitrina.webp?v=14" alt="Vitrina de perfil exportada desde MediaVerse 1.4: banda con medallas y estadísticas, Continúa donde lo dejaste, favorito absoluto y top 5 de juegos, anime, series y películas, y portadas de música, libros y manga" loading="lazy" width="2000" height="2241">
         </a>
               </figure>
+    </article>
+
+    <article class="feature feature--wide">
+      <div class="feature-text">
+        <h2>Tus números, a la vista</h2>
+        <p>Encima de tu vitrina ves cuántos episodios llevas, los capítulos que has leído, lo que has terminado, lo que tienes en curso y tu nota media. Junto a tu nombre van tus medallas: los logros que tú elijas enseñar.</p>
+      </div>
+      <figure class="shot shot--auto" style="--c:#8b5cf6">
+        <img src="assets/shots/banner.webp?v=14" alt="Banda de perfil de MediaVerse: medallas Cerrando historias, Al día y Vitrina llena junto al nombre, y 1.781 episodios vistos, 500 capítulos leídos, 24 terminados, 9 en curso y 4,8 de nota media" loading="lazy" width="1600" height="503">
+      </figure>
     </article>
 
     <article class="feature">
       <div class="feature-text">
         <h2>Sabes siempre por dónde vas</h2>
-        <p>Marca episodios y capítulos con un clic, o con Mayús + clic todos hasta uno. Lo que tienes a medias aparece en Inicio para seguir donde lo dejaste.</p>
+        <p>Marca episodios y capítulos con un clic, o todos hasta uno con Mayús + clic. Las series van por temporadas, con tu progreso en cada una, y lo que tienes a medias aparece en Inicio para seguir donde lo dejaste. Pruébalo: pulsa los episodios.</p>
       </div>
-      <figure class="shot" style="--c:#4dd9ec">
-        <img src="assets/shots/detalle.webp" alt="Ficha de The Walking Dead en MediaVerse: 50 de 177 episodios vistos, botón Marcar episodio 51 y cuadrícula de episodios por bloques" loading="lazy" width="1540" height="962">
-        <figcaption>Ficha con progreso</figcaption>
-      </figure>
+      <div class="seasons" data-seasons aria-label="Ejemplo interactivo del progreso por temporadas" data-shot="assets/shots/temporadas.webp" data-c="#8b5cf6" data-alt="Ficha de una serie en MediaVerse con el progreso por temporadas"></div>
+    </article>
+
+    <article class="feature">
+      <div class="feature-text">
+        <h2>No te pierdas ni un estreno</h2>
+        <p>MediaVerse mira cuándo sale el próximo episodio de lo que sigues y cuándo se estrena lo que tienes pendiente. Lo ves todo ordenado por fecha y con cuenta atrás, y un aviso en el menú te dice cuándo hay algo nuevo esa semana.</p>
+      </div>
+      <div class="releases" aria-label="Ejemplo de la pantalla Estrenos" data-shot="assets/shots/estrenos.webp" data-c="#ec4dc0" data-alt="Pantalla Estrenos de MediaVerse con los próximos episodios agrupados por fecha">
+        <p class="rel-head">Estrenos <span>2 nuevos</span></p>
+        <p class="rel-group">Esta semana</p>
+        <ul>
+          <li style="--c:#ec4dc0"><i></i><div><b>Frieren</b><small>Anime · Episodio 14</small></div><em>Hoy · 17:00<small>hoy</small></em></li>
+          <li style="--c:#8b5cf6"><i></i><div><b>Black Clover</b><small>Serie · T2 · E9</small></div><em>Sáb 28 nov<small>en 5 días</small></em></li>
+        </ul>
+        <p class="rel-group">Más adelante</p>
+        <ul>
+          <li style="--c:#8b5cf6"><i></i><div><b>Invincible</b><small>Serie · T5 · E1</small></div><em>Mié 17 feb<small>en 3 meses</small></em></li>
+          <li style="--c:#4dd9ec"><i></i><div><b>GTA VI</b><small>Juego · Lanzamiento</small></div><em>26 may 2027<small>en 6 meses</small></em></li>
+        </ul>
+      </div>
     </article>
 
     <article class="feature">
@@ -160,6 +189,44 @@
           <li>Crunchyroll</li>
         </ul>
         <span class="where-btn">Ver ahora</span>
+      </div>
+    </article>
+
+    <article class="feature">
+      <div class="feature-text">
+        <h2>Di lo que piensas</h2>
+        <p>Escribe una reseña de cualquier cosa, debajo de tus estrellas, y marca si tiene spoilers. Las tienes todas juntas en Mis reseñas, ordenadas por fecha o por tu nota.</p>
+      </div>
+      <div class="review" aria-label="Ejemplo de reseña en la app" data-shot="assets/shots/resena.webp" data-c="#ec4d80" data-alt="Ficha de MediaVerse con la reseña personal debajo de las estrellas">
+        <div class="review-top">
+          <span class="review-poster" style="--c:#ec4dc0"></span>
+          <div><b>Frieren</b><small>Anime · 2023 · Escrita el 12 nov 2026</small></div>
+          <span class="review-stars">★★★★★</span>
+        </div>
+        <p>De esas historias que se te quedan dentro. Cada episodio es tranquilo y aun así no puedes parar. La música, perfecta.</p>
+        <span class="review-tag">Sin spoilers</span>
+      </div>
+    </article>
+
+    <article class="feature feature--wide" id="logros">
+      <div class="feature-text">
+        <h2>Logros que cuestan de verdad</h2>
+        <p>67 logros en cinco dificultades, de Fácil a Legendario, y siete secretos por descubrir. Cada día que marcas algo sumas a tu racha, hasta un año entero. Y cuando consigues uno, te enteras.</p>
+      </div>
+      <div class="ach" data-ach data-shot="assets/shots/logros.webp" data-c="#ec4d80" data-alt="Pantalla Logros de MediaVerse: racha, mapa de actividad, filtros de dificultad y logros por categoría">
+        <div class="ach-streak">
+          <div class="ach-fire">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.5 3 5 5.5 5 10.5a5 5 0 0 1-10 0c0-2.6 1.6-3.9 2.2-5.6.9 1 1.6 2 1.8 3.1 1-2.3 1.4-5.2 1-8z"/></svg>
+            <div><small>Racha actual</small><b>12 días</b><small>Mejor racha: 31 días</small></div>
+          </div>
+          <div class="heat" data-heat aria-hidden="true"></div>
+        </div>
+        <div class="ach-filters" role="group" aria-label="Filtrar por dificultad" data-ach-filters></div>
+        <ul class="ach-grid" data-ach-grid></ul>
+        <div class="toast" data-toast data-keep aria-live="polite">
+          <span class="toast-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v11H4z M9 3l3 4 3-4"/></svg></span>
+          <div><small>Logro desbloqueado · Difícil</small><b>Maratoniano</b><span>Ve 10 episodios en un mismo día</span></div>
+        </div>
       </div>
     </article>
 
@@ -264,6 +331,6 @@
   <p class="credits">Datos de TMDB, AniList, IGDB, Deezer, Google Books y Open Library. Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.</p>
 </footer>
 
-<script src="app.js?v=20261122114309"></script>
+<script src="app.js?v=20261123110000"></script>
 </body>
 </html>

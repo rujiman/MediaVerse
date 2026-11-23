@@ -11,8 +11,14 @@
 - **Mi biblioteca** — todo lo tuyo en un sitio: *Pendiente · En curso · Terminado*, con filtro por tipo y carpetas (arrastrando las tarjetas)
 - **Favoritos** con carpetas (arrastrar y soltar) y valoración personal (1-5 estrellas)
 - **Progreso** por episodios o capítulos (clic, Mayús + clic para marcar hasta uno, bloques de 50 en series largas) y estado *"Estoy jugando / viendo / leyendo"* para el resto
-- **Continúa donde lo dejaste** en la pantalla de inicio
-- **Ficha de detalle** con póster, progreso, tráiler, plataformas de streaming y recomendaciones
+- **Continúa donde lo dejaste** en la pantalla de inicio, con aviso de **"Nuevo ep."** cuando sale uno esta semana
+- **Estadísticas** en tu perfil: episodios vistos, capítulos leídos, terminados, en curso y tu nota media
+- **Episodios por temporadas** en las series, con tu progreso en cada una
+- **Estrenos** — próximos episodios y lanzamientos de lo que sigues, agrupados por fecha, con aviso de novedades
+- **Reseñas** personales con aviso de spoilers, y **Mis reseñas** para verlas todas
+- **Logros y rachas** — 67 logros en 5 dificultades (con 7 secretos), rachas de hasta un año, mapa de actividad, aviso con sonido y medallas en tu perfil
+- **Ficha de detalle** con póster, progreso, tráiler, plataformas de streaming, tu reseña y recomendaciones
+- **Copia de seguridad** de todos tus datos en un `.zip`
 - **Actualizaciones automáticas** — la app avisa cuando hay versión nueva y se actualiza sola con un botón
 - **Diseño moderno** — tipografía Inter, animaciones suaves y paleta "Constelaciones" con un color por tipo
 - **Datos 100% locales** — nada sale de tu ordenador
@@ -78,10 +84,14 @@ MediaVerse guarda todo en local, en tu carpeta personal:
     ├── progreso/
     ├── plan/
     ├── carpetas/
+    ├── resenas/       (tus reseñas)
+    ├── actividad/     (qué hiciste y cuándo: rachas)
+    ├── logros/        (logros conseguidos)
+    ├── cache/         (estrenos y temporadas; se puede borrar)
     └── <usuario>_banner_*.png   (portada de la vitrina, si subes una)
 ```
 
-Puedes hacer backup, mover o sincronizar esta carpeta con Google Drive o OneDrive cuando quieras. Ningún dato se envía a ningún servidor.
+Puedes hacer backup (perfil → **Copia de seguridad**), mover o sincronizar esta carpeta con Google Drive o OneDrive cuando quieras. Ningún dato se envía a ningún servidor.
 
 ---
 
