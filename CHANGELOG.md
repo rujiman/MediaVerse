@@ -2,6 +2,21 @@
 
 ---
 
+## [1.3.7] — 2026-11-23
+
+### ✨ Novedades
+- **Estrenos**: nueva sección en el menú con los próximos episodios y lanzamientos de lo que sigues (series y anime en curso o en favoritos, y lo que tienes en Pendiente), agrupados en Hoy, Mañana, Esta semana, Próximas semanas, Más adelante y Sin fecha todavía. Funciona sin conexión con lo último que se supo
+- **Aviso de estrenos nuevos**: un número junto a Estrenos y un puntito en el menú cuando sale algo nuevo esta semana; se apaga al abrir la sección. En "Continúa donde lo dejaste" verás "Nuevo ep. vie" en lo que estrena pronto
+- **Reseñas**: escribe lo que te ha parecido cualquier título, debajo de tus estrellas, y marca si tiene spoilers. Todas tus reseñas están en **Mis reseñas**, desde el menú o desde tu perfil, ordenadas por fecha o por nota
+- **Episodios por temporadas** en las series: chips T1, T2… con tu progreso en cada una, "Marcar temporada" y "Siguiente: T2 · E4". Lo que ya tenías marcado se conserva
+- **Editor de la vitrina más rápido**: al quitar un título puedes elegir otro en el mismo paso
+- **Estadísticas en tu perfil**: episodios vistos, capítulos leídos, terminados, en curso y tu nota media
+- **Copia de seguridad**: exporta e importa todos tus datos en un .zip desde el menú del perfil
+- **Acerca de MediaVerse**: versión, enlaces y créditos
+- **Ctrl+K** te lleva a Buscar desde cualquier pantalla; la barra de búsqueda solo aparece en Buscar
+
+---
+
 ## [1.3.6] — 2026-11-22
 
 ### 🐛 Correcciones
@@ -140,13 +155,11 @@
 
 ### Próximas versiones (ideas)
 - MediaVerse Wrapped: resumen anual de lo que has visto, jugado y leído
-- Calendario de estrenos de tus series y animes
 - Logros y rachas
-- Búsqueda global rápida con Ctrl+K
+- Tarjeta para compartir tu perfil en redes
 - Contraseñas cifradas (hash) en el login local
-- Página web de descarga con tráiler de la app
-- Perfil público para compartir tu vitrina (red social)
+- Perfil público para compartir tu vitrina y ver reseñas de otros (red social)
 
 ---
 
-**Última actualización**: 2026-11-18 (1.3.6)
+**Última actualización**: 2026-11-23 (1.3.7)
