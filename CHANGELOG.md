@@ -2,6 +2,21 @@
 
 ---
 
+## [1.4.0] — 2026-11-23
+
+### ✨ Novedades
+- **Logros**: 67 logros en 9 categorías (series y anime, películas, juegos, lectura, música, reseñas y favoritos, rachas y maratones, explorador y **secretos**) y 5 dificultades: Fácil, Normal, Difícil, Épico y Legendario. Hay retos para mucho tiempo: hasta 10.000 episodios, 1.000 películas o una racha de un año entero
+- **7 logros secretos** que se ven como "???" con una pista hasta que los descubres
+- **Rachas**: cada día que marcas algo, sumas. En Logros verás tu racha actual, la mejor y un mapa de tu actividad de las últimas semanas
+- **Aviso al conseguir un logro**, abajo a la derecha y con sonido (se puede quitar en Logros). La primera vez que abras esta versión verás un solo aviso con todo lo que ya habías conseguido
+- **Medallas en tu perfil**: tus logros aparecen junto a tu nombre. Elige cuáles con la chincheta en Logros; si no eliges, salen los 3 más difíciles
+- Botón **Logros** en tu perfil y en el menú
+
+### 🔨 Cambios técnicos
+- La app guarda cuándo haces cada cosa (`actividad/actividad.jsonl`) y distingue lo que ves en directo de lo que marcas de golpe para ponerte al día. Las rachas y los maratones solo cuentan lo primero. Es la base del futuro resumen anual
+
+---
+
 ## [1.3.8] — 2026-11-23
 
 ### 🐛 Correcciones
@@ -162,11 +177,10 @@
 
 ### Próximas versiones (ideas)
 - MediaVerse Wrapped: resumen anual de lo que has visto, jugado y leído
-- Logros y rachas
 - Tarjeta para compartir tu perfil en redes
 - Contraseñas cifradas (hash) en el login local
 - Perfil público para compartir tu vitrina y ver reseñas de otros (red social)
 
 ---
 
-**Última actualización**: 2026-11-23 (1.3.8)
+**Última actualización**: 2026-11-23 (1.4.0)
