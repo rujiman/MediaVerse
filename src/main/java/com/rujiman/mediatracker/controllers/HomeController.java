@@ -96,13 +96,6 @@ public class HomeController {
     /** Se ejecuta al pinchar una tarjeta; recibe el MediaItem equivalente. */
     private java.util.function.Consumer<MediaItem> onOpenDetailAction;
 
-    private Runnable onOpenReleasesAction;
-
-    /** "Ver todos" de la franja de estrenos: abre la pantalla Estrenos. */
-    public void setOnOpenReleasesAction(Runnable action) {
-        this.onOpenReleasesAction = action;
-    }
-
     public void setOnOpenDetailAction(java.util.function.Consumer<MediaItem> action) {
         this.onOpenDetailAction = action;
     }
@@ -147,13 +140,12 @@ public class HomeController {
         refreshBanner();
         homeRoot.getChildren().add(bannerSlot);
 
-        Node cont = buildContinueSection();
-        if (cont != null) homeRoot.getChildren().add(cont);
-
-        // Estrenos de esta semana: se rellena cuando llegan las fechas
-        weekSlot.setPrefWidth(PAGE_W);
-        weekSlot.setMaxWidth(PAGE_W);
-        homeRoot.getChildren().add(weekSlot);
+        // "Continúa donde lo dejaste" va en su hueco: se repinta solo cuando
+        // llegan los estrenos de la semana (etiqueta "Nuevo ep. vie")
+        continueSlot.setPrefWidth(PAGE_W);
+        continueSlot.setMaxWidth(PAGE_W);
+        rebuildContinueSection();
+        homeRoot.getChildren().add(continueSlot);
         loadWeekReleases();
 
         for (int i = 0; i < BIG.length; i += 2) {
@@ -316,15 +308,36 @@ public class HomeController {
         nameAndStats.setPadding(new Insets(14, 32, 18, 32));
 
         // ── Contadores por tipo ─────────────────────────────────────────
-        FlowPane chips = new FlowPane(8, 8);
-        chips.setPadding(new Insets(0, 32, 26, 32));
+        // HBox y no FlowPane: un FlowPane calcula su alto como si se partiera
+        // en varias filas y alargaba la banda al ponerle el botón al lado
+        HBox chips = new HBox(8);
+        chips.setAlignment(Pos.CENTER_LEFT);
         for (MediaType t : new MediaType[]{MediaType.GAME, MediaType.ANIME, MediaType.SERIES, MediaType.MOVIE,
                 MediaType.MUSIC, MediaType.BOOK, MediaType.MANGA}) {
             int count = FavoritesService.getFavoritesByType(t).size();
             chips.getChildren().add(chip(MediaTypeTheme.accentHex(t), MediaTypeTheme.plural(t) + "  " + count));
         }
 
-        banner.getChildren().addAll(cover, identity, nameAndStats, chips);
+        // "Mis reseñas", abajo a la derecha, bajo las estadísticas
+        int reviews = com.rujiman.mediatracker.services.ReviewService.count();
+        // Misma forma y alto que los chips de tipo (píldora fina)
+        Button reviewsButton = new Button(reviews > 0 ? "Mis reseñas  ·  " + reviews : "Mis reseñas");
+        reviewsButton.setGraphic(Icons.of(Icons.REVIEW, 14, TEXT));
+        reviewsButton.setGraphicTextGap(8);
+        String pill = "-fx-background-radius: 999; -fx-border-radius: 999; -fx-padding: 6 14; -fx-min-height: 0;"
+                + "-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-text-fill: " + TEXT + "; -fx-cursor: hand;"
+                + "-fx-border-color: " + Palette.LINE_STRONG + ";";
+        reviewsButton.setStyle(pill + "-fx-background-color: transparent;");
+        reviewsButton.setOnMouseEntered(e -> reviewsButton.setStyle(pill + "-fx-background-color: " + Palette.PANEL_3 + ";"));
+        reviewsButton.setOnMouseExited(e -> reviewsButton.setStyle(pill + "-fx-background-color: transparent;"));
+        reviewsButton.setMinWidth(Region.USE_PREF_SIZE);
+        reviewsButton.setOnAction(e -> { if (onOpenReviewsAction != null) onOpenReviewsAction.run(); });
+        HBox.setHgrow(chips, Priority.ALWAYS);
+        HBox chipsRow = new HBox(16, chips, reviewsButton);
+        chipsRow.setAlignment(Pos.CENTER_LEFT);
+        chipsRow.setPadding(new Insets(0, 32, 26, 32));
+
+        banner.getChildren().addAll(cover, identity, nameAndStats, chipsRow);
         return banner;
     }
 
@@ -705,95 +718,86 @@ public class HomeController {
     }
 
     // ===========================================================
-    // 2b. ESTRENOS DE ESTA SEMANA
+    // 2b. ESTRENOS DE ESTA SEMANA (etiqueta en Continúa + aviso del menú)
     // ===========================================================
 
-    private final VBox weekSlot = new VBox();
+    /** Estrenos de los próximos 7 días por clave de título (último dato conocido). */
+    private Map<String, com.rujiman.mediatracker.services.ReleaseService.Release> weekByKey = new java.util.HashMap<>();
     private int weekRequest = 0;
+    private java.util.function.Consumer<List<com.rujiman.mediatracker.services.ReleaseService.Release>> onWeekReleases;
+
+    private Runnable onOpenReviewsAction;
+
+    /** Botón "Mis reseñas" del banner: abre la misma pantalla que el menú lateral. */
+    public void setOnOpenReviewsAction(Runnable action) {
+        this.onOpenReviewsAction = action;
+    }
+
+    /** Recibe los estrenos de esta semana cada vez que se calculan (para el aviso del menú). */
+    public void setOnWeekReleases(java.util.function.Consumer<List<com.rujiman.mediatracker.services.ReleaseService.Release>> action) {
+        this.onWeekReleases = action;
+    }
 
     /**
-     * Pide en segundo plano los estrenos de los próximos 7 días (máx. 3).
-     * Mientras no llegan se queda lo que hubiera; si no hay ninguno, la
-     * franja no ocupa sitio.
+     * Pide en segundo plano los estrenos de esta semana. Al llegar, si
+     * cambian, se repinta solo "Continúa donde lo dejaste" (con la etiqueta
+     * "Nuevo ep. vie") y se avisa al menú. No añade nada más al Inicio.
      */
     private void loadWeekReleases() {
-        if (weekSlot.getChildren().isEmpty()) {
-            weekSlot.setVisible(false);
-            weekSlot.setManaged(false);
-        }
         java.util.Map<String, MediaItem> candidates = com.rujiman.mediatracker.services.ReleaseService.collectCandidates();
         int myRequest = ++weekRequest;
         Thread t = new Thread(() -> {
-            List<com.rujiman.mediatracker.services.ReleaseService.Release> week = new ArrayList<>();
+            List<com.rujiman.mediatracker.services.ReleaseService.Release> week;
             try {
-                for (var r : com.rujiman.mediatracker.services.ReleaseService.load(candidates, false)) {
-                    String g = com.rujiman.mediatracker.services.ReleaseService.group(r);
-                    if (g.equals("Hoy") || g.equals("Mañana") || g.equals("Esta semana")) week.add(r);
-                    if (week.size() == 3) break;
-                }
+                week = com.rujiman.mediatracker.services.ReleaseService.thisWeek(
+                        com.rujiman.mediatracker.services.ReleaseService.load(candidates, false));
             } catch (Exception e) {
                 System.err.println("⚠️ Estrenos del Inicio: " + e.getMessage());
+                return;
             }
             javafx.application.Platform.runLater(() -> {
                 if (myRequest != weekRequest) return;
-                fillWeekSlot(week);
+                Map<String, com.rujiman.mediatracker.services.ReleaseService.Release> byKey = new java.util.HashMap<>();
+                for (var r : week) byKey.putIfAbsent(r.key(), r);
+                boolean changed = !byKey.keySet().equals(weekByKey.keySet())
+                        || byKey.entrySet().stream().anyMatch(en -> !en.getValue().equals(weekByKey.get(en.getKey())));
+                weekByKey = byKey;
+                if (changed) rebuildContinueSection();
+                if (onWeekReleases != null) onWeekReleases.accept(week);
             });
         }, "estrenos-inicio");
         t.setDaemon(true);
         t.start();
     }
 
-    private void fillWeekSlot(List<com.rujiman.mediatracker.services.ReleaseService.Release> week) {
-        weekSlot.getChildren().clear();
-        boolean show = !week.isEmpty();
-        weekSlot.setVisible(show);
-        weekSlot.setManaged(show);
-        if (!show) return;
+    /** Hueco fijo de "Continúa donde lo dejaste", para repintarlo solo. */
+    private final VBox continueSlot = new VBox();
 
-        Label title = new Label("Esta semana");
-        title.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: " + TEXT + ";");
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button all = new Button("Ver todos los estrenos");
-        all.getStyleClass().add("btn-secondary-sm");
-        all.setOnAction(e -> { if (onOpenReleasesAction != null) onOpenReleasesAction.run(); });
-        HBox header = new HBox(12, title, spacer, all);
-        header.setAlignment(Pos.CENTER_LEFT);
-
-        HBox cards = new HBox(16);
-        double w = (PAGE_W - 32) / 3;
-        for (var r : week) cards.getChildren().add(buildReleaseCard(r, w));
-
-        weekSlot.setSpacing(14);
-        weekSlot.getChildren().addAll(header, cards);
-        Motion.stagger(cards.getChildren());
+    private void rebuildContinueSection() {
+        Node cont = buildContinueSection();
+        if (cont == null) {
+            continueSlot.getChildren().clear();
+            continueSlot.setVisible(false);
+            continueSlot.setManaged(false);
+        } else {
+            continueSlot.getChildren().setAll(cont);
+            continueSlot.setVisible(true);
+            continueSlot.setManaged(true);
+        }
     }
 
-    private Node buildReleaseCard(com.rujiman.mediatracker.services.ReleaseService.Release r, double width) {
-        MediaType type = r.item().getType();
-        String accent = MediaTypeTheme.accentHex(type);
-        Node poster = CollectionUI.poster(r.item().getImageUrl(), 52, 78, accent, 8, true);
-
-        Label when = new Label(com.rujiman.mediatracker.services.ReleaseService.whenText(r));
-        when.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: " + accent + ";");
-        Label title = new Label(r.item().getTitle());
-        title.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 15px; -fx-text-fill: " + TEXT + ";");
-        title.setMaxWidth(width - 110);
-        Label what = new Label(r.what() == null ? "" : r.what());
-        what.setStyle("-fx-font-size: 12px; -fx-text-fill: " + DIM + ";");
-        what.setMaxWidth(width - 110);
-
-        VBox text = new VBox(6, when, title, what);
-        HBox card = new HBox(14, poster, text);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(12));
-        card.setPrefWidth(width);
-        card.setStyle(panelStyle(16) + "-fx-cursor: hand;");
-        card.getStyleClass().add("motion-lift");
-        card.setOnMouseClicked(e -> {
-            if (e.isStillSincePress() && onOpenDetailAction != null) onOpenDetailAction.accept(r.item());
-        });
-        return card;
+    /** "Nuevo ep. vie" en el color del tipo, si ese título estrena episodio esta semana. */
+    private Node newEpisodeTag(MediaItem item) {
+        if (item.getType() != MediaType.SERIES && item.getType() != MediaType.ANIME) return null;
+        var r = weekByKey.get(WatchProgressService.keyFor(item.getType(), item.getTitle()).toLowerCase());
+        if (r == null) return null;
+        String accent = MediaTypeTheme.accentHex(item.getType());
+        Label tag = new Label("Nuevo ep. " + com.rujiman.mediatracker.services.ReleaseService.shortDay(r));
+        tag.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 11px; -fx-text-fill: " + accent + ";"
+                + "-fx-background-color: " + accent + "22; -fx-background-radius: 999; -fx-padding: 1 8;");
+        tag.setTooltip(new Tooltip(com.rujiman.mediatracker.services.ReleaseService.whenText(r)
+                + (r.what() != null ? " · " + r.what() : "")));
+        return tag;
     }
 
     private Node buildContinueCard(InProgress p, double width) {
@@ -806,6 +810,10 @@ public class HomeController {
 
         Label typeLabel = new Label(MediaTypeTheme.label(type).toUpperCase());
         typeLabel.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 11px; -fx-text-fill: " + accent + ";");
+        HBox typeRow = new HBox(8, typeLabel);
+        typeRow.setAlignment(Pos.CENTER_LEFT);
+        Node newTag = newEpisodeTag(p.item());
+        if (newTag != null) typeRow.getChildren().add(newTag);
         Label title = new Label(p.item().getTitle());
         title.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 15px; -fx-text-fill: " + TEXT + ";");
         title.setMaxWidth(width - 110);
@@ -841,7 +849,7 @@ public class HomeController {
                     : done + " de " + p.total());
         status.setStyle("-fx-font-size: 12px; -fx-text-fill: " + DIM + ";");
 
-        VBox text = new VBox(6, typeLabel, title, bar, status);
+        VBox text = new VBox(6, typeRow, title, bar, status);
         HBox card = new HBox(14, poster, text);
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(12));

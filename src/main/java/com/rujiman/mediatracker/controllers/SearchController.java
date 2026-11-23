@@ -13,7 +13,10 @@ import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -102,6 +105,11 @@ public class SearchController {
     @FXML private Button navFavorites;
     @FXML private Button navLibrary;
     @FXML private Button navReleases;
+    @FXML private Button hamburgerButton;
+    @FXML private Button navReviews;
+    // Aviso de estrenos nuevos: número junto a "Estrenos" y puntito en el ☰
+    private final Label releasesBadge = new Label();
+    private final javafx.scene.shape.Circle menuDot = new javafx.scene.shape.Circle(4.5);
     @FXML private Button updateButton;
     @FXML private Label versionLabel;
 
@@ -201,6 +209,8 @@ public class SearchController {
         navFavorites.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 18, Palette.TEXT_SOFT));
         navLibrary.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.LIBRARY, 18, Palette.TEXT_SOFT));
         navReleases.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CALENDAR, 18, Palette.TEXT_SOFT));
+        navReviews.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.REVIEW, 18, Palette.TEXT_SOFT));
+        setupReleasesBadge();
 
         // Versión instalada y comprobación de actualizaciones en segundo plano
         versionLabel.setText("MediaVerse " + com.rujiman.mediatracker.util.AppInfo.VERSION);
@@ -223,7 +233,8 @@ public class SearchController {
             javafx.scene.Parent homeRoot = loader.load();
             homeController = loader.getController();
             homeController.setOnOpenDetailAction(this::openDetailView);
-            homeController.setOnOpenReleasesAction(this::openReleases);
+            homeController.setOnWeekReleases(this::updateReleasesBadge);
+            homeController.setOnOpenReviewsAction(this::openReviews);
             // La foto también se cambia pulsando el avatar de la vitrina
             homeController.setOnChangePhotoAction(() -> {
                 onChangeProfilePicture();
@@ -1223,13 +1234,88 @@ public class SearchController {
     }
 
     /**
+     * Abre "Mis reseñas" (desde el menú lateral o el botón del banner).
+     * Al abrir una reseña se ve su ficha, y "Volver" regresa a la lista.
+     */
+    @FXML
+    private void openReviews() {
+        if (navMenuOpen) closeNavMenu();
+        ReviewsView view = new ReviewsView(this::openDetailFromReviews);
+        openOverlay(view.getRoot());
+        setWindowTitle("Mediaverse - Mis reseñas");
+    }
+
+    private void openDetailFromReviews(MediaItem item) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
+            );
+            javafx.scene.Parent detailRoot = loader.load();
+            DetailViewController controller = loader.getController();
+            controller.setOnBackAction(this::openReviews);
+            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended,
+                    () -> openDetailFromReviews(item)));
+            controller.loadItem(item);
+            openOverlay(detailRoot);
+            setWindowTitle("Mediaverse - " + item.getTitle());
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir DetailView desde Mis reseñas: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Pone el número de estrenos nuevos encima del botón "Estrenos" y un
+     * puntito en el ☰ (el menú está escondido, así se ve que hay algo).
+     * Ambos se envuelven en un StackPane en el mismo sitio que ocupaban.
+     */
+    private void setupReleasesBadge() {
+        releasesBadge.setStyle("-fx-background-color: " + Palette.BRAND + "; -fx-background-radius: 999;"
+                + "-fx-text-fill: white; -fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 11px;"
+                + "-fx-padding: 1 7; -fx-min-width: 20; -fx-alignment: center;");
+        releasesBadge.setMouseTransparent(true);
+        menuDot.setFill(javafx.scene.paint.Color.web(Palette.BRAND));
+        menuDot.setStroke(javafx.scene.paint.Color.web("#1c1730"));
+        menuDot.setStrokeWidth(2);
+        menuDot.setMouseTransparent(true);
+
+        wrapWithOverlay(navReleases, releasesBadge, Pos.CENTER_RIGHT, new Insets(0, 14, 0, 0));
+        wrapWithOverlay(hamburgerButton, menuDot, Pos.TOP_RIGHT, new Insets(4, 2, 0, 0));
+        updateReleasesBadge(0);
+    }
+
+    private void wrapWithOverlay(Button button, Node overlay, Pos pos, Insets margin) {
+        if (!(button.getParent() instanceof Pane parent)) return;
+        int idx = parent.getChildren().indexOf(button);
+        StackPane wrap = new StackPane();
+        wrap.setMaxWidth(button.getMaxWidth());
+        parent.getChildren().set(idx, wrap);
+        StackPane.setAlignment(overlay, pos);
+        StackPane.setMargin(overlay, margin);
+        wrap.getChildren().addAll(button, overlay);
+    }
+
+    /** Lo llama el Inicio con los estrenos de esta semana: cuenta los no vistos. */
+    private void updateReleasesBadge(List<ReleaseService.Release> week) {
+        updateReleasesBadge(ReleaseService.unseenCount(week));
+    }
+
+    private void updateReleasesBadge(int unseen) {
+        boolean show = unseen > 0;
+        releasesBadge.setText(unseen > 9 ? "9+" : String.valueOf(unseen));
+        releasesBadge.setVisible(show);
+        menuDot.setVisible(show);
+    }
+
+    /**
      * Abre "Estrenos": próximos episodios y lanzamientos de lo que sigues.
      * Al abrir un título, "Volver" regresa a esta lista.
      */
     @FXML
     private void openReleases() {
         if (navMenuOpen) closeNavMenu();
-        ReleasesView view = new ReleasesView(this::openDetailFromReleases);
+        // Al abrir Estrenos, lo de esta semana pasa a visto y se apaga el aviso
+        ReleasesView view = new ReleasesView(this::openDetailFromReleases, () -> updateReleasesBadge(0));
         openOverlay(view.getRoot());
         setWindowTitle("Mediaverse - Estrenos");
     }

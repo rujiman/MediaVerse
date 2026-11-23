@@ -324,6 +324,74 @@ public final class ReleaseService {
     }
 
     // ===========================================================
+    // ESTA SEMANA Y AVISO DE NOVEDADES
+    // ===========================================================
+
+    /** Los estrenos de los próximos 7 días (hoy, mañana y esta semana). */
+    public static List<Release> thisWeek(List<Release> all) {
+        List<Release> week = new ArrayList<>();
+        for (Release r : all) {
+            String g = group(r);
+            if (g.equals("Hoy") || g.equals("Mañana") || g.equals("Esta semana")) week.add(r);
+        }
+        return week;
+    }
+
+    /**
+     * Identifica un estreno concreto: título + fecha + qué sale. Si se
+     * anuncia el episodio siguiente, cambia y vuelve a contar como nuevo.
+     */
+    private static String idOf(Release r) {
+        return r.key() + "|" + r.date() + "|" + r.what();
+    }
+
+    private static java.util.Set<String> seen = null;
+    private static String seenForUser = null;
+
+    /** Cuántos estrenos de la semana no se han visto aún en la pantalla Estrenos. */
+    public static synchronized int unseenCount(List<Release> week) {
+        loadSeen();
+        int n = 0;
+        for (Release r : week) if (!seen.contains(idOf(r))) n++;
+        return n;
+    }
+
+    /** Se llama al abrir Estrenos: todo lo de esta semana pasa a visto. */
+    public static synchronized void markSeen(List<Release> week) {
+        loadSeen();
+        java.util.Set<String> now = new java.util.HashSet<>();
+        for (Release r : week) now.add(idOf(r));
+        if (now.equals(seen)) return;
+        seen = now; // solo se guarda lo de esta semana: el archivo no crece
+        try {
+            Files.writeString(seenFile(), gson.toJson(seen), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            System.err.println("⚠️ No se pudieron guardar los estrenos vistos: " + e.getMessage());
+        }
+    }
+
+    private static void loadSeen() {
+        String user = AuthService.getCurrentUser();
+        if (seen != null && Objects.equals(seenForUser, user)) return;
+        seen = new java.util.HashSet<>();
+        seenForUser = user;
+        try {
+            Path f = seenFile();
+            if (Files.exists(f)) {
+                java.util.Set<String> data = gson.fromJson(Files.readString(f, StandardCharsets.UTF_8),
+                        new TypeToken<java.util.HashSet<String>>() {}.getType());
+                if (data != null) seen.addAll(data);
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️ Estrenos vistos ilegibles: " + e.getMessage());
+        }
+    }
+
+    private static Path seenFile() {
+        return AppPaths.userFile(AuthService.getCurrentUser(), AppPaths.DIR_CACHE, "estrenos_vistos.json");
+    }
+
+    // ===========================================================
     // CACHÉ EN DISCO
     // ===========================================================
 
@@ -379,6 +447,16 @@ public final class ReleaseService {
             day += " · " + HOUR.format(Instant.ofEpochSecond(r.airingAt()).atZone(ZoneId.systemDefault()));
         }
         return Character.toUpperCase(day.charAt(0)) + day.substring(1);
+    }
+
+    /** "hoy", "mañana" o el día corto ("vie") para las etiquetas pequeñas. */
+    public static String shortDay(Release r) {
+        if (r.date() == null) return "";
+        LocalDate today = LocalDate.now();
+        if (!r.date().isAfter(today)) return "hoy";
+        if (r.date().equals(today.plusDays(1))) return "mañana";
+        return java.time.format.DateTimeFormatter.ofPattern("EEE", java.util.Locale.forLanguageTag("es")).format(r.date())
+                .replace(".", "");
     }
 
     /** "hoy", "mañana", "en 3 días", "en 5 semanas", "en 4 meses". */

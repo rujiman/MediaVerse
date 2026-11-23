@@ -48,6 +48,7 @@ public class ReleasesView {
     private static MediaType typeFilter = null;
 
     private final Consumer<MediaItem> onOpenItem;
+    private final Runnable onSeen;
     private final ScrollPane scroll = new ScrollPane();
     private final VBox page = new VBox(24);
 
@@ -55,8 +56,9 @@ public class ReleasesView {
     private boolean loading = false;
     private int requestId = 0;
 
-    public ReleasesView(Consumer<MediaItem> onOpenItem) {
+    public ReleasesView(Consumer<MediaItem> onOpenItem, Runnable onSeen) {
         this.onOpenItem = onOpenItem;
+        this.onSeen = onSeen;
         page.setPadding(new Insets(32, 32, 64, 32));
         page.setMaxWidth(PAGE_W + 64);
         page.setPrefWidth(PAGE_W + 64);
@@ -95,6 +97,9 @@ public class ReleasesView {
                 releases = finalResult;
                 loading = false;
                 render();
+                // Lo de esta semana ya se ha visto: se apaga el aviso del menú
+                ReleaseService.markSeen(ReleaseService.thisWeek(finalResult));
+                if (onSeen != null) onSeen.run();
             });
         }, "estrenos-carga");
         t.setDaemon(true);

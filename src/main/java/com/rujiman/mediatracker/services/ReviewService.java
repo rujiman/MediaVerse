@@ -101,16 +101,94 @@ public final class ReviewService {
             r = new Review();
             r.createdAt = now;
         }
-        r.type = item.getType().name();
-        r.title = item.getTitle();
-        String id = workIdOf(item);
-        if (id != null) r.workId = id;
+        fillWorkInfo(r, item);
         r.text = clean;
         r.spoilers = spoilers;
         if (r.visibility == null) r.visibility = Review.PRIVATE;
         r.updatedAt = now;
         cache.put(k, r);
         save();
+    }
+
+    /**
+     * Todas las reseñas del usuario, de la más reciente a la más antigua.
+     * Es lo único que usa la pantalla "Mis reseñas": cuando haya servidor,
+     * este método pasará a pedírselas a él.
+     */
+    public static java.util.List<Review> all() {
+        ensureLoaded();
+        java.util.List<Review> list = new java.util.ArrayList<>(cache.values());
+        list.sort(java.util.Comparator.comparing((Review r) -> r.updatedAt == null ? "" : r.updatedAt).reversed());
+        return list;
+    }
+
+    public static int count() {
+        ensureLoaded();
+        return cache.size();
+    }
+
+    /**
+     * Completa portada, año e ID de una reseña ya escrita (las antiguas no
+     * los guardaban). Se llama al abrir la ficha; no cambia la fecha.
+     */
+    public static void refreshWorkInfo(MediaItem item) {
+        if (item == null || item.getType() == null || item.getTitle() == null) return;
+        ensureLoaded();
+        Review r = cache.get(key(item.getType(), item.getTitle()));
+        if (r == null) return;
+        String before = r.imageUrl + "|" + r.year + "|" + r.workId;
+        fillWorkInfo(r, item);
+        if (!before.equals(r.imageUrl + "|" + r.year + "|" + r.workId)) save();
+    }
+
+    private static void fillWorkInfo(Review r, MediaItem item) {
+        r.type = item.getType().name();
+        r.title = item.getTitle();
+        String id = workIdOf(item);
+        if (id != null) r.workId = id;
+        if (item.getImageUrl() != null && !item.getImageUrl().isBlank()) r.imageUrl = item.getImageUrl();
+        if (item.getYear() != null) r.year = item.getYear();
+    }
+
+    /**
+     * Ficha de la obra de una reseña, para abrir su detalle. Primero se busca
+     * en el progreso y en favoritos (traen todos los datos); si no está,
+     * se reconstruye con el workId, que basta para que la ficha cargue el resto.
+     */
+    public static MediaItem toMediaItem(Review r) {
+        MediaType type;
+        try { type = MediaType.valueOf(r.type); } catch (Exception e) { return null; }
+
+        String key = key(type, r.title);
+        WatchProgressService.Progress p = WatchProgressService.getProgress(key);
+        if (p != null && p.item != null) return withReviewInfo(p.item, r);
+        for (com.rujiman.mediatracker.models.FavoriteItem fav : FavoritesService.getFavoritesByType(type)) {
+            if (fav.getTitle() != null && fav.getTitle().equalsIgnoreCase(r.title)) return withReviewInfo(fav.toMediaItem(), r);
+        }
+
+        MediaItem item = new MediaItem();
+        item.setType(type);
+        item.setTitle(r.title);
+        item.setImageUrl(r.imageUrl);
+        item.setYear(r.year);
+        if (r.workId != null) {
+            String[] parts = r.workId.split(":");
+            try {
+                int id = Integer.parseInt(parts[parts.length - 1]);
+                switch (parts[0]) {
+                    case "tmdb" -> item.setTmdbId(id);
+                    case "anilist" -> item.setAnilistId(id);
+                    case "igdb" -> item.setIgdbId(id);
+                    default -> { }
+                }
+            } catch (NumberFormatException ignored) { }
+        }
+        return item;
+    }
+
+    private static MediaItem withReviewInfo(MediaItem item, Review r) {
+        if ((item.getImageUrl() == null || item.getImageUrl().isBlank()) && r.imageUrl != null) item.setImageUrl(r.imageUrl);
+        return item;
     }
 
     public static void delete(MediaType type, String title) {

@@ -34,6 +34,7 @@ public final class Icons {
     public static final String SHARE    = "M12 3v12 M7 8l5-5 5 5 M5 14v6h14v-6";
     public static final String EDIT     = "M4 20h4L19 9l-4-4L4 16z";
     public static final String PLAY     = "M7 4l13 8-13 8z";
+    public static final String REVIEW   = "M4 5h16v11H10l-5 4v-4H4z M8 9h8 M8 12h5";
     public static final String CALENDAR = "M4 6h16v14H4z M4 10h16 M8 3v5 M16 3v5";
     public static final String CLOSE    = "M6 6l12 12M18 6L6 18";
     public static final String PALETTE  = "M12 3a9 9 0 1 0 0 18c1 0 1.5-.7 1.5-1.5 0-.8-.7-1.2-.7-2 0-.8.7-1.5 1.5-1.5H17a4 4 0 0 0 4-4c0-5-4-9-9-9z M7.5 11.5h.01 M10 7.5h.01 M14.5 7.5h.01";

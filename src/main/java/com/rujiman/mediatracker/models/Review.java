@@ -18,6 +18,9 @@ public class Review {
     /** Tipo (MediaType.name()) y título, por si no hay workId. */
     public String type;
     public String title;
+    /** Portada y año, para pintar la reseña sin depender de favoritos o progreso. */
+    public String imageUrl;
+    public Integer year;
 
     public String text;
     public boolean spoilers;

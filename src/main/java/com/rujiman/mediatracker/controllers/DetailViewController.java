@@ -936,6 +936,8 @@ public class DetailViewController {
 
     /** Muestra la reseña guardada, o la invitación a escribirla. */
     private void setupReviewSection(MediaItem item) {
+        // Las reseñas antiguas no guardaban portada ni año: se completan aquí
+        ReviewService.refreshWorkInfo(item);
         renderReview(item, false);
     }
 
