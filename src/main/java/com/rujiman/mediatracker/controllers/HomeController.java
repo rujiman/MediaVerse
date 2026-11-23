@@ -272,6 +272,20 @@ public class HomeController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox identity = new HBox(12, avatar, spacer, edit, share);
+        // Tus logros destacados, junto a la foto: aquí caben con su nombre
+        // entero sin quitarle sitio al nombre de usuario
+        Node medals = buildMedals();
+        if (medals != null) {
+            // Misma altura que los botones y pegadas abajo como ellos: si no, la
+            // fila (alta por el avatar) las estira y suben hasta la portada
+            if (medals instanceof Region r) {
+                r.minHeightProperty().bind(edit.heightProperty());
+                r.prefHeightProperty().bind(edit.heightProperty());
+                r.setMaxHeight(Region.USE_PREF_SIZE);
+            }
+            HBox.setMargin(medals, new Insets(0, 0, 0, 8));
+            identity.getChildren().add(1, medals);
+        }
         identity.setAlignment(Pos.BOTTOM_LEFT);
         identity.setPadding(new Insets(0, 32, 0, 32));
         VBox.setMargin(identity, new Insets(-64, 0, 0, 0));
@@ -283,9 +297,6 @@ public class HomeController {
         handle.setStyle("-fx-font-size: 15px; -fx-text-fill: " + DIM + ";");
         HBox nameRow = new HBox(12, nameLabel, handle);
         nameRow.setAlignment(Pos.BASELINE_LEFT);
-        // Tus 3 logros más difíciles, como medallas junto al nombre
-        Node medals = buildMedals();
-        if (medals != null) nameRow.getChildren().add(medals);
 
         int total = 0;
         for (MediaType t : MediaType.values()) total += Math.min(DashboardService.getSectionItems(t).size(), DashboardService.getMaxItemsForSection(t));
@@ -756,21 +767,23 @@ public class HomeController {
     private Node buildMedals() {
         var medals = com.rujiman.mediatracker.services.AchievementService.featured();
         if (medals.isEmpty()) return null;
-        HBox box = new HBox(6);
+        HBox box = new HBox(8);
         box.setAlignment(Pos.CENTER_LEFT);
+        box.setMinWidth(0);
+        box.setFillHeight(false);
         java.time.format.DateTimeFormatter fmt =
                 java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.forLanguageTag("es"));
         for (var a : medals) {
-            StackPane icon = new StackPane(Icons.of(Icons.byName(a.icon()), 12, a.accent()));
-            icon.setMinSize(22, 22);
-            icon.setMaxSize(22, 22);
+            StackPane icon = new StackPane(Icons.of(Icons.byName(a.icon()), 14, a.accent()));
+            icon.setMinSize(26, 26);
+            icon.setMaxSize(26, 26);
             icon.setStyle("-fx-background-color: " + a.accent() + "33; -fx-background-radius: 999;");
             Label name = new Label(com.rujiman.mediatracker.services.AchievementService.displayName(a));
-            name.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 12px; -fx-text-fill: " + TEXT + ";");
-            name.setMaxWidth(150);
+            name.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-text-fill: " + TEXT + ";");
+            name.setMaxWidth(240);
             HBox medal = new HBox(6, icon, name);
             medal.setAlignment(Pos.CENTER_LEFT);
-            medal.setPadding(new Insets(3, 10, 3, 3));
+            medal.setPadding(new Insets(4, 14, 4, 4));
             medal.setStyle("-fx-background-color: " + a.accent() + "1a; -fx-background-radius: 999;"
                     + "-fx-border-color: " + a.accent() + "66; -fx-border-radius: 999; -fx-cursor: hand;");
             var on = com.rujiman.mediatracker.services.AchievementService.unlockedOn(a);
@@ -782,7 +795,6 @@ public class HomeController {
             medal.setOnMouseClicked(e -> { if (onOpenAchievementsAction != null) onOpenAchievementsAction.run(); });
             box.getChildren().add(medal);
         }
-        HBox.setMargin(box, new Insets(0, 0, 0, 6));
         return box;
     }
 
