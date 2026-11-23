@@ -10,6 +10,9 @@
 #   MediaVerse-portable.zip   → instalación nueva en Windows
 #   MediaVerse-linux.jar      → actualizador de Linux
 #   MediaVerse-linux.tar.gz   → instalación nueva en Linux
+#
+# Al terminar, avisa en Discord (canal de novedades) si el repo tiene el
+# secreto DISCORD_WEBHOOK. Con DISCORD_ROLE_AVISOS, menciona a ese rol.
 
 name: Release
 
@@ -156,3 +159,61 @@ jobs:
             MediaVerse-linux.jar
             MediaVerse-linux.tar.gz
           fail_on_unmatched_files: false
+
+  discord:
+    name: Avisar en Discord
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Publicar la versión en Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          ROLE: ${{ secrets.DISCORD_ROLE_AVISOS }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "No hay secreto DISCORD_WEBHOOK: no se avisa en Discord."
+            exit 0
+          fi
+          python3 - <<'EOF'
+          import json, os, re
+          tag = os.environ["TAG"]
+          version = tag.lstrip("v")
+          repo = os.environ["GITHUB_REPOSITORY"]
+          role = os.environ.get("ROLE", "").strip()
+
+          # Notas de esta versión en el CHANGELOG (igual que la Release)
+          notes, on = [], False
+          for line in open("CHANGELOG.md", encoding="utf-8"):
+              line = line.rstrip("\n")
+              if line.startswith("## ["):
+                  if on:
+                      break
+                  on = f"[{version}]" in line
+                  continue
+              if on and line.strip() != "---":
+                  notes.append(re.sub(r"^#{1,6}\s*(.+)$", r"**\1**", line))
+          text = re.sub(r"\n{3,}", "\n\n", "\n".join(notes)).strip() or f"MediaVerse {version}"
+          if len(text) > 3700:
+              text = text[:3700].rsplit("\n", 1)[0] + "\n…"
+
+          url = f"https://github.com/{repo}/releases/tag/{tag}"
+          payload = {
+              "username": "MediaVerse",
+              "avatar_url": f"https://raw.githubusercontent.com/{repo}/main/docs/assets/logo.png",
+              "content": f"<@&{role}> ¡Ya está aquí MediaVerse {version}!" if role else "",
+              "allowed_mentions": {"roles": [role] if role else []},
+              "embeds": [{
+                  "title": f"🚀 MediaVerse {version}",
+                  "url": url,
+                  "description": text + f"\n\n**[Descargar]({url})** · Si ya la tienes, se actualiza sola al abrirla",
+                  "color": 0xEC4D80,
+              }],
+          }
+          json.dump(payload, open("discord.json", "w", encoding="utf-8"), ensure_ascii=False)
+          EOF
+          curl -fsS -H "Content-Type: application/json" --data-binary @discord.json "$WEBHOOK"
+          echo "Aviso enviado a Discord."
