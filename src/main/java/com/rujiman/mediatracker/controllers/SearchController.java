@@ -107,6 +107,8 @@ public class SearchController {
     @FXML private Button navReleases;
     @FXML private Button hamburgerButton;
     @FXML private Button navReviews;
+    @FXML private Button navAchievements;
+    private com.rujiman.mediatracker.ui.AchievementToasts achievementToasts;
     // Aviso de estrenos nuevos: número junto a "Estrenos" y puntito en el ☰
     private final Label releasesBadge = new Label();
     private final javafx.scene.shape.Circle menuDot = new javafx.scene.shape.Circle(4.5);
@@ -210,6 +212,15 @@ public class SearchController {
         navLibrary.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.LIBRARY, 18, Palette.TEXT_SOFT));
         navReleases.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CALENDAR, 18, Palette.TEXT_SOFT));
         navReviews.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.REVIEW, 18, Palette.TEXT_SOFT));
+        navAchievements.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.TROPHY, 18, Palette.TEXT_SOFT));
+
+        // Aviso de logros (abajo a la derecha, encima de todo el contenido)
+        achievementToasts = new com.rujiman.mediatracker.ui.AchievementToasts(centerContent, this::openAchievements);
+        AchievementService.setListener((fresh, summary) -> {
+            achievementToasts.show(fresh, summary);
+            // El banner muestra el número de logros y las medallas
+            if (homeController != null && homeContainer.isVisible()) homeController.refreshBanner();
+        });
         setupReleasesBadge();
 
         // Versión instalada y comprobación de actualizaciones en segundo plano
@@ -235,6 +246,7 @@ public class SearchController {
             homeController.setOnOpenDetailAction(this::openDetailView);
             homeController.setOnWeekReleases(this::updateReleasesBadge);
             homeController.setOnOpenReviewsAction(this::openReviews);
+            homeController.setOnOpenAchievementsAction(this::openAchievements);
             // La foto también se cambia pulsando el avatar de la vitrina
             homeController.setOnChangePhotoAction(() -> {
                 onChangeProfilePicture();
@@ -271,6 +283,9 @@ public class SearchController {
 
         if (homeController != null) {
             homeController.refreshAll();
+            // Logros que no dependen de una acción (vitrina, perfil) y, la
+            // primera vez, el resumen de todo lo ya conseguido
+            AchievementService.requestCheck();
         }
 
         setWindowTitle("Mediaverse - Inicio");
@@ -1231,6 +1246,15 @@ public class SearchController {
             System.err.println("❌ Error al abrir Mi biblioteca: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /** Abre "Logros" (menú lateral, botón y medallas del banner, o el aviso). */
+    @FXML
+    private void openAchievements() {
+        if (navMenuOpen) closeNavMenu();
+        AchievementsView view = new AchievementsView();
+        openOverlay(view.getRoot());
+        setWindowTitle("Mediaverse - Logros");
     }
 
     /**

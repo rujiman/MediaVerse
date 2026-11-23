@@ -233,6 +233,12 @@ public class WatchProgressService {
         return new Stats(episodes, chapters, finished, inProgress, rated == 0 ? 0 : (double) ratingSum / rated, rated);
     }
 
+    /** Copia de todo el progreso por clave (para calcular logros). */
+    public static Map<String, Progress> snapshot() {
+        ensureCorrectUserLoaded();
+        return new HashMap<>(cache);
+    }
+
     /** Todos los títulos de un tipo que tienen progreso y ficha guardada. */
     public static java.util.List<Tracked> getTracked(MediaType type) {
         ensureCorrectUserLoaded();
@@ -286,6 +292,7 @@ public class WatchProgressService {
         progress.userRating = (rating != null && rating > 0) ? rating : null;
         cache.put(key, progress);
         saveProgress();
+        if (progress.userRating != null) ActivityService.live(ActivityService.RATING, key);
     }
 
     /**
@@ -300,6 +307,7 @@ public class WatchProgressService {
         if (progress.viewed) progress.inProgress = false; // terminado: deja de estar en curso
         cache.put(key, progress);
         saveProgress();
+        if (progress.viewed) ActivityService.live(ActivityService.DONE, key);
     }
 
     /** ¿Está marcado como "lo estoy jugando/viendo/leyendo ahora"? */
@@ -318,6 +326,7 @@ public class WatchProgressService {
         if (value) progress.viewed = false; // si vuelves a empezarlo, ya no está terminado
         cache.put(key, progress);
         saveProgress();
+        if (value) ActivityService.live(ActivityService.START, key);
     }
 
     /**
@@ -329,17 +338,23 @@ public class WatchProgressService {
         String key = title.toLowerCase();
         Progress progress = cache.getOrDefault(key, new Progress());
         progress.totalEpisodes = totalEpisodes;
+        boolean wasViewed = progress.viewed;
 
-        if (progress.watchedEpisodes.contains(episodeNumber)) {
-            progress.watchedEpisodes.remove(episodeNumber);
-        } else {
+        boolean added = !progress.watchedEpisodes.contains(episodeNumber);
+        if (added) {
             progress.watchedEpisodes.add(episodeNumber);
+        } else {
+            progress.watchedEpisodes.remove(episodeNumber);
         }
 
         progress.viewed = progress.watchedEpisodes.size() >= totalEpisodes;
 
         cache.put(key, progress);
         saveProgress();
+
+        // Actividad en directo (rachas, maratones, logros)
+        if (added) ActivityService.live(ActivityService.EPISODE, key);
+        if (!wasViewed && progress.viewed) ActivityService.live(ActivityService.DONE, key);
     }
 
     /**
@@ -353,6 +368,8 @@ public class WatchProgressService {
         Progress progress = cache.getOrDefault(key, new Progress());
         progress.totalEpisodes = totalEpisodes;
 
+        int before = progress.watchedEpisodes.size();
+        boolean wasViewed = progress.viewed;
         progress.watchedEpisodes.clear();
         for (int i = 1; i <= totalEpisodes; i++) {
             progress.watchedEpisodes.add(i);
@@ -361,6 +378,7 @@ public class WatchProgressService {
 
         cache.put(key, progress);
         saveProgress();
+        logCatchUp(key, before, progress.watchedEpisodes.size(), wasViewed, progress.viewed);
     }
 
     /**
@@ -389,6 +407,8 @@ public class WatchProgressService {
         String key = title.toLowerCase();
         Progress progress = cache.getOrDefault(key, new Progress());
         progress.totalEpisodes = totalEpisodes;
+        int before = progress.watchedEpisodes.size();
+        boolean wasViewed = progress.viewed;
 
         for (int i = Math.max(1, from); i <= Math.min(to, totalEpisodes); i++) {
             if (watched) progress.watchedEpisodes.add(i);
@@ -399,6 +419,16 @@ public class WatchProgressService {
 
         cache.put(key, progress);
         saveProgress();
+        logCatchUp(key, before, progress.watchedEpisodes.size(), wasViewed, progress.viewed);
+    }
+
+    /**
+     * Marcar de golpe (temporada, "ya he visto hasta...") es ponerse al día:
+     * se apunta como historial, no como actividad en directo.
+     */
+    private static void logCatchUp(String key, int before, int after, boolean wasViewed, boolean viewed) {
+        if (after > before) ActivityService.log(ActivityService.EPISODE, key, after - before, false);
+        if (!wasViewed && viewed) ActivityService.log(ActivityService.DONE, key, 1, false);
     }
 
     /**
@@ -413,6 +443,8 @@ public class WatchProgressService {
         progress.totalEpisodes = totalEpisodes;
 
         int clamped = Math.max(0, Math.min(upToEpisodeInclusive, totalEpisodes));
+        int before = progress.watchedEpisodes.size();
+        boolean wasViewed = progress.viewed;
 
         progress.watchedEpisodes.clear();
         for (int i = 1; i <= clamped; i++) {
@@ -422,5 +454,6 @@ public class WatchProgressService {
 
         cache.put(key, progress);
         saveProgress();
+        logCatchUp(key, before, progress.watchedEpisodes.size(), wasViewed, progress.viewed);
     }
 }

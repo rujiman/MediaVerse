@@ -105,9 +105,11 @@ public final class ReviewService {
         r.text = clean;
         r.spoilers = spoilers;
         if (r.visibility == null) r.visibility = Review.PRIVATE;
+        boolean isNew = r.createdAt.equals(now);
         r.updatedAt = now;
         cache.put(k, r);
         save();
+        if (isNew) ActivityService.live(ActivityService.REVIEW, k);
     }
 
     /**

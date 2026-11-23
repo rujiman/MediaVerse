@@ -28,7 +28,9 @@ import java.nio.file.Paths;
  *       ├── plan/plan_listen.json
  *       ├── carpetas/folders_<namespace>.json
  *       ├── resenas/reviews.json
- *       └── cache/estrenos.json          (fechas de estrenos; se puede borrar)
+ *       ├── cache/estrenos.json          (fechas de estrenos; se puede borrar)
+ *       ├── actividad/actividad.jsonl    (qué hiciste y cuándo: rachas, Wrapped)
+ *       └── logros/logros.json           (logros conseguidos y sus fechas)
  *
  * Ventaja principal: para hacer una copia de seguridad de un usuario basta
  * con copiar su carpeta entera, en vez de ir pescando archivos sueltos.
@@ -85,6 +87,8 @@ public final class AppPaths {
     public static final String DIR_FOLDERS   = "carpetas";
     public static final String DIR_REVIEWS   = "resenas";
     public static final String DIR_CACHE     = "cache";
+    public static final String DIR_ACTIVITY  = "actividad";
+    public static final String DIR_ACHIEVEMENTS = "logros";
 
     /**
      * Archivo global (no pertenece a ningún usuario): <ROOT>/<fileName>.

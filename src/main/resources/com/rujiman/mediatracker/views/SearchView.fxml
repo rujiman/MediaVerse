@@ -232,6 +232,8 @@
                     maxWidth="Infinity" styleClass="nav-item"/>
             <Button fx:id="navReviews" text="Mis reseñas" onAction="#openReviews"
                     maxWidth="Infinity" styleClass="nav-item"/>
+            <Button fx:id="navAchievements" text="Logros" onAction="#openAchievements"
+                    maxWidth="Infinity" styleClass="nav-item"/>
 
             <Separator/>
 

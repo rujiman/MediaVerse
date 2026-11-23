@@ -137,6 +137,9 @@ public final class ReleaseService {
             save();
         }
 
+        snapshot = new HashMap<>(cache);
+        snapshotUser = loadedForUser;
+
         List<Release> result = new ArrayList<>();
         LocalDate today = LocalDate.now();
         for (Map.Entry<String, MediaItem> c : candidates.entrySet()) {
@@ -469,6 +472,32 @@ public final class ReleaseService {
         if (days < 60) return "en " + (days / 7) + " semanas";
         long months = Math.round(days / 30.4);
         return months <= 1 ? "en un mes" : "en " + months + " meses";
+    }
+
+    /**
+     * Copia de la caché para consultas rápidas desde el hilo de JavaFX.
+     * NO usan el bloqueo de load(): mientras se descargan fechas (hasta
+     * 40 s), marcar un episodio no debe quedarse esperando.
+     */
+    private static volatile Map<String, Entry> snapshot = Map.of();
+    private static volatile String snapshotUser = null;
+
+    private static Entry fromSnapshot(String key) {
+        if (!Objects.equals(snapshotUser, AuthService.getCurrentUser())) return null;
+        return snapshot.get(key);
+    }
+
+    /** ¿Ese título estrena hoy según la caché? (para el logro "Primero de la fila"). */
+    public static boolean airsToday(String key) {
+        Entry e = fromSnapshot(key);
+        return e != null && LocalDate.now().toString().equals(e.date);
+    }
+
+    /** Fecha del próximo estreno guardado y qué sale ("T2 · E5", "Episodio 14"), o null. */
+    public static String[] nextKnown(String key) {
+        Entry e = fromSnapshot(key);
+        if (e == null || e.nothing || e.date == null) return null;
+        return new String[]{e.date, e.what};
     }
 
     /** Grupo en el que va cada estreno en la lista. */

@@ -65,7 +65,14 @@ public class FavoritesService {
     // ── CRUD de instancia (uso interno) ───────────────────────────────
     void instanceAdd(FavoriteItem item) {
         ensureLoaded();
-        if (!list.contains(item)) { list.add(item); save(); System.out.println("⭐ " + item.getTitle()); }
+        if (!list.contains(item)) {
+            list.add(item);
+            save();
+            System.out.println("⭐ " + item.getTitle());
+            if (item.getType() != null && item.getTitle() != null) {
+                ActivityService.live(ActivityService.FAVORITE, WatchProgressService.keyFor(item.getType(), item.getTitle()));
+            }
+        }
     }
     void instanceUpdate() { ensureLoaded(); save(); }
     void instanceRemove(String id) {

@@ -283,6 +283,9 @@ public class HomeController {
         handle.setStyle("-fx-font-size: 15px; -fx-text-fill: " + DIM + ";");
         HBox nameRow = new HBox(12, nameLabel, handle);
         nameRow.setAlignment(Pos.BASELINE_LEFT);
+        // Tus 3 logros más difíciles, como medallas junto al nombre
+        Node medals = buildMedals();
+        if (medals != null) nameRow.getChildren().add(medals);
 
         int total = 0;
         for (MediaType t : MediaType.values()) total += Math.min(DashboardService.getSectionItems(t).size(), DashboardService.getMaxItemsForSection(t));
@@ -320,20 +323,15 @@ public class HomeController {
 
         // "Mis reseñas", abajo a la derecha, bajo las estadísticas
         int reviews = com.rujiman.mediatracker.services.ReviewService.count();
-        // Misma forma y alto que los chips de tipo (píldora fina)
-        Button reviewsButton = new Button(reviews > 0 ? "Mis reseñas  ·  " + reviews : "Mis reseñas");
-        reviewsButton.setGraphic(Icons.of(Icons.REVIEW, 14, TEXT));
-        reviewsButton.setGraphicTextGap(8);
-        String pill = "-fx-background-radius: 999; -fx-border-radius: 999; -fx-padding: 6 14; -fx-min-height: 0;"
-                + "-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-text-fill: " + TEXT + "; -fx-cursor: hand;"
-                + "-fx-border-color: " + Palette.LINE_STRONG + ";";
-        reviewsButton.setStyle(pill + "-fx-background-color: transparent;");
-        reviewsButton.setOnMouseEntered(e -> reviewsButton.setStyle(pill + "-fx-background-color: " + Palette.PANEL_3 + ";"));
-        reviewsButton.setOnMouseExited(e -> reviewsButton.setStyle(pill + "-fx-background-color: transparent;"));
-        reviewsButton.setMinWidth(Region.USE_PREF_SIZE);
-        reviewsButton.setOnAction(e -> { if (onOpenReviewsAction != null) onOpenReviewsAction.run(); });
+        // Misma forma y alto que los chips de tipo (píldoras finas)
+        Button reviewsButton = pillButton(reviews > 0 ? "Mis reseñas  ·  " + reviews : "Mis reseñas", Icons.REVIEW,
+                () -> { if (onOpenReviewsAction != null) onOpenReviewsAction.run(); });
+        Button achievementsButton = pillButton("Logros  ·  " + com.rujiman.mediatracker.services.AchievementService.unlockedCount()
+                        + "/" + com.rujiman.mediatracker.services.AchievementService.catalog().size(), Icons.TROPHY,
+                () -> { if (onOpenAchievementsAction != null) onOpenAchievementsAction.run(); });
         HBox.setHgrow(chips, Priority.ALWAYS);
-        HBox chipsRow = new HBox(16, chips, reviewsButton);
+        HBox chipsRow = new HBox(8, chips, reviewsButton, achievementsButton);
+        HBox.setMargin(reviewsButton, new Insets(0, 0, 0, 8));
         chipsRow.setAlignment(Pos.CENTER_LEFT);
         chipsRow.setPadding(new Insets(0, 32, 26, 32));
 
@@ -727,6 +725,66 @@ public class HomeController {
     private java.util.function.Consumer<List<com.rujiman.mediatracker.services.ReleaseService.Release>> onWeekReleases;
 
     private Runnable onOpenReviewsAction;
+    private Runnable onOpenAchievementsAction;
+
+    /** Botón "Logros" y medallas del banner: abren la pantalla de Logros. */
+    public void setOnOpenAchievementsAction(Runnable action) {
+        this.onOpenAchievementsAction = action;
+    }
+
+    /** Píldora fina con icono, del mismo alto que los chips de tipo. */
+    private Button pillButton(String text, String icon, Runnable action) {
+        Button b = new Button(text);
+        b.setGraphic(Icons.of(icon, 14, TEXT));
+        b.setGraphicTextGap(8);
+        String pill = "-fx-background-radius: 999; -fx-border-radius: 999; -fx-padding: 6 14; -fx-min-height: 0;"
+                + "-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-text-fill: " + TEXT + "; -fx-cursor: hand;"
+                + "-fx-border-color: " + Palette.LINE_STRONG + ";";
+        b.setStyle(pill + "-fx-background-color: transparent;");
+        b.setOnMouseEntered(e -> b.setStyle(pill + "-fx-background-color: " + Palette.PANEL_3 + ";"));
+        b.setOnMouseExited(e -> b.setStyle(pill + "-fx-background-color: transparent;"));
+        b.setMinWidth(Region.USE_PREF_SIZE);
+        b.setOnAction(e -> action.run());
+        return b;
+    }
+
+    /**
+     * Medallas del perfil: píldoras con icono y nombre del logro, en su color.
+     * Son las que eliges en Logros (chincheta) o, si no eliges, las 3 más
+     * difíciles. Pasando el ratón se ve la ficha completa.
+     */
+    private Node buildMedals() {
+        var medals = com.rujiman.mediatracker.services.AchievementService.featured();
+        if (medals.isEmpty()) return null;
+        HBox box = new HBox(6);
+        box.setAlignment(Pos.CENTER_LEFT);
+        java.time.format.DateTimeFormatter fmt =
+                java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.forLanguageTag("es"));
+        for (var a : medals) {
+            StackPane icon = new StackPane(Icons.of(Icons.byName(a.icon()), 12, a.accent()));
+            icon.setMinSize(22, 22);
+            icon.setMaxSize(22, 22);
+            icon.setStyle("-fx-background-color: " + a.accent() + "33; -fx-background-radius: 999;");
+            Label name = new Label(a.name());
+            name.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 12px; -fx-text-fill: " + TEXT + ";");
+            name.setMaxWidth(120);
+            HBox medal = new HBox(6, icon, name);
+            medal.setAlignment(Pos.CENTER_LEFT);
+            medal.setPadding(new Insets(3, 10, 3, 3));
+            medal.setStyle("-fx-background-color: " + a.accent() + "1a; -fx-background-radius: 999;"
+                    + "-fx-border-color: " + a.accent() + "66; -fx-border-radius: 999; -fx-cursor: hand;");
+            var on = com.rujiman.mediatracker.services.AchievementService.unlockedOn(a);
+            Tooltip tip = new Tooltip(a.name() + "  ·  "
+                    + com.rujiman.mediatracker.services.AchievementService.DIFFICULTY[a.difficulty()]
+                    + "\n" + a.description() + (on != null ? "\nConseguido el " + fmt.format(on) : ""));
+            tip.setShowDelay(javafx.util.Duration.millis(200));
+            Tooltip.install(medal, tip);
+            medal.setOnMouseClicked(e -> { if (onOpenAchievementsAction != null) onOpenAchievementsAction.run(); });
+            box.getChildren().add(medal);
+        }
+        HBox.setMargin(box, new Insets(0, 0, 0, 6));
+        return box;
+    }
 
     /** Botón "Mis reseñas" del banner: abre la misma pantalla que el menú lateral. */
     public void setOnOpenReviewsAction(Runnable action) {
