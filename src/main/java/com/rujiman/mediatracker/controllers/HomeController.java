@@ -82,10 +82,6 @@ public class HomeController {
     private static final String TEXT = Palette.TEXT;
     private static final String DIM = Palette.DIM;
 
-    /** Vitrinas grandes y compactas, en el orden en que se pintan. */
-    private static final MediaType[] BIG = {MediaType.GAME, MediaType.ANIME, MediaType.SERIES, MediaType.MOVIE};
-    private static final MediaType[] SMALL = {MediaType.MUSIC, MediaType.BOOK, MediaType.MANGA};
-
     /** Contenedor de cada vitrina, para reconstruir solo esa al reordenar. */
     private final Map<MediaType, Pane> showcaseSlots = new LinkedHashMap<>();
 
@@ -148,11 +144,13 @@ public class HomeController {
         homeRoot.getChildren().add(continueSlot);
         loadWeekReleases();
 
-        for (int i = 0; i < BIG.length; i += 2) {
-            homeRoot.getChildren().add(pageRow(showcaseSlot(BIG[i], true), showcaseSlot(BIG[i + 1], true)));
+        // Las 4 principales (las elige el usuario) en dos filas y las 3 compactas debajo
+        List<MediaType> main = DashboardService.getMainSections();
+        for (int i = 0; i + 1 < main.size(); i += 2) {
+            homeRoot.getChildren().add(pageRow(showcaseSlot(main.get(i), true), showcaseSlot(main.get(i + 1), true)));
         }
         HBox minis = pageRow();
-        for (MediaType t : SMALL) minis.getChildren().add(showcaseSlot(t, false));
+        for (MediaType t : DashboardService.getCompactSections()) minis.getChildren().add(showcaseSlot(t, false));
         homeRoot.getChildren().add(minis);
 
         Motion.stagger(homeRoot.getChildren(), javafx.util.Duration.millis(60));
@@ -388,7 +386,7 @@ public class HomeController {
 
     /** Imagen de la portada del perfil: el favorito absoluto de la primera vitrina que tenga uno. */
     private String bannerImageUrl() {
-        for (MediaType t : BIG) {
+        for (MediaType t : DashboardService.getMainSections()) {
             List<FavoriteItem> items = DashboardService.getSectionItems(t);
             if (!items.isEmpty() && items.get(0).getImageUrl() != null && !items.get(0).getImageUrl().isBlank()) {
                 return items.get(0).getImageUrl();
@@ -973,7 +971,7 @@ public class HomeController {
         return header;
     }
 
-    /** Juegos / Anime / Series / Películas: favorito absoluto + ranking 2–5. */
+    /** Sección principal: favorito absoluto + ranking 2–5. */
     private Node buildBigShowcase(MediaType type) {
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
         String accent = MediaTypeTheme.accentHex(type);
@@ -989,7 +987,15 @@ public class HomeController {
         Node hero;
         if (!items.isEmpty()) {
             FavoriteItem first = items.get(0);
-            StackPane box = new StackPane(CollectionUI.poster(first.getImageUrl(), HERO_W, HERO_H, accent, 14, true));
+            // Música tiene portadas cuadradas: se ven enteras, arriba, sin recortar
+            boolean square = type == MediaType.MUSIC;
+            Node cover = CollectionUI.poster(first.getImageUrl(), HERO_W, square ? HERO_W : HERO_H, accent, 14, true);
+            StackPane box = new StackPane(cover);
+            if (square) {
+                StackPane.setAlignment(cover, Pos.TOP_CENTER);
+                box.setStyle("-fx-background-color: " + PANEL_2 + "; -fx-background-radius: 14;");
+                box.setMinSize(HERO_W, HERO_H);
+            }
             Label tag = new Label("FAVORITO ABSOLUTO");
             tag.setStyle("-fx-font-family: 'Inter ExtraBold'; -fx-font-size: 10px; -fx-text-fill: " + accent + ";");
             Label t = new Label(first.getTitle());
@@ -1033,7 +1039,8 @@ public class HomeController {
         title.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(title, Priority.ALWAYS);
 
-        HBox row = new HBox(12, n, CollectionUI.poster(fav.getImageUrl(), 34, 51, accent, 6, true), title);
+        boolean square = type == MediaType.MUSIC;
+        HBox row = new HBox(12, n, CollectionUI.poster(fav.getImageUrl(), square ? 44 : 34, square ? 44 : 51, accent, 6, true), title);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(6, 10, 6, 6));
         row.setStyle("-fx-background-color: " + PANEL_2 + "; -fx-background-radius: 12; -fx-cursor: hand;");
@@ -1059,7 +1066,7 @@ public class HomeController {
         return row;
     }
 
-    /** Música / Libros / Manga: 4 portadas compactas. */
+    /** Sección compacta: 4 portadas. */
     private Node buildMiniShowcase(MediaType type) {
         List<FavoriteItem> items = DashboardService.getSectionItems(type);
         String accent = MediaTypeTheme.accentHex(type);
@@ -1250,9 +1257,11 @@ public class HomeController {
 
     /** "Editar vitrina": elige qué sección editar y abre su selector. */
     private void chooseSectionToEdit() {
+        final String layoutOption = "Elegir secciones principales…";
         List<String> names = new ArrayList<>();
-        for (MediaType t : BIG) names.add(MediaTypeTheme.plural(t));
-        for (MediaType t : SMALL) names.add(MediaTypeTheme.plural(t));
+        names.add(layoutOption);
+        for (MediaType t : DashboardService.getMainSections()) names.add(MediaTypeTheme.plural(t));
+        for (MediaType t : DashboardService.getCompactSections()) names.add(MediaTypeTheme.plural(t));
         ChoiceDialog<String> dialog = new ChoiceDialog<>(names.get(0), names);
         ownDialog(dialog);
         dialog.setTitle("Editar vitrina");
@@ -1261,10 +1270,123 @@ public class HomeController {
         Dialogs.styleDark(dialog.getDialogPane());
         Dialogs.darkenWindow(dialog.getDialogPane());
         dialog.showAndWait().ifPresent(choice -> {
+            if (choice.equals(layoutOption)) { openLayoutEditor(); return; }
             for (MediaType t : MediaType.values()) {
                 if (MediaTypeTheme.plural(t).equals(choice)) openSectionEditor(t, choice);
             }
         });
+    }
+
+    /**
+     * "Secciones principales": eliges 4 de las 7 para verlas en grande
+     * (5 huecos) y ordenas todas con las flechas. Las demás van a la fila
+     * compacta (4 huecos). Pinchar una fila la marca o desmarca.
+     */
+    private void openLayoutEditor() {
+        List<MediaType> order = new ArrayList<>(DashboardService.getMainSections());
+        order.addAll(DashboardService.getCompactSections());
+        java.util.Set<MediaType> main = new java.util.LinkedHashSet<>(DashboardService.getMainSections());
+        int need = DashboardService.MAIN_COUNT;
+
+        Dialog<Boolean> dialog = new Dialog<>();
+        ownDialog(dialog);
+        dialog.setTitle("Secciones principales");
+        Dialogs.styleDark(dialog.getDialogPane());
+
+        Label intro = new Label("Elige " + need + " secciones para verlas en grande, con favorito absoluto y "
+                + DashboardService.MAIN_SLOTS + " huecos. Las demás van abajo, en compacto ("
+                + DashboardService.COMPACT_SLOTS + " huecos). Con las flechas cambias el orden.");
+        intro.setWrapText(true);
+        intro.setMaxWidth(420);
+        intro.setStyle("-fx-font-size: 13px; -fx-text-fill: " + DIM + ";");
+        Label status = new Label();
+        status.setStyle("-fx-font-size: 13px; -fx-font-family: 'Inter SemiBold';");
+        VBox rows = new VBox(8);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        Button okBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        Button cancelBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        okBtn.getStyleClass().add("btn-pill-brand");
+        cancelBtn.getStyleClass().add("btn-pill-neutral");
+
+        Runnable[] render = new Runnable[1];
+        render[0] = () -> {
+            rows.getChildren().clear();
+            int pos = 0;
+            for (int i = 0; i < order.size(); i++) {
+                MediaType t = order.get(i);
+                boolean on = main.contains(t);
+                if (on) pos++;
+                String accent = MediaTypeTheme.accentHex(t);
+
+                Node mark = on ? Icons.of(Icons.CHECK, 14, Palette.ON_ACCENT) : new Region();
+                StackPane box = new StackPane(mark);
+                box.setMinSize(22, 22);
+                box.setMaxSize(22, 22);
+                box.setStyle(on ? "-fx-background-color: " + accent + "; -fx-background-radius: 7;"
+                        : "-fx-border-color: " + Palette.LINE_STRONG + "; -fx-border-radius: 7; -fx-border-width: 1.5;");
+
+                Circle dot = new Circle(5, javafx.scene.paint.Color.web(accent));
+                Label name = new Label(MediaTypeTheme.plural(t));
+                name.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 14px; -fx-text-fill: " + (on ? TEXT : DIM) + ";");
+                Label tag = new Label(on ? "Principal " + pos : "Compacta");
+                tag.setStyle("-fx-font-size: 12px; -fx-text-fill: " + (on ? accent : DIM) + ";");
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                final int idx = i;
+                Button up = arrowButton("▲", idx > 0, () -> { java.util.Collections.swap(order, idx, idx - 1); render[0].run(); });
+                Button down = arrowButton("▼", idx < order.size() - 1, () -> { java.util.Collections.swap(order, idx, idx + 1); render[0].run(); });
+
+                HBox row = new HBox(12, box, dot, name, spacer, tag, up, down);
+                row.setAlignment(Pos.CENTER_LEFT);
+                row.setPadding(new Insets(10, 10, 10, 14));
+                row.setStyle("-fx-background-color: " + PANEL_2 + "; -fx-background-radius: 12; -fx-cursor: hand;"
+                        + (on ? "-fx-border-color: " + accent + "88; -fx-border-radius: 12;" : ""));
+                row.setOnMouseClicked(e -> {
+                    if (main.contains(t)) main.remove(t);
+                    else if (main.size() < need) main.add(t);
+                    render[0].run();
+                });
+                rows.getChildren().add(row);
+            }
+            int chosen = main.size();
+            status.setText(chosen == need ? "✓ " + need + " principales elegidas"
+                    : "Elegidas " + chosen + " de " + need + (chosen > need ? "" : "  ·  marca " + (need - chosen) + " más"));
+            status.setStyle("-fx-font-size: 13px; -fx-font-family: 'Inter SemiBold'; -fx-text-fill: "
+                    + (chosen == need ? Palette.SUCCESS : DIM) + ";");
+            okBtn.setDisable(chosen != need);
+        };
+        render[0].run();
+
+        VBox content = new VBox(14, intro, rows, status);
+        content.setPadding(new Insets(6, 4, 4, 4));
+        content.setPrefWidth(440);
+        content.setStyle("-fx-background-color: " + Palette.PANEL_ALT + ";");
+        dialog.getDialogPane().setContent(content);
+        Dialogs.darkenWindow(dialog.getDialogPane());
+
+        dialog.setResultConverter(btn -> btn == ButtonType.OK);
+        dialog.showAndWait().ifPresent(ok -> {
+            if (!ok) return;
+            List<MediaType> newMain = new ArrayList<>();
+            List<MediaType> newCompact = new ArrayList<>();
+            for (MediaType t : order) (main.contains(t) ? newMain : newCompact).add(t);
+            DashboardService.setLayout(newMain, newCompact);
+            refreshAll();
+        });
+    }
+
+    /** Flecha ▲/▼ pequeña para reordenar; no propaga el clic a la fila. */
+    private Button arrowButton(String text, boolean enabled, Runnable action) {
+        Button b = new Button(text);
+        b.setDisable(!enabled);
+        b.setFocusTraversable(false);
+        b.setStyle("-fx-background-color: " + Palette.PANEL_3 + "; -fx-background-radius: 8; -fx-text-fill: " + TEXT
+                + "; -fx-font-size: 10px; -fx-min-width: 30; -fx-min-height: 28; -fx-cursor: hand;");
+        b.setOnAction(e -> action.run());
+        b.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_CLICKED, javafx.scene.input.MouseEvent::consume);
+        return b;
     }
 
     /**

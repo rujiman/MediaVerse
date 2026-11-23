@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Servicio que gestiona qué favoritos elige el usuario para mostrar en
- * cada sección fija de la pantalla de inicio ("Tu Universo"):
- * GAME (columna izquierda) y MUSIC / SERIES / MOVIE / ANIME (filas derecha).
+ * Servicio que gestiona qué favoritos elige el usuario para mostrar en cada
+ * sección de la vitrina y cuáles de las 7 secciones son principales
+ * (grandes) y cuáles compactas, con su orden.
  *
  * Guarda solo IDs de FavoriteItem (no copias), persistidos en
  * dashboard_<usuario>.json, indexados por MediaType.
@@ -27,19 +27,72 @@ public class DashboardService {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     /**
-     * Número máximo de favoritos permitidos por sección en la home.
-     * Juegos, Series y Anime son las 3 columnas grandes de arriba, con
-     * grid 3x4 (12, FIJO sin importar la resolución de pantalla — se
-     * intentó hacer responsive varias veces y siempre acababa rompiendo
-     * el layout en alguna combinación de tamaño/resolución; 3x4 fijo es
-     * la decisión final, simple y predecible). Música / Películas y
-     * Libros / Manga son las 2 filas de abajo, cada una a media anchura,
-     * con máximo 5.
+     * Vitrina: 4 secciones principales (favorito absoluto + ranking, 5
+     * huecos) y 3 compactas (4 portadas). Cuáles son principales lo elige
+     * el usuario en "Editar vitrina"; por defecto, Juegos, Anime, Series
+     * y Películas.
+     *
+     * Una sección guarda hasta 5 aunque sea compacta: así, si pasa de
+     * principal a compacta y vuelve, su quinto favorito no se pierde.
      */
+    public static final int MAIN_COUNT = 4;
+    public static final int MAIN_SLOTS = 5;
+    public static final int COMPACT_SLOTS = 4;
+
+    /** Orden de las secciones cuando no hay nada guardado. */
+    private static final List<MediaType> DEFAULT_ORDER = List.of(
+            MediaType.GAME, MediaType.ANIME, MediaType.SERIES, MediaType.MOVIE,
+            MediaType.MUSIC, MediaType.BOOK, MediaType.MANGA);
+
+    private static final List<MediaType> mainSections = new ArrayList<>(DEFAULT_ORDER.subList(0, MAIN_COUNT));
+    private static final List<MediaType> compactSections = new ArrayList<>(DEFAULT_ORDER.subList(MAIN_COUNT, DEFAULT_ORDER.size()));
+
+    /** Huecos visibles de una sección: 5 si es principal, 4 si es compacta. */
     public static int getMaxItemsForSection(MediaType type) {
-        // Vitrina (rediseño): las grandes muestran favorito absoluto + 4 en
-        // ranking (5); las compactas (Música, Libros, Manga), 4 portadas.
-        return (type == MediaType.MUSIC || type == MediaType.BOOK || type == MediaType.MANGA) ? 4 : 5;
+        ensureCorrectUserLoaded();
+        return mainSections.contains(type) ? MAIN_SLOTS : COMPACT_SLOTS;
+    }
+
+    public static boolean isMain(MediaType type) {
+        ensureCorrectUserLoaded();
+        return mainSections.contains(type);
+    }
+
+    /** Las 4 principales, en el orden en que se pintan. */
+    public static List<MediaType> getMainSections() {
+        ensureCorrectUserLoaded();
+        return new ArrayList<>(mainSections);
+    }
+
+    /** Las 3 compactas, en el orden en que se pintan. */
+    public static List<MediaType> getCompactSections() {
+        ensureCorrectUserLoaded();
+        return new ArrayList<>(compactSections);
+    }
+
+    /**
+     * Cambia qué secciones son principales y el orden de todas. Recibe
+     * las 7 en orden: las que estén en "main" (4) van arriba, en ese orden.
+     */
+    public static void setLayout(List<MediaType> main, List<MediaType> compact) {
+        ensureCorrectUserLoaded();
+        if (main.size() != MAIN_COUNT) return;
+        applyLayout(main, compact);
+        saveDashboard();
+    }
+
+    /** Valida y completa: 4 principales y el resto compactas, sin repetir. */
+    private static void applyLayout(List<MediaType> main, List<MediaType> compact) {
+        List<MediaType> m = new ArrayList<>();
+        for (MediaType t : main) if (t != null && !m.contains(t) && m.size() < MAIN_COUNT) m.add(t);
+        for (MediaType t : DEFAULT_ORDER) if (m.size() < MAIN_COUNT && !m.contains(t)) m.add(t);
+        List<MediaType> c = new ArrayList<>();
+        for (MediaType t : compact) if (t != null && !m.contains(t) && !c.contains(t)) c.add(t);
+        for (MediaType t : DEFAULT_ORDER) if (!m.contains(t) && !c.contains(t)) c.add(t);
+        mainSections.clear();
+        mainSections.addAll(m);
+        compactSections.clear();
+        compactSections.addAll(c);
     }
 
     // Una entrada de lista por cada MediaType que tiene sección fija en la home
@@ -79,6 +132,11 @@ public class DashboardService {
             String json = new String(Files.readAllBytes(file));
             JsonObject root = gson.fromJson(json, JsonObject.class);
 
+            if (root != null && root.has("main")) {
+                applyLayout(readTypes(root.getAsJsonArray("main")),
+                        root.has("compact") ? readTypes(root.getAsJsonArray("compact")) : List.of());
+            }
+
             if (root != null && root.has("sections")) {
                 JsonObject sectionsObj = root.getAsJsonObject("sections");
 
@@ -104,7 +162,16 @@ public class DashboardService {
         }
     }
 
+    private static List<MediaType> readTypes(JsonArray array) {
+        List<MediaType> out = new ArrayList<>();
+        for (JsonElement el : array) {
+            try { out.add(MediaType.valueOf(el.getAsString())); } catch (Exception ignored) { }
+        }
+        return out;
+    }
+
     private static void initEmptySections() {
+        applyLayout(DEFAULT_ORDER.subList(0, MAIN_COUNT), DEFAULT_ORDER.subList(MAIN_COUNT, DEFAULT_ORDER.size()));
         sections.clear();
         for (MediaType type : MediaType.values()) {
             sections.put(type, new ArrayList<>());
@@ -124,6 +191,12 @@ public class DashboardService {
             }
 
             root.add("sections", sectionsObj);
+            JsonArray mainArr = new JsonArray();
+            for (MediaType t : mainSections) mainArr.add(t.name());
+            JsonArray compactArr = new JsonArray();
+            for (MediaType t : compactSections) compactArr.add(t.name());
+            root.add("main", mainArr);
+            root.add("compact", compactArr);
 
             String json = gson.toJson(root);
             Files.write(file, json.getBytes());
@@ -139,7 +212,8 @@ public class DashboardService {
      */
     public static List<String> getSectionIds(MediaType type) {
         ensureCorrectUserLoaded();
-        return new ArrayList<>(sections.getOrDefault(type, new ArrayList<>()));
+        List<String> ids = sections.getOrDefault(type, new ArrayList<>());
+        return new ArrayList<>(ids.subList(0, Math.min(ids.size(), getMaxItemsForSection(type))));
     }
 
     /**
@@ -150,7 +224,7 @@ public class DashboardService {
      */
     public static List<FavoriteItem> getSectionItems(MediaType type) {
         ensureCorrectUserLoaded();
-        List<String> ids = sections.getOrDefault(type, new ArrayList<>());
+        List<String> ids = getSectionIds(type);   // solo los visibles
         List<FavoriteItem> allFavorites = FavoritesService.getFavorites();
 
         List<FavoriteItem> result = new ArrayList<>();
@@ -171,7 +245,7 @@ public class DashboardService {
     public static void addToSection(MediaType type, String favoriteId) {
         ensureCorrectUserLoaded();
         List<String> ids = sections.computeIfAbsent(type, t -> new ArrayList<>());
-        if (!ids.contains(favoriteId)) {
+        if (!ids.contains(favoriteId) && ids.size() < getMaxItemsForSection(type)) {
             ids.add(favoriteId);
             saveDashboard();
         }
@@ -197,10 +271,16 @@ public class DashboardService {
     public static void setSectionItems(MediaType type, List<String> favoriteIds) {
         ensureCorrectUserLoaded();
         int max = getMaxItemsForSection(type);
-        List<String> trimmed = favoriteIds.size() > max
-                ? new ArrayList<>(favoriteIds.subList(0, max))
-                : new ArrayList<>(favoriteIds);
-        sections.put(type, trimmed);
+        List<String> previous = sections.getOrDefault(type, new ArrayList<>());
+        List<String> result = new ArrayList<>(favoriteIds.size() > max ? favoriteIds.subList(0, max) : favoriteIds);
+        // Sección compacta llena: se conserva el quinto que estaba guardado
+        // (oculto) para cuando vuelva a ser principal
+        if (result.size() == max) {
+            for (int k = max; k < previous.size() && result.size() < MAIN_SLOTS; k++) {
+                if (!result.contains(previous.get(k))) result.add(previous.get(k));
+            }
+        }
+        sections.put(type, result);
         saveDashboard();
     }
 
