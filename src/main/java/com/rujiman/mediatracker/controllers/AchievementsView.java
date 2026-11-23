@@ -305,7 +305,7 @@ public class AchievementsView {
         HBox top = new HBox(icon, spacer, diff);
         top.setAlignment(Pos.TOP_LEFT);
 
-        Label name = new Label(hidden ? "???" : a.name());
+        Label name = new Label(hidden ? "???" : AchievementService.displayName(a));
         name.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: "
                 + (done ? Palette.TEXT : Palette.TEXT_SOFT) + ";");
         Label desc = new Label(hidden ? a.hint() : a.description());
@@ -317,7 +317,18 @@ public class AchievementsView {
         VBox.setVgrow(push, Priority.ALWAYS);
         card.getChildren().add(push);
 
-        if (done) {
+        if (done && AchievementService.levelOf(a) > 0) {
+            // Logro con niveles: barra hacia el siguiente año
+            long value = AchievementService.progressOf(a), target = AchievementService.targetOf(a);
+            long from = target - 365;
+            Label nums = new Label(fmt(value) + " / " + fmt(target) + " días para el nivel " + (AchievementService.levelOf(a) + 1));
+            nums.setStyle("-fx-font-size: 11px; -fx-text-fill: " + a.accent() + ";");
+            Region gap = new Region();
+            HBox.setHgrow(gap, Priority.ALWAYS);
+            HBox bottom = new HBox(6, nums, gap, pinButton(a));
+            bottom.setAlignment(Pos.CENTER_LEFT);
+            card.getChildren().addAll(bar(CARD_W - 32, (double) Math.max(0, value - from) / 365, a.accent(), 4), bottom);
+        } else if (done) {
             LocalDate on = AchievementService.unlockedOn(a);
             Label when = new Label(on != null ? "Conseguido el " + DATE.format(on) : "Conseguido");
             when.setStyle("-fx-font-size: 11px; -fx-text-fill: " + a.accent() + ";");

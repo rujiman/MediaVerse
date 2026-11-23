@@ -765,16 +765,16 @@ public class HomeController {
             icon.setMinSize(22, 22);
             icon.setMaxSize(22, 22);
             icon.setStyle("-fx-background-color: " + a.accent() + "33; -fx-background-radius: 999;");
-            Label name = new Label(a.name());
+            Label name = new Label(com.rujiman.mediatracker.services.AchievementService.displayName(a));
             name.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 12px; -fx-text-fill: " + TEXT + ";");
-            name.setMaxWidth(120);
+            name.setMaxWidth(150);
             HBox medal = new HBox(6, icon, name);
             medal.setAlignment(Pos.CENTER_LEFT);
             medal.setPadding(new Insets(3, 10, 3, 3));
             medal.setStyle("-fx-background-color: " + a.accent() + "1a; -fx-background-radius: 999;"
                     + "-fx-border-color: " + a.accent() + "66; -fx-border-radius: 999; -fx-cursor: hand;");
             var on = com.rujiman.mediatracker.services.AchievementService.unlockedOn(a);
-            Tooltip tip = new Tooltip(a.name() + "  ·  "
+            Tooltip tip = new Tooltip(com.rujiman.mediatracker.services.AchievementService.displayName(a) + "  ·  "
                     + com.rujiman.mediatracker.services.AchievementService.DIFFICULTY[a.difficulty()]
                     + "\n" + a.description() + (on != null ? "\nConseguido el " + fmt.format(on) : ""));
             tip.setShowDelay(javafx.util.Duration.millis(200));

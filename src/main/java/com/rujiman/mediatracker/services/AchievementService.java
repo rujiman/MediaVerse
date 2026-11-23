@@ -59,6 +59,10 @@ public final class AchievementService {
 
     private static final List<Achievement> CATALOG = new ArrayList<>();
 
+    /** Logro con niveles: un nivel por cada año de racha. */
+    public static final String INFINITE_STREAK = "streak_infinite";
+    private static final int DAYS_PER_LEVEL = 365;
+
     private static void tiers(String category, String accent, String icon, String metric, String descFormat,
                               long[] targets, String[] names) {
         for (int i = 0; i < targets.length; i++) {
@@ -106,14 +110,17 @@ public final class AchievementService {
                 new String[]{"Coleccionista", "Gran colección", "Museo personal", "Archivo nacional", "Todo me gusta"});
 
         // Rachas: hasta un año, subiendo de dificultad poco a poco
-        long[] days = {3, 7, 14, 30, 60, 100, 180, 365};
-        int[] diff = {1, 1, 2, 2, 3, 3, 4, 5};
+        long[] days = {3, 7, 14, 30, 60, 100, 180};
+        int[] diff = {1, 1, 2, 2, 3, 3, 4};
         String[] streakNames = {"Encendido", "Una semana", "Constante", "Un mes sin fallar", "Disciplina",
-                "Centenario", "Medio año", "Un año entero"};
+                "Centenario", "Medio año"};
         for (int i = 0; i < days.length; i++) {
             single("streak_" + days[i], STREAKS, streakNames[i], "Ten actividad " + days[i] + " días seguidos",
                     diff[i], C_BRAND, "FLAME", "streak", days[i]);
         }
+        // Sin tope: se consigue con un año seguido y sube un nivel por cada año más
+        single(INFINITE_STREAK, STREAKS, "Racha infinita", "Ten actividad un año entero seguido. Cada año más, sube de nivel",
+                5, C_BRAND, "FLAME", "streak", 365);
         single("marathon_5", STREAKS, "Maratón", "Ve 5 episodios en un mismo día", 2, C_SERIES, "TV", "marathon", 5);
         single("marathon_10", STREAKS, "Maratoniano", "Ve 10 episodios en un mismo día", 3, C_SERIES, "TV", "marathon", 10);
         single("marathon_25", STREAKS, "Sin dormir", "Ve 25 episodios en un mismo día", 4, C_SERIES, "TV", "marathon", 25);
@@ -147,6 +154,7 @@ public final class AchievementService {
         boolean sound = true;
         Map<String, String> unlocked = new LinkedHashMap<>(); // id -> fecha ISO
         List<String> pinned = new ArrayList<>();             // medallas elegidas para el perfil (máx. 3)
+        Map<String, Integer> levels = new LinkedHashMap<>(); // nivel alcanzado de los logros con niveles
     }
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -171,6 +179,7 @@ public final class AchievementService {
                 if (s != null) {
                     if (s.unlocked == null) s.unlocked = new LinkedHashMap<>();
                     if (s.pinned == null) s.pinned = new ArrayList<>();
+                    if (s.levels == null) s.levels = new LinkedHashMap<>();
                     state = s;
                 }
             }
@@ -221,6 +230,25 @@ public final class AchievementService {
         ensureLoaded();
         state.sound = on;
         save();
+    }
+
+    /** Nivel de un logro con niveles (0 si no tiene o no está conseguido). */
+    public static int levelOf(Achievement a) {
+        ensureLoaded();
+        if (!INFINITE_STREAK.equals(a.id()) || !state.unlocked.containsKey(a.id())) return 0;
+        return Math.max(1, state.levels.getOrDefault(a.id(), 1));
+    }
+
+    /** Nombre para mostrar: "Racha infinita · Nivel 3" en los logros con niveles. */
+    public static String displayName(Achievement a) {
+        int level = levelOf(a);
+        return level > 0 ? a.name() + " · Nivel " + level : a.name();
+    }
+
+    /** Meta actual: en los logros con niveles, el año siguiente. */
+    public static long targetOf(Achievement a) {
+        int level = levelOf(a);
+        return level > 0 ? (long) (level + 1) * DAYS_PER_LEVEL : a.target();
     }
 
     public static final int MAX_PINNED = 3;
@@ -325,9 +353,25 @@ public final class AchievementService {
                 fresh.add(a);
             }
         }
+        // Racha infinita: un nivel por año. Cada subida se avisa como un logro más
+        boolean levelsChanged = false;
+        for (Achievement a : CATALOG) {
+            if (!INFINITE_STREAK.equals(a.id()) || !state.unlocked.containsKey(a.id())) continue;
+            int reached = (int) Math.max(1, m.getOrDefault(a.metric(), 0L) / DAYS_PER_LEVEL);
+            int stored = state.levels.getOrDefault(a.id(), 0);
+            if (reached > stored) {
+                state.levels.put(a.id(), reached);
+                levelsChanged = true;
+                if (stored > 0) {
+                    fresh.add(new Achievement(a.id(), a.category(), a.name() + " · Nivel " + reached,
+                            reached + " años seguidos con actividad", a.difficulty(), a.accent(), a.icon(),
+                            a.metric(), a.target(), false, null));
+                }
+            }
+        }
         boolean first = !state.initialized;
         if (first) state.initialized = true;
-        if (!fresh.isEmpty() || first) save();
+        if (!fresh.isEmpty() || first || levelsChanged) save();
         if (!fresh.isEmpty() && listener != null) listener.unlocked(fresh, first);
         return fresh;
     }
