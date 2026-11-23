@@ -2,6 +2,15 @@
 
 ---
 
+## [1.4.2] — 2026-11-23
+
+### ✨ Novedades
+- **Tu vitrina, a tu gusto**: en «Editar vitrina» → «Elegir secciones principales…» eliges qué 4 secciones se ven en grande, con favorito absoluto y 5 huecos, y en qué orden. Las demás pasan a la fila compacta. ¿Más de manga que de películas? Ponlo arriba. Idea de la comunidad 💜
+- Si una sección pasa a compacta, su quinto favorito se guarda y vuelve cuando la pongas otra vez en grande
+- La música en grande se ve con su portada cuadrada entera
+
+---
+
 ## [1.4.1] — 2026-11-23
 
 ### ✨ Novedades
