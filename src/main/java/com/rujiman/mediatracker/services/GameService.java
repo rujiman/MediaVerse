@@ -386,6 +386,52 @@ public class GameService {
     }
 
     // ============================
+    // ESTRENOS (calendario)
+    // ============================
+
+    /**
+     * Fecha de lanzamiento (segundos Unix) de varios juegos, de 100 en 100.
+     * Los juegos sin fecha aparecen con valor null. Devuelve null si IGDB
+     * falla, para no guardar nada.
+     */
+    public java.util.Map<Integer, Long> getReleaseDates(List<Integer> ids) {
+        java.util.Map<Integer, Long> result = new java.util.HashMap<>();
+        for (int from = 0; from < ids.size(); from += 100) {
+            List<Integer> chunk = ids.subList(from, Math.min(from + 100, ids.size()));
+            String list = chunk.stream().map(String::valueOf).reduce((a, b) -> a + "," + b).orElse("");
+            String igdbQuery = "fields id, first_release_date; where id = (" + list + "); limit " + chunk.size() + ";";
+            RequestBody body = RequestBody.create(igdbQuery, okhttp3.MediaType.get("text/plain"));
+            try {
+                Request request = new Request.Builder()
+                        .url(API_URL + "/games")
+                        .post(body)
+                        .header("Client-ID", getClientId())
+                        .header("Authorization", "Bearer " + getAccessToken())
+                        .build();
+                try (Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        throw new IOException("IGDB respondió " + response.code());
+                    }
+                    JsonArray root = gson.fromJson(response.body().string(), JsonArray.class);
+                    for (Integer id : chunk) result.put(id, null);
+                    if (root != null) {
+                        for (JsonElement el : root) {
+                            JsonObject g = el.getAsJsonObject();
+                            Long date = g.has("first_release_date") && !g.get("first_release_date").isJsonNull()
+                                    ? g.get("first_release_date").getAsLong() : null;
+                            result.put(g.get("id").getAsInt(), date);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("⚠️ No se pudieron pedir fechas a IGDB: " + e.getMessage());
+                return null;
+            }
+        }
+        return result;
+    }
+
+    // ============================
     // HELPERS
     // ============================
 

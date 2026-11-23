@@ -228,6 +228,8 @@
                     maxWidth="Infinity" styleClass="nav-item"/>
             <Button fx:id="navLibrary" text="Mi biblioteca" onAction="#openLibrary"
                     maxWidth="Infinity" styleClass="nav-item"/>
+            <Button fx:id="navReleases" text="Estrenos" onAction="#openReleases"
+                    maxWidth="Infinity" styleClass="nav-item"/>
 
             <Separator/>
 

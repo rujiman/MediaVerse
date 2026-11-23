@@ -305,7 +305,8 @@ public class LibraryViewController {
         Integer rating = WatchProgressService.getUserRating(key);
         String fallback = state == State.PENDING ? statusText(e)
                 : e.item().getYear() != null ? String.valueOf(e.item().getYear()) : null;
-        info.getChildren().addAll(com.rujiman.mediatracker.ui.CollectionUI.statusLines(type, p, total, rating, fallback, CARD_W - 24));
+        boolean reviewed = com.rujiman.mediatracker.services.ReviewService.has(type, e.item().getTitle());
+        info.getChildren().addAll(com.rujiman.mediatracker.ui.CollectionUI.statusLines(type, p, total, rating, reviewed, fallback, CARD_W - 24));
 
         VBox card = new VBox(posterBox, info);
         card.setPrefWidth(CARD_W);

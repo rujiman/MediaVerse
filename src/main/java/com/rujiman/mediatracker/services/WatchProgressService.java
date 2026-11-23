@@ -210,20 +210,27 @@ public class WatchProgressService {
         if (progress != null && progress.item == null) remember(item);
     }
 
-    /** Resumen para las estadísticas del perfil. */
-    public record Stats(int episodes, int finished, int inProgress, double averageRating, int rated) {}
+    /**
+     * Resumen para las estadísticas del perfil. Los episodios (series y
+     * anime) y los capítulos (manga) se cuentan por separado.
+     */
+    public record Stats(int episodes, int chapters, int finished, int inProgress, double averageRating, int rated) {}
 
     public static Stats getStats() {
         ensureCorrectUserLoaded();
-        int episodes = 0, finished = 0, inProgress = 0, rated = 0, ratingSum = 0;
-        for (Progress p : cache.values()) {
+        String mangaPrefix = keyFor(MediaType.MANGA, "").toLowerCase();
+        int episodes = 0, chapters = 0, finished = 0, inProgress = 0, rated = 0, ratingSum = 0;
+        for (Map.Entry<String, Progress> e : cache.entrySet()) {
+            Progress p = e.getValue();
             int watched = p.watchedEpisodes != null ? p.watchedEpisodes.size() : 0;
-            episodes += watched;
+            boolean manga = e.getKey().startsWith(mangaPrefix)
+                    || (p.item != null && p.item.getType() == MediaType.MANGA);
+            if (manga) chapters += watched; else episodes += watched;
             if (p.viewed) finished++;
             else if (p.inProgress || watched > 0) inProgress++;
             if (p.userRating != null && p.userRating > 0) { rated++; ratingSum += p.userRating; }
         }
-        return new Stats(episodes, finished, inProgress, rated == 0 ? 0 : (double) ratingSum / rated, rated);
+        return new Stats(episodes, chapters, finished, inProgress, rated == 0 ? 0 : (double) ratingSum / rated, rated);
     }
 
     /** Todos los títulos de un tipo que tienen progreso y ficha guardada. */
@@ -368,6 +375,27 @@ public class WatchProgressService {
 
         progress.watchedEpisodes.clear();
         progress.viewed = false;
+
+        cache.put(key, progress);
+        saveProgress();
+    }
+
+    /**
+     * Marca o desmarca un tramo de episodios (from..to, incluidos) sin
+     * tocar el resto. Se usa para "Marcar temporada" / "Desmarcar temporada".
+     */
+    public static void setEpisodesWatched(String title, int from, int to, boolean watched, int totalEpisodes) {
+        ensureCorrectUserLoaded();
+        String key = title.toLowerCase();
+        Progress progress = cache.getOrDefault(key, new Progress());
+        progress.totalEpisodes = totalEpisodes;
+
+        for (int i = Math.max(1, from); i <= Math.min(to, totalEpisodes); i++) {
+            if (watched) progress.watchedEpisodes.add(i);
+            else progress.watchedEpisodes.remove(i);
+        }
+        progress.viewed = progress.watchedEpisodes.size() >= totalEpisodes;
+        if (progress.viewed) progress.inProgress = false;
 
         cache.put(key, progress);
         saveProgress();

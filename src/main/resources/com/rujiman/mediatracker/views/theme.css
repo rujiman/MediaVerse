@@ -743,3 +743,58 @@
     -fx-effect: dropshadow(gaussian, #ec4d8088, 14, 0.2, 0, 2);
 }
 .update-pill:hover { -fx-background-color: #ff6b98; }
+
+/* ============================================================
+   RESEÑA PERSONAL (ficha de detalle)
+   ============================================================ */
+
+.review-area {
+    -fx-background-color: #100c1c;
+    -fx-background-radius: 12;
+    -fx-border-color: #3a3160;
+    -fx-border-radius: 12;
+    -fx-text-fill: #f0eef5;
+    -fx-prompt-text-fill: #a59fc0;
+    -fx-highlight-fill: #ec4d8066;
+    -fx-highlight-text-fill: #f0eef5;
+    -fx-font-size: 14px;
+}
+.review-area:focused { -fx-border-color: #ec4d80; }
+.review-area .content {
+    -fx-background-color: transparent;
+    -fx-padding: 10 12;
+}
+.review-area .scroll-pane,
+.review-area .scroll-pane .viewport { -fx-background-color: transparent; }
+.review-area .scroll-bar { -fx-background-color: transparent; }
+.review-area .scroll-bar .thumb { -fx-background-color: #3a3160; -fx-background-radius: 4; }
+.review-area .scroll-bar .increment-button,
+.review-area .scroll-bar .decrement-button { -fx-padding: 0; -fx-opacity: 0; }
+
+.review-check {
+    -fx-text-fill: #cfc9e6;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+.review-check .box {
+    -fx-background-color: #100c1c;
+    -fx-border-color: #3a3160;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+.review-check:selected .box {
+    -fx-background-color: #ec4d80;
+    -fx-border-color: #ec4d80;
+}
+.review-check:selected .mark { -fx-background-color: #120c1c; }
+
+.btn-danger-sm {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e74c3c;
+    -fx-font-family: "Inter SemiBold";
+    -fx-font-size: 13px;
+    -fx-padding: 0 10;
+    -fx-min-height: 38;
+    -fx-cursor: hand;
+}
+.btn-danger-sm:hover { -fx-background-color: #e74c3c1a; -fx-background-radius: 10; }

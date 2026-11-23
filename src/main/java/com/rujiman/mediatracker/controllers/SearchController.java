@@ -101,6 +101,7 @@ public class SearchController {
     @FXML private Button navSearch;
     @FXML private Button navFavorites;
     @FXML private Button navLibrary;
+    @FXML private Button navReleases;
     @FXML private Button updateButton;
     @FXML private Label versionLabel;
 
@@ -199,6 +200,7 @@ public class SearchController {
         navSearch.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.SEARCH, 18, Palette.TEXT_SOFT));
         navFavorites.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 18, Palette.TEXT_SOFT));
         navLibrary.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.LIBRARY, 18, Palette.TEXT_SOFT));
+        navReleases.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CALENDAR, 18, Palette.TEXT_SOFT));
 
         // Versión instalada y comprobación de actualizaciones en segundo plano
         versionLabel.setText("MediaVerse " + com.rujiman.mediatracker.util.AppInfo.VERSION);
@@ -221,6 +223,7 @@ public class SearchController {
             javafx.scene.Parent homeRoot = loader.load();
             homeController = loader.getController();
             homeController.setOnOpenDetailAction(this::openDetailView);
+            homeController.setOnOpenReleasesAction(this::openReleases);
             // La foto también se cambia pulsando el avatar de la vitrina
             homeController.setOnChangePhotoAction(() -> {
                 onChangeProfilePicture();
@@ -1215,6 +1218,37 @@ public class SearchController {
             setWindowTitle("Mediaverse - Mi biblioteca");
         } catch (Exception e) {
             System.err.println("❌ Error al abrir Mi biblioteca: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Abre "Estrenos": próximos episodios y lanzamientos de lo que sigues.
+     * Al abrir un título, "Volver" regresa a esta lista.
+     */
+    @FXML
+    private void openReleases() {
+        if (navMenuOpen) closeNavMenu();
+        ReleasesView view = new ReleasesView(this::openDetailFromReleases);
+        openOverlay(view.getRoot());
+        setWindowTitle("Mediaverse - Estrenos");
+    }
+
+    private void openDetailFromReleases(MediaItem item) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/rujiman/mediatracker/views/DetailView.fxml")
+            );
+            javafx.scene.Parent detailRoot = loader.load();
+            DetailViewController controller = loader.getController();
+            controller.setOnBackAction(this::openReleases);
+            controller.setOnOpenDetailAction(recommended -> openDetailView(recommended,
+                    () -> openDetailFromReleases(item)));
+            controller.loadItem(item);
+            openOverlay(detailRoot);
+            setWindowTitle("Mediaverse - " + item.getTitle());
+        } catch (Exception e) {
+            System.err.println("❌ Error al abrir DetailView desde Estrenos: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -127,6 +127,14 @@ public final class CollectionUI {
     public static java.util.List<Node> statusLines(com.rujiman.mediatracker.models.MediaType type,
                                                   com.rujiman.mediatracker.services.WatchProgressService.Progress progress,
                                                   Integer total, Integer rating, String fallbackText, double width) {
+        return statusLines(type, progress, total, rating, false, fallbackText, width);
+    }
+
+    /** Igual, y si el título tiene reseña añade un lápiz junto a las estrellas. */
+    public static java.util.List<Node> statusLines(com.rujiman.mediatracker.models.MediaType type,
+                                                  com.rujiman.mediatracker.services.WatchProgressService.Progress progress,
+                                                  Integer total, Integer rating, boolean hasReview,
+                                                  String fallbackText, double width) {
         String accent = com.rujiman.mediatracker.util.MediaTypeTheme.accentHex(type);
         String dim = "#a59fc0";
         java.util.List<Node> lines = new java.util.ArrayList<>();
@@ -136,7 +144,10 @@ public final class CollectionUI {
         if (byUnits) {
             int done = progress.watchedEpisodes.size();
             lines.add(progressBar(width, (double) done / total, accent));
-            lines.add(meta(com.rujiman.mediatracker.util.MediaTypeTheme.unitSingular(type) + " " + done + " de " + total, dim));
+            // Series con temporadas: "Siguiente: T2 · E4"
+            String seasonText = nextBySeason(progress, total);
+            lines.add(meta(seasonText != null ? seasonText
+                    : com.rujiman.mediatracker.util.MediaTypeTheme.unitSingular(type) + " " + done + " de " + total, dim));
         } else if (viewed) {
             lines.add(meta(com.rujiman.mediatracker.util.MediaTypeTheme.doneText(type), accent));
         } else if (progress != null && progress.inProgress) {
@@ -145,10 +156,43 @@ public final class CollectionUI {
             lines.add(meta(fallbackText != null && !fallbackText.isBlank() ? fallbackText : " ", dim));
         }
 
-        if (rating != null && rating > 0) {
-            lines.add(meta("★".repeat(rating) + "☆".repeat(Math.max(0, 5 - rating)), accent));
+        boolean rated = rating != null && rating > 0;
+        if (rated || hasReview) {
+            javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(8);
+            row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            if (rated) row.getChildren().add(meta("★".repeat(rating) + "☆".repeat(Math.max(0, 5 - rating)), accent));
+            if (hasReview) {
+                Node pencil = Icons.of(Icons.EDIT, 13, rated ? dim : accent);
+                javafx.scene.control.Tooltip.install(pencil, new javafx.scene.control.Tooltip("Tiene reseña"));
+                row.getChildren().add(pencil);
+                if (!rated) row.getChildren().add(meta("Con reseña", dim));
+            }
+            lines.add(row);
         }
         return lines;
+    }
+
+    /**
+     * "Siguiente: T2 · E4" si la serie tiene temporadas guardadas y le queda
+     * algo por ver; null en cualquier otro caso.
+     */
+    public static String nextBySeason(com.rujiman.mediatracker.services.WatchProgressService.Progress progress, int total) {
+        return nextBySeason(progress != null ? progress.item : null, progress, total);
+    }
+
+    /** Igual, pero con la ficha del título (por si el progreso aún no la guarda). */
+    public static String nextBySeason(com.rujiman.mediatracker.models.MediaItem item,
+                                      com.rujiman.mediatracker.services.WatchProgressService.Progress progress, int total) {
+        if (item == null && progress != null) item = progress.item;
+        if (progress == null || item == null || item.getTmdbId() == null
+                || item.getType() != com.rujiman.mediatracker.models.MediaType.SERIES) return null;
+        com.rujiman.mediatracker.services.SeasonService.Layout layout =
+                com.rujiman.mediatracker.services.SeasonService.layout(item.getTmdbId());
+        if (layout == null || layout.total() != total) return null;
+        for (int i = 1; i <= total; i++) {
+            if (!progress.watchedEpisodes.contains(i)) return "Siguiente: " + layout.label(i);
+        }
+        return null;
     }
 
     private static javafx.scene.control.Label meta(String text, String color) {

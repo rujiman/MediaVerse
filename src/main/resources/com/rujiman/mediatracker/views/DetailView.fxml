@@ -120,6 +120,9 @@
                 <VBox fx:id="contentInner" spacing="36" maxWidth="1240" prefWidth="1240">
                     <padding><Insets top="32" right="32" bottom="64" left="32"/></padding>
 
+                    <!-- Tu reseña (texto libre, aparte de las estrellas). Se rellena desde el controlador -->
+                    <VBox fx:id="reviewSection" spacing="12" maxWidth="820"/>
+
                     <Separator fx:id="episodesSeparator" opacity="0" visible="false" managed="false"/>
 
                     <!-- Episodios (ANIME / SERIES) o capítulos (MANGA) en cuadrícula -->

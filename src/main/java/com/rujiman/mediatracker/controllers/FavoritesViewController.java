@@ -264,7 +264,8 @@ public class FavoritesViewController {
         WatchProgressService.Progress p = WatchProgressService.getProgress(key);
         Integer total = fav.getTotalEpisodes() != null ? fav.getTotalEpisodes() : p.totalEpisodes;
         Integer rating = WatchProgressService.getUserRating(key);
-        info.getChildren().addAll(CollectionUI.statusLines(type, p, total, rating,
+        boolean reviewed = com.rujiman.mediatracker.services.ReviewService.has(type, fav.getTitle());
+        info.getChildren().addAll(CollectionUI.statusLines(type, p, total, rating, reviewed,
                 fav.getYear() != null ? String.valueOf(fav.getYear()) : null, CARD_W - 24));
 
         VBox card = new VBox(posterBox, info);

@@ -316,6 +316,63 @@ public class AnilistService {
 
     // ── Helpers null-safe (mismo espíritu que FavoritesService.safeGetX) ──
 
+    // ============================
+    // ESTRENOS (calendario)
+    // ============================
+
+    /**
+     * Emisión de un anime: próximo episodio (airingAt en segundos Unix) y,
+     * si aún no ha empezado, su fecha de estreno (puede venir incompleta).
+     */
+    public record Airing(int id, Long airingAt, Integer episode, String status,
+                         Integer startYear, Integer startMonth, Integer startDay) {}
+
+    /**
+     * Pide de golpe la emisión de varios animes (de 50 en 50, una petición
+     * por bloque). Devuelve null si AniList falla, para no guardar nada.
+     */
+    public java.util.Map<Integer, Airing> getAiring(List<Integer> ids) {
+        String graphqlQuery = """
+            query ($ids: [Int]) {
+              Page(page: 1, perPage: 50) {
+                media(id_in: $ids, type: ANIME) {
+                  id
+                  status
+                  nextAiringEpisode { airingAt episode }
+                  startDate { year month day }
+                }
+              }
+            }
+            """;
+        java.util.Map<Integer, Airing> result = new java.util.HashMap<>();
+        for (int from = 0; from < ids.size(); from += 50) {
+            JsonArray idArray = new JsonArray();
+            for (Integer id : ids.subList(from, Math.min(from + 50, ids.size()))) idArray.add(id);
+            JsonObject variables = new JsonObject();
+            variables.add("ids", idArray);
+
+            JsonObject data = execute(graphqlQuery, variables);
+            if (data == null) return null;
+            try {
+                for (JsonElement el : data.getAsJsonObject("Page").getAsJsonArray("media")) {
+                    JsonObject m = el.getAsJsonObject();
+                    JsonObject next = has(m, "nextAiringEpisode") ? m.getAsJsonObject("nextAiringEpisode") : null;
+                    JsonObject start = has(m, "startDate") ? m.getAsJsonObject("startDate") : null;
+                    int id = m.get("id").getAsInt();
+                    result.put(id, new Airing(id,
+                            next != null && has(next, "airingAt") ? next.get("airingAt").getAsLong() : null,
+                            next != null ? getInt(next, "episode") : null,
+                            getString(m, "status"),
+                            getInt(start, "year"), getInt(start, "month"), getInt(start, "day")));
+                }
+            } catch (Exception e) {
+                System.err.println("⚠️ Respuesta de emisiones de AniList inesperada: " + e.getMessage());
+                return null;
+            }
+        }
+        return result;
+    }
+
     private boolean has(JsonObject obj, String key) {
         return obj != null && obj.has(key) && !obj.get(key).isJsonNull();
     }

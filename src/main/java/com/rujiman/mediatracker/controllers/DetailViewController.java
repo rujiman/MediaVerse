@@ -16,6 +16,10 @@ import com.rujiman.mediatracker.services.AnilistService;
 import com.rujiman.mediatracker.services.GameService;
 import com.rujiman.mediatracker.services.PlanService;
 import com.rujiman.mediatracker.services.StreamingLinkResolver;
+import com.rujiman.mediatracker.services.ReviewService;
+import com.rujiman.mediatracker.services.SeasonService;
+import javafx.scene.Node;
+import com.rujiman.mediatracker.models.Review;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -100,6 +104,10 @@ public class DetailViewController {
 
     /** Bloque de episodios visible (0 = 1–50, 1 = 51–100...) en series largas. */
     private int episodeBlock = -1;
+    // Temporadas de la serie (TMDB), o null si no tiene o solo una
+    private SeasonService.Layout seasonLayout = null;
+    // Temporada visible en la cuadrícula (-1 = la del siguiente sin ver)
+    private int seasonIdx = -1;
     private static final int EPISODE_BLOCK = 50;
 
     // Canciones de álbum (MUSIC)
@@ -115,6 +123,7 @@ public class DetailViewController {
 
     // Valoración personal (1-5 estrellas), independiente del score de la API
     @FXML private HBox userRatingStars;
+    @FXML private VBox reviewSection;
 
     private MediaItem currentItem;
     private FavoriteItem currentFavorite;
@@ -267,6 +276,8 @@ public class DetailViewController {
         this.currentPlanContext = null;
         this.currentPlanItemId = null;
         this.episodeBlock = -1;
+        this.seasonIdx = -1;
+        this.seasonLayout = null;
 
         // Banda superior teñida con el color del tipo
         styleHero(item);
@@ -354,6 +365,9 @@ public class DetailViewController {
 
         // Valoración personal (1-5 estrellas), independiente de favoritos y del score de la API
         setupUserRatingStars(item);
+
+        // Tu reseña: texto libre debajo de la cabecera
+        setupReviewSection(item);
 
         // Tráiler en YouTube (solo MOVIE/SERIES; se consulta bajo demanda al pulsar el botón)
         setupTrailerButton(item);
@@ -915,6 +929,170 @@ public class DetailViewController {
         }
     }
 
+    // ── Reseña personal ─────────────────────────────────────────────
+
+    private static final java.time.format.DateTimeFormatter REVIEW_DATE =
+            java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.forLanguageTag("es"));
+
+    /** Muestra la reseña guardada, o la invitación a escribirla. */
+    private void setupReviewSection(MediaItem item) {
+        renderReview(item, false);
+    }
+
+    private void renderReview(MediaItem item, boolean editing) {
+        if (reviewSection == null) return;
+        reviewSection.getChildren().clear();
+        Review review = ReviewService.get(item.getType(), item.getTitle());
+
+        Label title = new Label("Tu reseña");
+        title.getStyleClass().add("detail-section-title");
+        Label privacy = new Label("Solo la ves tú");
+        privacy.getStyleClass().add("detail-hint");
+        HBox header = new HBox(12, title, privacy);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        VBox card = new VBox(14);
+        card.setPadding(new javafx.geometry.Insets(18, 20, 18, 20));
+        card.setStyle("-fx-background-color: " + Palette.PANEL + "; -fx-background-radius: 16;"
+                + "-fx-border-color: " + Palette.LINE + "; -fx-border-radius: 16;");
+
+        if (editing) {
+            card.getChildren().addAll(reviewEditor(item, review));
+        } else if (review == null) {
+            Label empty = new Label("¿Qué te ha parecido? Apunta lo que quieras recordar: lo mejor, lo peor, "
+                    + "a quién se lo recomendarías…");
+            empty.setWrapText(true);
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: " + Palette.DIM + ";");
+            Button write = new Button("Escribir reseña");
+            write.getStyleClass().add("btn-secondary-sm");
+            write.setOnAction(e -> renderReview(item, true));
+            card.getChildren().addAll(empty, write);
+        } else {
+            Label text = new Label(review.text);
+            text.setWrapText(true);
+            text.setLineSpacing(3);
+            text.setStyle("-fx-font-size: 15px; -fx-text-fill: " + Palette.TEXT_SOFT + ";");
+
+            HBox footer = new HBox(10);
+            footer.setAlignment(Pos.CENTER_LEFT);
+            if (review.spoilers) footer.getChildren().add(spoilerTag(item.getType()));
+            Label date = new Label(reviewDateText(review));
+            date.setStyle("-fx-font-size: 12px; -fx-text-fill: " + Palette.DIM + ";");
+            javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+            HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+            Button edit = new Button("Editar");
+            edit.getStyleClass().add("btn-secondary-sm");
+            edit.setOnAction(e -> renderReview(item, true));
+            footer.getChildren().addAll(date, spacer, edit);
+
+            card.getChildren().addAll(text, footer);
+            // Doble clic en el texto también lo edita
+            text.setOnMouseClicked(e -> { if (e.getClickCount() == 2) renderReview(item, true); });
+        }
+
+        reviewSection.getChildren().addAll(header, card);
+    }
+
+    /** Cuadro de texto + "Contiene spoilers" + Guardar / Cancelar / Borrar. */
+    private java.util.List<javafx.scene.Node> reviewEditor(MediaItem item, Review review) {
+        TextArea area = new TextArea(review != null ? review.text : "");
+        area.getStyleClass().add("review-area");
+        area.setWrapText(true);
+        area.setPrefRowCount(5);
+        area.setPromptText("Escribe tu reseña…");
+        area.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= ReviewService.MAX_LENGTH ? change : null));
+
+        Label counter = new Label();
+        counter.setStyle("-fx-font-size: 12px; -fx-text-fill: " + Palette.DIM + ";");
+        Runnable updateCounter = () -> counter.setText(area.getLength() + " / " + ReviewService.MAX_LENGTH);
+        updateCounter.run();
+
+        CheckBox spoilers = new CheckBox("Contiene spoilers");
+        spoilers.getStyleClass().add("review-check");
+        spoilers.setSelected(review != null && review.spoilers);
+
+        Button save = new Button("Guardar");
+        save.setStyle("-fx-background-color: " + MediaTypeTheme.accentHex(item.getType()) + ";"
+                + "-fx-text-fill: " + Palette.ON_ACCENT + "; -fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px;"
+                + "-fx-background-radius: 10; -fx-padding: 0 18; -fx-min-height: 38; -fx-cursor: hand;");
+        save.setDisable(area.getText().isBlank());
+        area.textProperty().addListener((o, a, b) -> {
+            updateCounter.run();
+            save.setDisable(b == null || b.isBlank());
+        });
+        Runnable doSave = () -> {
+            if (area.getText().isBlank()) return;
+            ReviewService.save(item, area.getText(), spoilers.isSelected());
+            renderReview(item, false);
+        };
+        save.setOnAction(e -> doSave.run());
+
+        Button cancel = new Button("Cancelar");
+        cancel.getStyleClass().add("btn-secondary-sm");
+        cancel.setOnAction(e -> renderReview(item, false));
+
+        // Ctrl+Enter guarda, Esc cancela
+        area.setOnKeyPressed(e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ENTER && e.isShortcutDown()) { doSave.run(); e.consume(); }
+            else if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) { renderReview(item, false); e.consume(); }
+        });
+
+        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+        HBox actions = new HBox(10, spoilers, spacer, counter);
+        actions.setAlignment(Pos.CENTER_LEFT);
+        if (review != null) {
+            Button delete = new Button("Borrar");
+            delete.getStyleClass().add("btn-danger-sm");
+            delete.setOnAction(e -> confirmDeleteReview(item));
+            actions.getChildren().add(delete);
+        }
+        actions.getChildren().addAll(cancel, save);
+
+        Platform.runLater(() -> { area.requestFocus(); area.end(); });
+        return java.util.List.of(area, actions);
+    }
+
+    private void confirmDeleteReview(MediaItem item) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        if (reviewSection.getScene() != null) alert.initOwner(reviewSection.getScene().getWindow());
+        alert.setTitle("Borrar reseña");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Borrar tu reseña de \"" + item.getTitle() + "\"?\nTus estrellas se conservan.");
+        DialogPane pane = alert.getDialogPane();
+        pane.getStylesheets().add(getClass().getResource("/com/rujiman/mediatracker/views/theme.css").toExternalForm());
+        pane.setStyle("-fx-background-color: " + Palette.PANEL_ALT + ";");
+        pane.lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: " + Palette.TEXT + ";"));
+        pane.sceneProperty().addListener((o, a, s) -> { if (s != null) s.setFill(Color.web(Palette.BG)); });
+        alert.showAndWait().ifPresent(b -> {
+            if (b == ButtonType.OK) {
+                ReviewService.delete(item.getType(), item.getTitle());
+                renderReview(item, false);
+            }
+        });
+    }
+
+    private Label spoilerTag(MediaType type) {
+        String accent = MediaTypeTheme.accentHex(type);
+        Label tag = new Label("Spoilers");
+        tag.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 11px; -fx-text-fill: " + accent + ";"
+                + "-fx-border-color: " + accent + "; -fx-border-radius: 999; -fx-padding: 2 9;");
+        return tag;
+    }
+
+    private static String reviewDateText(Review r) {
+        try {
+            java.time.LocalDate created = java.time.Instant.parse(r.createdAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+            java.time.LocalDate updated = r.updatedAt != null
+                    ? java.time.Instant.parse(r.updatedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate() : created;
+            return updated.isAfter(created) ? "Editada el " + REVIEW_DATE.format(updated)
+                                            : "Escrita el " + REVIEW_DATE.format(created);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     /**
      * Configura la sección inferior según el tipo de contenido:
      * - ANIME/SERIES: lista de episodios marcables individualmente
@@ -939,6 +1117,13 @@ public class DetailViewController {
                     ? "Ya he leído hasta el capítulo" : "Ya he visto hasta el episodio");
             episodesHeaderLabel.setStyle("-fx-text-fill: " + MediaTypeTheme.accentHex(type) + "; -fx-font-size: 14px; -fx-font-weight: bold;");
 
+            // Series de TMDB: si ya conocemos sus temporadas, se usan al momento
+            boolean tmdbSeries = type == MediaType.SERIES && item.getTmdbId() != null;
+            if (tmdbSeries) {
+                seasonLayout = SeasonService.layout(item.getTmdbId());
+                if (seasonLayout != null) item.setEpisodes(seasonLayout.total());
+            }
+
             Integer total = item.getEpisodes();
             if (total != null && total > 0) {
                 buildEpisodesList(total);
@@ -946,11 +1131,12 @@ public class DetailViewController {
                 episodesSeparator.setManaged(true);
                 episodesSection.setVisible(true);
                 episodesSection.setManaged(true);
-            } else if (type == MediaType.SERIES && item.getTmdbId() != null) {
-                // Las series de TMDB no traen el número de episodios en la
-                // búsqueda (para no ralentizarla); se consulta aquí, solo
-                // al abrir el detalle, en un hilo de fondo.
-                loadEpisodeCountInBackground(item);
+            }
+            // Las series de TMDB no traen episodios ni temporadas en la
+            // búsqueda (para no ralentizarla): se piden aquí, en un hilo de
+            // fondo, si faltan o tienen más de un día.
+            if (tmdbSeries && (total == null || total <= 0 || SeasonService.needsRefresh(item.getTmdbId()))) {
+                loadSeasonsInBackground(item);
             }
             // Si no hay forma de conocer el número de episodios, no se
             // muestra nada (mejor que una lista vacía o incorrecta)
@@ -970,50 +1156,63 @@ public class DetailViewController {
     }
 
     /**
-     * Consulta el número de episodios de una serie de TMDB en un hilo
-     * de fondo, y si llega un resultado válido y seguimos en el mismo
-     * item, construye la lista de episodios y la muestra con un fade.
-     * No bloquea la UI ni retrasa la apertura del detalle.
+     * Pide a TMDB las temporadas de la serie en un hilo de fondo (y, si no
+     * las da, solo el número de episodios). Al llegar, si seguimos en la
+     * misma ficha, guarda las temporadas y vuelve a pintar los episodios.
      */
-    private void loadEpisodeCountInBackground(MediaItem item) {
+    private void loadSeasonsInBackground(MediaItem item) {
         final MediaItem itemAtRequestTime = item;
+        final int tmdbId = item.getTmdbId();
 
-        new Thread(() -> {
-            Integer total = new TMDBService().getEpisodeCount(item.getTmdbId());
+        Thread t = new Thread(() -> {
+            TMDBService tmdb = new TMDBService();
+            List<SeasonService.Season> seasons = tmdb.getSeasons(tmdbId);
+            Integer total = null;
+            if (seasons != null && !seasons.isEmpty()) {
+                total = seasons.stream().mapToInt(SeasonService.Season::episodes).sum();
+            } else {
+                total = tmdb.getEpisodeCount(tmdbId);
+            }
+            final Integer finalTotal = total;
 
             Platform.runLater(() -> {
-                // Si el usuario ya cerró este detalle o abrió otro mientras
-                // se esperaba la respuesta, no tocamos nada para evitar
-                // pintar episodios sobre el item equivocado.
+                if (seasons != null) SeasonService.store(tmdbId, seasons);
+                // Si el usuario ya abrió otra ficha, no se pinta nada aquí
                 if (currentItem != itemAtRequestTime) return;
-                if (total == null || total <= 0) return;
+                if (finalTotal == null || finalTotal <= 0) return;
 
-                item.setEpisodes(total);
-                buildEpisodesList(total);
+                boolean wasHidden = !episodesSection.isVisible();
+                seasonLayout = SeasonService.layout(tmdbId);
+                item.setEpisodes(finalTotal);
+                buildEpisodesList(finalTotal);
 
                 episodesSeparator.setVisible(true);
                 episodesSeparator.setManaged(true);
                 episodesSection.setVisible(true);
                 episodesSection.setManaged(true);
 
-                // Ahora que sabemos que hay episodios, el botón general de
-                // "Marcar como visto" deja de tener sentido (el progreso se
-                // gestiona episodio a episodio en la lista que acabamos de mostrar)
+                // Con lista de episodios, el progreso va episodio a episodio
                 viewedButton.setVisible(false);
                 viewedButton.setManaged(false);
 
-                FadeTransition fade = new FadeTransition(Duration.millis(250), episodesSection);
-                fade.setFromValue(0);
-                fade.setToValue(1);
-                fade.play();
+                if (wasHidden) {
+                    FadeTransition fade = new FadeTransition(Duration.millis(250), episodesSection);
+                    fade.setFromValue(0);
+                    fade.setToValue(1);
+                    fade.play();
+                }
             });
-        }).start();
+        }, "temporadas");
+        t.setDaemon(true);
+        t.start();
     }
 
     /**
-     * Construye la lista de checkboxes "Episodio 1".."Episodio N",
-     * marcando como visto cada uno según el progreso guardado
-     * (independiente de si el item es favorito o no).
+     * Pinta la cuadrícula de episodios. Si la serie tiene varias temporadas
+     * (SeasonService), arriba salen chips "T1 ✓", "T2 3/8"... y la
+     * cuadrícula muestra solo la temporada elegida, numerada desde E1.
+     * Internamente todo sigue con la numeración seguida 1..N.
+     * Temporadas (o series) de más de 50 se parten en bloques de 50.
      */
     private void buildEpisodesList(int totalEpisodes) {
         episodesList.getChildren().clear();
@@ -1022,19 +1221,44 @@ public class DetailViewController {
         WatchProgressService.Progress progress = WatchProgressService.getProgress(WatchProgressService.keyFor(type, currentItem.getTitle()));
         episodesHeaderLabel.setText(MediaTypeTheme.unitPlural(type) + " (" + progress.watchedEpisodes.size() + "/" + totalEpisodes + ")");
 
-        // Series largas: bloques de 50 con pestañas ("1–50", "51–100"...).
-        // Por defecto se abre el bloque donde está el siguiente sin ver.
-        int blocks = (totalEpisodes + EPISODE_BLOCK - 1) / EPISODE_BLOCK;
+        SeasonService.Layout layout = seasonLayout != null && seasonLayout.total() == totalEpisodes ? seasonLayout : null;
+
+        // Tramo visible: la temporada elegida, o todo si no hay temporadas
+        int rangeStart = 1, rangeEnd = totalEpisodes;
+        if (layout != null) {
+            if (seasonIdx < 0 || seasonIdx >= layout.size()) {
+                int next = nextUnwatched(totalEpisodes);
+                seasonIdx = next > 0 ? layout.seasonOf(next) : layout.size() - 1;
+            }
+            rangeStart = layout.start(seasonIdx);
+            rangeEnd = layout.end(seasonIdx);
+            episodesList.getChildren().add(buildSeasonChips(layout, progress, accent, totalEpisodes));
+        }
+        final int fromEp = rangeStart, toEp = rangeEnd;
+
+        // Textos que cambian con o sin temporadas
+        String unit = MediaTypeTheme.unitSingular(type).toLowerCase();
+        markAllWatchedButton.setText(layout != null ? "Marcar temporada" : "Marcar todos");
+        unmarkAllWatchedButton.setText(layout != null ? "Desmarcar temporada" : "Desmarcar todos");
+        if (layout != null) {
+            jumpToEpisodeLabel.setText("De la T" + layout.season(seasonIdx).number() + ", ya he visto hasta el episodio");
+        } else {
+            jumpToEpisodeLabel.setText(type == MediaType.MANGA ? "Ya he leído hasta el capítulo" : "Ya he visto hasta el episodio");
+        }
+
+        // Bloques de 50 dentro del tramo. Por defecto, el del siguiente sin ver.
+        int rangeSize = rangeEnd - rangeStart + 1;
+        int blocks = (rangeSize + EPISODE_BLOCK - 1) / EPISODE_BLOCK;
         if (episodeBlock < 0 || episodeBlock >= blocks) {
-            int next = nextUnwatched(totalEpisodes);
-            episodeBlock = next > 0 ? (next - 1) / EPISODE_BLOCK : blocks - 1;
+            int next = nextUnwatchedIn(rangeStart, rangeEnd);
+            episodeBlock = next > 0 ? (next - rangeStart) / EPISODE_BLOCK : 0;
         }
         if (blocks > 1) {
             FlowPane tabs = new FlowPane(8, 8);
             for (int bIdx = 0; bIdx < blocks; bIdx++) {
                 final int block = bIdx;
                 int from = bIdx * EPISODE_BLOCK + 1;
-                int to = Math.min(totalEpisodes, (bIdx + 1) * EPISODE_BLOCK);
+                int to = Math.min(rangeSize, (bIdx + 1) * EPISODE_BLOCK);
                 Button tab = new Button(from + "–" + to);
                 boolean active = bIdx == episodeBlock;
                 tab.setStyle("-fx-background-radius: 999; -fx-padding: 6 14; -fx-font-size: 13px; -fx-cursor: hand;"
@@ -1051,27 +1275,29 @@ public class DetailViewController {
 
         // Cuadrícula de botones numerados: relleno del color del tipo = visto
         FlowPane grid = new FlowPane(8, 8);
-        int start = episodeBlock * EPISODE_BLOCK + 1;
-        int end = Math.min(totalEpisodes, start + EPISODE_BLOCK - 1);
+        int start = fromEp + episodeBlock * EPISODE_BLOCK;
+        int end = Math.min(toEp, start + EPISODE_BLOCK - 1);
         for (int i = start; i <= end; i++) {
             final int episodeNumber = i;
             boolean watched = progress.watchedEpisodes.contains(i);
-            Button ep = new Button(String.valueOf(i));
+            int shown = i - fromEp + 1;
+            Button ep = new Button(String.valueOf(shown));
             ep.setMinSize(56, 44);
             ep.setPrefSize(56, 44);
             ep.setStyle("-fx-background-radius: 12; -fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"
                     + (watched ? "-fx-background-color: " + accent + "; -fx-text-fill: " + Palette.ON_ACCENT + ";"
                                : "-fx-background-color: " + Palette.PANEL + "; -fx-border-color: " + Palette.LINE + "; -fx-border-radius: 12; -fx-text-fill: " + Palette.TEXT + ";"));
-            ep.setTooltip(new Tooltip(MediaTypeTheme.unitSingular(type) + " " + i
-                    + (watched ? " · marcado" : "") + "\nMayús + clic: marcar hasta aquí"));
+            String name = layout != null ? layout.label(i) : MediaTypeTheme.unitSingular(type) + " " + i;
+            ep.setTooltip(new Tooltip(name + (watched ? " · marcado" : "") + "\nMayús + clic: marcar hasta aquí"));
             // Clic normal: marcar/desmarcar este episodio
             ep.setOnAction(e -> {
                 onEpisodeToggled(episodeNumber, totalEpisodes);
                 buildEpisodesList(totalEpisodes);
             });
-            // Mayús + clic: marcar todos hasta este. Los botones de JavaFX
-            // IGNORAN las pulsaciones con Mayús/Ctrl/Alt (no disparan
-            // onAction), así que se escucha el clic del ratón directamente.
+            // Mayús + clic: marcar todos hasta este (también las temporadas
+            // anteriores). Los botones de JavaFX IGNORAN las pulsaciones con
+            // Mayús/Ctrl/Alt (no disparan onAction), así que se escucha el
+            // clic del ratón directamente.
             ep.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.isShiftDown() && e.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
                     WatchProgressService.markEpisodesUpTo(WatchProgressService.keyFor(type, currentItem.getTitle()), episodeNumber, totalEpisodes);
@@ -1085,6 +1311,61 @@ public class DetailViewController {
         }
         episodesList.getChildren().add(grid);
         updatePrimaryAction();
+    }
+
+    /** Chips "T1 ✓", "T2 3/8", "T3"... con el progreso de cada temporada. */
+    private Node buildSeasonChips(SeasonService.Layout layout, WatchProgressService.Progress progress,
+                                  String accent, int totalEpisodes) {
+        FlowPane chips = new FlowPane(8, 8);
+        for (int s = 0; s < layout.size(); s++) {
+            final int idx = s;
+            int count = layout.season(s).episodes();
+            int done = 0;
+            for (int i = layout.start(s); i <= layout.end(s); i++) if (progress.watchedEpisodes.contains(i)) done++;
+            boolean complete = done == count;
+            boolean active = s == seasonIdx;
+
+            Button chip = new Button("T" + layout.season(s).number());
+            String countText = complete ? "✓" : done > 0 ? done + "/" + count : String.valueOf(count);
+            Label countLabel = new Label(countText);
+            countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: "
+                    + (active ? Palette.ON_ACCENT : complete ? accent : Palette.DIM) + ";"
+                    + (complete ? "-fx-font-weight: bold;" : ""));
+            chip.setGraphic(countLabel);
+            chip.setContentDisplay(ContentDisplay.RIGHT);
+            chip.setGraphicTextGap(8);
+            chip.setStyle("-fx-background-radius: 999; -fx-border-radius: 999; -fx-min-height: 36; -fx-padding: 0 14;"
+                    + "-fx-font-family: 'Inter SemiBold'; -fx-font-size: 13px; -fx-cursor: hand;"
+                    + (active ? "-fx-background-color: " + Palette.TEXT + "; -fx-text-fill: " + Palette.ON_ACCENT + "; -fx-border-color: " + Palette.TEXT + ";"
+                              : "-fx-background-color: transparent; -fx-text-fill: " + Palette.TEXT_SOFT + "; -fx-border-color: "
+                                + (complete ? accent + "88" : Palette.LINE_STRONG) + ";"));
+            String name = layout.season(s).name();
+            chip.setTooltip(new Tooltip((name == null || name.isBlank() ? "Temporada " + layout.season(s).number() : name)
+                    + " · " + count + " episodios"));
+            chip.setOnAction(e -> {
+                seasonIdx = idx;
+                episodeBlock = -1;
+                buildEpisodesList(totalEpisodes);
+            });
+            chips.getChildren().add(chip);
+        }
+        return chips;
+    }
+
+    /** Primer número (seguido) sin ver dentro del tramo, o -1. */
+    private int nextUnwatchedIn(int from, int to) {
+        WatchProgressService.Progress p = WatchProgressService.getProgress(
+                WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()));
+        for (int i = from; i <= to; i++) if (!p.watchedEpisodes.contains(i)) return i;
+        return -1;
+    }
+
+    /** Tramo (from, to) que afectan "Marcar/Desmarcar": la temporada visible, o todo. */
+    private int[] visibleSeasonRange(int total) {
+        if (seasonLayout != null && seasonLayout.total() == total && seasonIdx >= 0 && seasonIdx < seasonLayout.size()) {
+            return new int[]{seasonLayout.start(seasonIdx), seasonLayout.end(seasonIdx)};
+        }
+        return null;
     }
 
     /**
@@ -1113,7 +1394,13 @@ public class DetailViewController {
         Integer total = currentItem.getEpisodes();
         if (total == null || total <= 0) return;
 
-        WatchProgressService.markAllEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), total);
+        int[] season = visibleSeasonRange(total);
+        if (season != null) {
+            WatchProgressService.setEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()),
+                    season[0], season[1], true, total);
+        } else {
+            WatchProgressService.markAllEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), total);
+        }
         WatchProgressService.remember(currentItem);
         buildEpisodesList(total);
         updateViewedButtonStyle();
@@ -1129,7 +1416,13 @@ public class DetailViewController {
         Integer total = currentItem.getEpisodes();
         if (total == null || total <= 0) return;
 
-        WatchProgressService.unmarkAllEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), total);
+        int[] season = visibleSeasonRange(total);
+        if (season != null) {
+            WatchProgressService.setEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()),
+                    season[0], season[1], false, total);
+        } else {
+            WatchProgressService.unmarkAllEpisodesWatched(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), total);
+        }
         WatchProgressService.remember(currentItem);
         buildEpisodesList(total);
         updateViewedButtonStyle();
@@ -1158,6 +1451,13 @@ public class DetailViewController {
         }
 
         if (targetEpisode < 0) targetEpisode = 0;
+
+        // Con temporadas, el número es de la temporada visible: "hasta el 4
+        // de la T2" marca toda la T1 y la T2 hasta el 4
+        int[] season = visibleSeasonRange(total);
+        if (season != null && targetEpisode > 0) {
+            targetEpisode = season[0] + Math.min(targetEpisode, season[1] - season[0] + 1) - 1;
+        }
 
         WatchProgressService.markEpisodesUpTo(WatchProgressService.keyFor(currentItem.getType(), currentItem.getTitle()), targetEpisode, total);
         WatchProgressService.remember(currentItem);
@@ -1462,7 +1762,8 @@ public class DetailViewController {
         String unit = MediaTypeTheme.unitSingular(type).toLowerCase();
         int next = nextUnwatched(total);
         if (next > 0) {
-            primaryActionButton.setText("Marcar " + unit + " " + next);
+            boolean seasons = seasonLayout != null && seasonLayout.total() == total;
+            primaryActionButton.setText("Marcar " + (seasons ? seasonLayout.label(next) : unit + " " + next));
             primaryActionButton.setGraphic(null);
             primaryActionButton.getStyleClass().remove("btn-secondary");
             primaryActionButton.setStyle(primaryStyle(type));
@@ -1494,7 +1795,13 @@ public class DetailViewController {
         int next = nextUnwatched(total);
         if (next <= 0) return;
         onEpisodeToggled(next, total);
-        episodeBlock = (next - 1) / EPISODE_BLOCK;
+        // Se va a la temporada y al bloque del episodio recién marcado
+        if (seasonLayout != null && seasonLayout.total() == total) {
+            seasonIdx = seasonLayout.seasonOf(next);
+            episodeBlock = (next - seasonLayout.start(seasonIdx)) / EPISODE_BLOCK;
+        } else {
+            episodeBlock = (next - 1) / EPISODE_BLOCK;
+        }
         buildEpisodesList(total);
     }
 

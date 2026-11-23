@@ -96,6 +96,13 @@ public class HomeController {
     /** Se ejecuta al pinchar una tarjeta; recibe el MediaItem equivalente. */
     private java.util.function.Consumer<MediaItem> onOpenDetailAction;
 
+    private Runnable onOpenReleasesAction;
+
+    /** "Ver todos" de la franja de estrenos: abre la pantalla Estrenos. */
+    public void setOnOpenReleasesAction(Runnable action) {
+        this.onOpenReleasesAction = action;
+    }
+
     public void setOnOpenDetailAction(java.util.function.Consumer<MediaItem> action) {
         this.onOpenDetailAction = action;
     }
@@ -142,6 +149,12 @@ public class HomeController {
 
         Node cont = buildContinueSection();
         if (cont != null) homeRoot.getChildren().add(cont);
+
+        // Estrenos de esta semana: se rellena cuando llegan las fechas
+        weekSlot.setPrefWidth(PAGE_W);
+        weekSlot.setMaxWidth(PAGE_W);
+        homeRoot.getChildren().add(weekSlot);
+        loadWeekReleases();
 
         for (int i = 0; i < BIG.length; i += 2) {
             homeRoot.getChildren().add(pageRow(showcaseSlot(BIG[i], true), showcaseSlot(BIG[i + 1], true)));
@@ -290,6 +303,7 @@ public class HomeController {
         WatchProgressService.Stats st = WatchProgressService.getStats();
         HBox stats = new HBox(28,
                 stat(formatInt(st.episodes()), st.episodes() == 1 ? "episodio visto" : "episodios vistos"),
+                stat(formatInt(st.chapters()), st.chapters() == 1 ? "capítulo leído" : "capítulos leídos"),
                 stat(formatInt(st.finished()), st.finished() == 1 ? "terminado" : "terminados"),
                 stat(formatInt(st.inProgress()), "en curso"),
                 stat(st.rated() == 0 ? "–" : String.format(java.util.Locale.forLanguageTag("es"), "%.1f", st.averageRating()), "tu nota media"));
@@ -690,6 +704,98 @@ public class HomeController {
         out.add(new InProgress(item, p, byUnits ? total : 0));
     }
 
+    // ===========================================================
+    // 2b. ESTRENOS DE ESTA SEMANA
+    // ===========================================================
+
+    private final VBox weekSlot = new VBox();
+    private int weekRequest = 0;
+
+    /**
+     * Pide en segundo plano los estrenos de los próximos 7 días (máx. 3).
+     * Mientras no llegan se queda lo que hubiera; si no hay ninguno, la
+     * franja no ocupa sitio.
+     */
+    private void loadWeekReleases() {
+        if (weekSlot.getChildren().isEmpty()) {
+            weekSlot.setVisible(false);
+            weekSlot.setManaged(false);
+        }
+        java.util.Map<String, MediaItem> candidates = com.rujiman.mediatracker.services.ReleaseService.collectCandidates();
+        int myRequest = ++weekRequest;
+        Thread t = new Thread(() -> {
+            List<com.rujiman.mediatracker.services.ReleaseService.Release> week = new ArrayList<>();
+            try {
+                for (var r : com.rujiman.mediatracker.services.ReleaseService.load(candidates, false)) {
+                    String g = com.rujiman.mediatracker.services.ReleaseService.group(r);
+                    if (g.equals("Hoy") || g.equals("Mañana") || g.equals("Esta semana")) week.add(r);
+                    if (week.size() == 3) break;
+                }
+            } catch (Exception e) {
+                System.err.println("⚠️ Estrenos del Inicio: " + e.getMessage());
+            }
+            javafx.application.Platform.runLater(() -> {
+                if (myRequest != weekRequest) return;
+                fillWeekSlot(week);
+            });
+        }, "estrenos-inicio");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void fillWeekSlot(List<com.rujiman.mediatracker.services.ReleaseService.Release> week) {
+        weekSlot.getChildren().clear();
+        boolean show = !week.isEmpty();
+        weekSlot.setVisible(show);
+        weekSlot.setManaged(show);
+        if (!show) return;
+
+        Label title = new Label("Esta semana");
+        title.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: " + TEXT + ";");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Button all = new Button("Ver todos los estrenos");
+        all.getStyleClass().add("btn-secondary-sm");
+        all.setOnAction(e -> { if (onOpenReleasesAction != null) onOpenReleasesAction.run(); });
+        HBox header = new HBox(12, title, spacer, all);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        HBox cards = new HBox(16);
+        double w = (PAGE_W - 32) / 3;
+        for (var r : week) cards.getChildren().add(buildReleaseCard(r, w));
+
+        weekSlot.setSpacing(14);
+        weekSlot.getChildren().addAll(header, cards);
+        Motion.stagger(cards.getChildren());
+    }
+
+    private Node buildReleaseCard(com.rujiman.mediatracker.services.ReleaseService.Release r, double width) {
+        MediaType type = r.item().getType();
+        String accent = MediaTypeTheme.accentHex(type);
+        Node poster = CollectionUI.poster(r.item().getImageUrl(), 52, 78, accent, 8, true);
+
+        Label when = new Label(com.rujiman.mediatracker.services.ReleaseService.whenText(r));
+        when.setStyle("-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: " + accent + ";");
+        Label title = new Label(r.item().getTitle());
+        title.setStyle("-fx-font-family: 'Inter SemiBold'; -fx-font-size: 15px; -fx-text-fill: " + TEXT + ";");
+        title.setMaxWidth(width - 110);
+        Label what = new Label(r.what() == null ? "" : r.what());
+        what.setStyle("-fx-font-size: 12px; -fx-text-fill: " + DIM + ";");
+        what.setMaxWidth(width - 110);
+
+        VBox text = new VBox(6, when, title, what);
+        HBox card = new HBox(14, poster, text);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(12));
+        card.setPrefWidth(width);
+        card.setStyle(panelStyle(16) + "-fx-cursor: hand;");
+        card.getStyleClass().add("motion-lift");
+        card.setOnMouseClicked(e -> {
+            if (e.isStillSincePress() && onOpenDetailAction != null) onOpenDetailAction.accept(r.item());
+        });
+        return card;
+    }
+
     private Node buildContinueCard(InProgress p, double width) {
         MediaType type = p.item().getType();
         String accent = MediaTypeTheme.accentHex(type);
@@ -726,8 +832,10 @@ public class HomeController {
             bar.setVisible(false);
             bar.setManaged(false);
         }
+        String seasonText = byUnits ? CollectionUI.nextBySeason(p.item(), p.progress(), p.total()) : null;
         Label status = new Label(!byUnits
                 ? MediaTypeTheme.inProgressLabel(type)
+                : seasonText != null ? seasonText
                 : next <= p.total()
                     ? "Siguiente: " + unit.toLowerCase() + " " + next + " de " + p.total()
                     : done + " de " + p.total());
@@ -1042,7 +1150,7 @@ public class HomeController {
         Label l = new Label(label);
         l.setStyle("-fx-font-size: 12px; -fx-text-fill: " + DIM + ";");
         VBox box = new VBox(0, v, l);
-        box.setAlignment(Pos.BOTTOM_RIGHT);
+        box.setAlignment(Pos.BOTTOM_CENTER); // número centrado sobre su texto
         return box;
     }
 

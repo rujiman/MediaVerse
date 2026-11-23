@@ -480,6 +480,77 @@ public class TMDBService {
      * los espacios por %20, y un título con "&", "#" o "?" (p. ej.
      * "Fast & Furious") rompía la petición.
      */
+    // ============================
+    // ESTRENOS (calendario)
+    // ============================
+
+    /**
+     * Próximo episodio de una serie según TMDB. airDate es null si no hay
+     * ninguno anunciado; status es el estado de la serie ("Returning
+     * Series", "In Production", "Ended"...).
+     */
+    public record NextEpisode(String airDate, int season, int episode, String name, String status) {}
+
+    /** Fecha de estreno de una película ("yyyy-MM-dd" o null) y su estado ("Released", "Post Production"...). */
+    public record MovieRelease(String releaseDate, String status) {}
+
+    /** Próximo episodio de la serie, o null si TMDB no responde. */
+    public NextEpisode getNextEpisode(int tmdbId) {
+        JsonObject obj = getJson(API_URL + "/tv/" + tmdbId + "?language=es-ES&api_key=" + getKey());
+        if (obj == null) return null;
+        String status = safeString(obj, "status");
+        if (!obj.has("next_episode_to_air") || !obj.get("next_episode_to_air").isJsonObject()) {
+            return new NextEpisode(null, 0, 0, "", status);
+        }
+        JsonObject next = obj.getAsJsonObject("next_episode_to_air");
+        String date = safeString(next, "air_date");
+        int season = next.has("season_number") && !next.get("season_number").isJsonNull() ? next.get("season_number").getAsInt() : 0;
+        int episode = next.has("episode_number") && !next.get("episode_number").isJsonNull() ? next.get("episode_number").getAsInt() : 0;
+        return new NextEpisode(date.isBlank() ? null : date, season, episode, safeString(next, "name"), status);
+    }
+
+    /** Fecha de estreno de la película, o null si TMDB no responde. */
+    public MovieRelease getMovieRelease(int tmdbId) {
+        JsonObject obj = getJson(API_URL + "/movie/" + tmdbId + "?language=es-ES&api_key=" + getKey());
+        if (obj == null) return null;
+        String date = safeString(obj, "release_date");
+        return new MovieRelease(date.isBlank() ? null : date, safeString(obj, "status"));
+    }
+
+    /**
+     * Temporadas normales de una serie (sin la "temporada 0" de especiales),
+     * en orden y con cuántos episodios tiene cada una. Lista vacía si TMDB
+     * no las da; null si no responde.
+     */
+    public List<SeasonService.Season> getSeasons(int tmdbId) {
+        JsonObject obj = getJson(API_URL + "/tv/" + tmdbId + "?language=es-ES&api_key=" + getKey());
+        if (obj == null) return null;
+        List<SeasonService.Season> seasons = new ArrayList<>();
+        if (obj.has("seasons") && obj.get("seasons").isJsonArray()) {
+            for (JsonElement el : obj.getAsJsonArray("seasons")) {
+                JsonObject s = el.getAsJsonObject();
+                int number = s.has("season_number") && !s.get("season_number").isJsonNull() ? s.get("season_number").getAsInt() : 0;
+                int count = s.has("episode_count") && !s.get("episode_count").isJsonNull() ? s.get("episode_count").getAsInt() : 0;
+                if (number <= 0 || count <= 0) continue; // especiales o temporada vacía
+                seasons.add(new SeasonService.Season(number, safeString(s, "name"), count));
+            }
+        }
+        seasons.sort(java.util.Comparator.comparingInt(SeasonService.Season::number));
+        return seasons;
+    }
+
+    /** GET que devuelve el JSON como objeto, o null si falla (sin red, 401, 404...). */
+    private JsonObject getJson(String url) {
+        Request request = new Request.Builder().url(url).build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful() || response.body() == null) return null;
+            return gson.fromJson(response.body().string(), JsonObject.class);
+        } catch (Exception e) {
+            System.err.println("⚠️ TMDB no respondió (" + e.getMessage() + ")");
+            return null;
+        }
+    }
+
     private static String encode(String query) {
         return URLEncoder.encode(query, StandardCharsets.UTF_8).replace("+", "%20");
     }
