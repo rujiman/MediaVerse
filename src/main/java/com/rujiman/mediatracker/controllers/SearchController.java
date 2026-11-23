@@ -1439,11 +1439,23 @@ public class SearchController {
         String notes = release.notes() != null && !release.notes().isBlank()
                 ? release.notes().replace(com.rujiman.mediatracker.util.AppInfo.FULL_INSTALL_MARK, "").trim()
                 : "Mejoras y correcciones.";
-        if (notes.length() > 600) notes = notes.substring(0, 600) + "…";
-        confirm.setContentText(notes + "\n\n" + (auto
+        // Notas completas con formato y scroll (antes se cortaban a 600 letras)
+        Label howTo = new Label(auto
                 ? "La app se cerrará, se actualizará y se volverá a abrir sola. Tus datos no se tocan."
-                : "Se abrirá la página de descarga para instalar la nueva versión."));
+                : "Se abrirá la página de descarga para instalar la nueva versión.");
+        howTo.setWrapText(true);
         com.rujiman.mediatracker.ui.Dialogs.styleDark(confirm.getDialogPane());
+        // Después de styleDark, que pinta todas las etiquetas del mismo color
+        howTo.setStyle("-fx-font-size: 12.5px; -fx-text-fill: " + Palette.DIM + ";");
+        javafx.scene.layout.Region line = new javafx.scene.layout.Region();
+        line.setPrefHeight(1);
+        line.setMinHeight(1);
+        line.setStyle("-fx-background-color: " + Palette.LINE + ";");
+        javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(12,
+                com.rujiman.mediatracker.ui.ReleaseNotesView.create(notes, 540, 380), line, howTo);
+        content.setPrefWidth(560);
+        confirm.getDialogPane().setContent(content);
+        confirm.getDialogPane().setPrefWidth(600);
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
 
         if (!auto) {
