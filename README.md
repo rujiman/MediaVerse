@@ -16,7 +16,7 @@
 - **Episodios por temporadas** en las series, con tu progreso en cada una
 - **Estrenos** — próximos episodios y lanzamientos de lo que sigues, agrupados por fecha, con aviso de novedades
 - **Reseñas** personales con aviso de spoilers, y **Mis reseñas** para verlas todas
-- **Logros y rachas** — 67 logros en 5 dificultades (con 7 secretos), rachas sin límite (la *Racha infinita* sube de nivel cada año), mapa de actividad, aviso con sonido y medallas en tu perfil
+- **Logros y rachas** — 67 logros en 5 dificultades (con 7 secretos), rachas sin límite (la *Racha infinita* sube de nivel cada año), mapa de actividad, aviso con sonido y medallas en tu perfil. [Guía de logros](./LOGROS.md)
 - **Ficha de detalle** con póster, progreso, tráiler, plataformas de streaming, tu reseña y recomendaciones
 - **Copia de seguridad** de todos tus datos en un `.zip`
 - **Actualizaciones automáticas** — la app avisa cuando hay versión nueva y se actualiza sola con un botón
@@ -114,6 +114,7 @@ Puedes hacer backup (perfil → **Copia de seguridad**), mover o sincronizar est
 - [INSTALL.md](./INSTALL.md) — Instalación detallada paso a paso
 - [SETUP.md](./SETUP.md) — Cómo obtener y configurar las claves de API
 - [GUIA_DE_USO.md](./GUIA_DE_USO.md) — Manual de uso completo
+- [LOGROS.md](./LOGROS.md) — 🏆 Guía de logros: los 67, con consejos y los secretos escondidos
 - [DEPENDENCIES.md](./DEPENDENCIES.md) — Librerías y stack técnico
 - [BUILD_EXE.md](./BUILD_EXE.md) — Cómo generar el portable para desarrolladores
 - [CHANGELOG.md](./CHANGELOG.md) — Historial de versiones

@@ -154,6 +154,7 @@ Pulsa las estrellas de **Tu nota** (1 a 5). Pulsar la misma estrella otra vez la
 - Lo que marcas de golpe para ponerte al día (*Marcar temporada*, *Ya he visto hasta…*) cuenta para los logros de cantidad, pero **no** para rachas ni maratones
 - Al conseguir un logro sale un **aviso abajo a la derecha** con sonido. El sonido se quita en Logros → **Sonido al desbloquear**
 - **Chincheta**: fija hasta 3 logros conseguidos para que salgan como medallas en tu perfil
+- La lista completa, con consejos y los secretos escondidos, está en la [Guía de logros](./LOGROS.md)
 
 ---
 
