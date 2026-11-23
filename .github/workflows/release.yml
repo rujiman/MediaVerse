@@ -200,7 +200,8 @@ jobs:
           if len(text) > 3700:
               text = text[:3700].rsplit("\n", 1)[0] + "\n…"
 
-          url = f"https://github.com/{repo}/releases/tag/{tag}"
+          url = "https://rujiman.github.io/MediaVerse/"        # la web, no GitHub
+          download = url + "#descargar"
           payload = {
               "username": "MediaVerse",
               "avatar_url": f"https://raw.githubusercontent.com/{repo}/main/docs/assets/logo.png",
@@ -209,7 +210,7 @@ jobs:
               "embeds": [{
                   "title": f"🚀 MediaVerse {version}",
                   "url": url,
-                  "description": text + f"\n\n**[Descargar]({url})** · Si ya la tienes, se actualiza sola al abrirla",
+                  "description": text + f"\n\n**[Descargar MediaVerse]({download})** · Si ya la tienes, se actualiza sola al abrirla",
                   "color": 0xEC4D80,
               }],
           }
