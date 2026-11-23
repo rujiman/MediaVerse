@@ -2,6 +2,14 @@
 
 ---
 
+## [1.4.1] — 2026-11-23
+
+### ✨ Novedades
+- **Racha infinita**: el logro de la racha de un año ya no tiene techo. Se consigue con 365 días seguidos y sube un nivel por cada año más, con su aviso en cada subida
+- **Medallas junto a tu foto**: tus logros destacados pasan a la fila de la foto del perfil, con el nombre entero del logro. Así un nombre de usuario largo ya no las corta
+
+---
+
 ## [1.4.0] — 2026-11-23
 
 ### ✨ Novedades
