@@ -2,6 +2,13 @@
 
 ---
 
+## [1.3.8] — 2026-11-23
+
+### 🐛 Correcciones
+- **Las notas de cada actualización se leen enteras.** El aviso de "Nueva versión" ya no corta el texto: lo muestra con formato y con scroll si es largo (se nota a partir de la siguiente actualización, porque esta todavía la anuncia la versión anterior)
+
+---
+
 ## [1.3.7] — 2026-11-23
 
 ### ✨ Novedades
@@ -162,4 +169,4 @@
 
 ---
 
-**Última actualización**: 2026-11-23 (1.3.7)
+**Última actualización**: 2026-11-23 (1.3.8)
