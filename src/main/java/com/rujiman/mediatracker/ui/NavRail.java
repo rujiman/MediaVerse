@@ -179,6 +179,10 @@ public class NavRail extends StackPane {
         tip.setShowDelay(Duration.millis(350));
         Tooltip.install(row, tip);
 
+        // Si la barra empieza plegada, los nombres nacen ya ocultos
+        label.setOpacity(expanded ? 1 : 0);
+        badge.setOpacity(expanded ? 1 : 0);
+
         Item item = new Item(key, icon, label, iconBox, row, badge, dot);
         byKey.put(key, item);
         items.getChildren().add(row);

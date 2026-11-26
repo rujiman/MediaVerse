@@ -65,9 +65,16 @@ public final class AchievementService {
 
     private static void tiers(String category, String accent, String icon, String metric, String descFormat,
                               long[] targets, String[] names) {
+        tiers(category, accent, icon, metric, descFormat, null, targets, names);
+    }
+
+    /** Igual, con el texto en singular para cuando el objetivo es 1 ("Ve 1 película"). */
+    private static void tiers(String category, String accent, String icon, String metric, String descFormat,
+                              String singular, long[] targets, String[] names) {
         for (int i = 0; i < targets.length; i++) {
+            String desc = targets[i] == 1 && singular != null ? singular : String.format(descFormat, fmt(targets[i]));
             CATALOG.add(new Achievement(metric + "_" + targets[i], category, names[i],
-                    String.format(descFormat, fmt(targets[i])), i + 1, accent, icon, metric, targets[i], false, null));
+                    desc, i + 1, accent, icon, metric, targets[i], false, null));
         }
     }
 
@@ -84,25 +91,25 @@ public final class AchievementService {
         tiers(SERIES, C_SERIES, "TV", "episodes", "Ve %s episodios",
                 new long[]{50, 500, 2000, 5000, 10000},
                 new String[]{"Enganchado", "Sofá reservado", "Mando gastado", "Vive en la tele", "Leyenda del sofá"});
-        tiers(SERIES, C_SERIES, "TV", "shows", "Termina %s series o animes",
+        tiers(SERIES, C_SERIES, "TV", "shows", "Termina %s series o animes", "Termina 1 serie o anime",
                 new long[]{1, 10, 50, 250, 1000},
                 new String[]{"Primer final", "Cerrando historias", "Cazador de finales", "Biblioteca de series", "Lo ha visto todo"});
-        tiers(MOVIES, C_MOVIE, "FILM", "movies", "Ve %s películas",
+        tiers(MOVIES, C_MOVIE, "FILM", "movies", "Ve %s películas", "Ve 1 película",
                 new long[]{1, 25, 100, 500, 1000},
                 new String[]{"Primera función", "Cinéfilo", "Abono anual", "Fila uno", "Director de culto"});
-        tiers(GAMES, C_GAME, "GAMEPAD", "games", "Termina %s juegos",
+        tiers(GAMES, C_GAME, "GAMEPAD", "games", "Termina %s juegos", "Termina 1 juego",
                 new long[]{1, 10, 50, 150, 500},
                 new String[]{"Créditos finales", "Jugón", "Mando en mano", "Platino", "Final boss"});
         tiers(READING, C_MANGA, "BOOK", "chapters", "Lee %s capítulos de manga",
                 new long[]{100, 1000, 5000, 10000, 25000},
                 new String[]{"Página a página", "Tomo tras tomo", "Mangaka honorario", "Estantería infinita", "Leyenda del manga"});
-        tiers(READING, C_BOOK, "BOOK", "books", "Lee %s libros",
+        tiers(READING, C_BOOK, "BOOK", "books", "Lee %s libros", "Lee 1 libro",
                 new long[]{1, 10, 50, 150, 500},
                 new String[]{"Primer libro", "Ratón de biblioteca", "Lector voraz", "Bibliotecario", "Biblioteca de Alejandría"});
-        tiers(MUSIC, C_MUSIC, "MUSIC", "music", "Marca %s canciones o álbumes como escuchados",
+        tiers(MUSIC, C_MUSIC, "MUSIC", "music", "Marca %s canciones o álbumes como escuchados", "Marca 1 canción o álbum como escuchado",
                 new long[]{1, 25, 100, 500, 1000},
                 new String[]{"Primer temazo", "Melómano", "Cascos puestos", "Disco de oro", "Disco de platino"});
-        tiers(SOCIAL, C_BRAND, "REVIEW", "reviews", "Escribe %s reseñas",
+        tiers(SOCIAL, C_BRAND, "REVIEW", "reviews", "Escribe %s reseñas", "Escribe 1 reseña",
                 new long[]{1, 10, 50, 200, 500},
                 new String[]{"Primera opinión", "Crítico", "Pluma afilada", "Columnista", "Crítico de culto"});
         tiers(SOCIAL, C_BRAND, "STAR", "favorites", "Guarda %s favoritos",
