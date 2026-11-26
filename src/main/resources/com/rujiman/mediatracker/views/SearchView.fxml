@@ -10,7 +10,7 @@
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.rujiman.mediatracker.controllers.SearchController">
 
-<BorderPane styleClass="bg-base">
+<BorderPane fx:id="mainLayout" styleClass="bg-base">
 
     <top>
         <VBox style="-fx-background-color: #1c1730; -fx-effect: dropshadow(gaussian, #000000aa, 10, 0, 0, 3);">
@@ -180,72 +180,6 @@
     </center>
 
 </BorderPane>
-
-    <StackPane fx:id="sideMenu" visible="false"
-               style="-fx-background-color: #1c1730;
-                      -fx-effect: dropshadow(gaussian, #000000cc, 20, 0, 4, 0);"
-               prefWidth="270" maxWidth="270"
-               StackPane.alignment="TOP_LEFT">
-        <StackPane.margin><Insets top="100"/></StackPane.margin>
-
-        <!-- Con libros y manga el menú ya no cabe entero en pantallas de
-             portátil: se envuelve en un ScrollPane transparente. -->
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
-                    styleClass="scroll-pane-transparent"
-                    style="-fx-background: transparent;">
-        <VBox spacing="10">
-            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
-
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <StackPane prefWidth="40" prefHeight="40"
-                           maxWidth="40" maxHeight="40"
-                           style="-fx-background-color: #ec4d80; -fx-background-radius: 50;">
-                    <ImageView fx:id="navProfilePicture"
-                               fitWidth="40" fitHeight="40"
-                               preserveRatio="true"
-                               visible="false"/>
-                    <Label fx:id="navProfileInitialLabel"
-                           text="U"
-                           style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
-                </StackPane>
-
-                <Label fx:id="welcomeLabel"
-                       text="Bienvenido a tu galaxia, Usuario"
-                       wrapText="true"
-                       styleClass="text-heading"/>
-            </HBox>
-
-            <Separator/>
-
-            <!-- Menú simplificado (rediseño): 4 entradas. "Mi biblioteca"
-                 sustituye a las 12 entradas antiguas de Pienso…/vistos/viendo.
-                 Los iconos vectoriales se ponen desde SearchController. -->
-            <Button fx:id="navHome" text="Inicio" onAction="#goHome"
-                    maxWidth="Infinity" styleClass="nav-item"/>
-            <Button fx:id="navSearch" text="Buscar" onAction="#goSearch"
-                    maxWidth="Infinity" styleClass="nav-item"/>
-            <Button fx:id="navFavorites" text="Favoritos" onAction="#openFavorites"
-                    maxWidth="Infinity" styleClass="nav-item"/>
-            <Button fx:id="navLibrary" text="Mi biblioteca" onAction="#openLibrary"
-                    maxWidth="Infinity" styleClass="nav-item"/>
-            <Button fx:id="navReleases" text="Estrenos" onAction="#openReleases"
-                    maxWidth="Infinity" styleClass="nav-item"/>
-            <Button fx:id="navReviews" text="Mis reseñas" onAction="#openReviews"
-                    maxWidth="Infinity" styleClass="nav-item"/>
-            <Button fx:id="navAchievements" text="Logros" onAction="#openAchievements"
-                    maxWidth="Infinity" styleClass="nav-item"/>
-
-            <Separator/>
-
-            <Button text="Cerrar sesión"
-                    onAction="#logout"
-                    maxWidth="Infinity"
-                    styleClass="btn-flat-brand"/>
-
-        </VBox>
-        </ScrollPane>
-
-    </StackPane>
 
     <StackPane fx:id="profileMenu" visible="false" managed="false"
                style="-fx-background-color: #1c1730;

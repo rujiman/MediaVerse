@@ -59,6 +59,12 @@ public class FavoritesViewController {
     private static MediaType typeFilter = null;
     private static String currentFolderId = null;
 
+    /** Abre Favoritos ya filtrado por un tipo (null = todos), p. ej. desde la barra lateral. */
+    public static void setTypeFilter(MediaType type) {
+        typeFilter = type;
+        currentFolderId = null;
+    }
+
     private Runnable onBackAction;
     private java.util.function.Consumer<MediaItem> onOpenDetailAction;
     private String draggedId;

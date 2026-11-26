@@ -87,7 +87,7 @@ public class SearchController {
     // -------------------------
     // NUEVOS ELEMENTOS DEL MENÚ
     // -------------------------
-    @FXML private StackPane sideMenu;
+    @FXML private javafx.scene.layout.BorderPane mainLayout;
     @FXML private StackPane profileMenu;
     @FXML private StackPane profileIconContainer;
     @FXML private ImageView profileIcon;
@@ -95,40 +95,21 @@ public class SearchController {
     @FXML private ImageView profilePicture;
     @FXML private Label profileInitialLabelBig;
     @FXML private Label usernameLabel;
-    @FXML private ImageView navProfilePicture;
-    @FXML private Label navProfileInitialLabel;
-    @FXML private Label welcomeLabel;
     @FXML private StackPane detailOverlayContainer;
     @FXML private Button backToHomeButton;
-    @FXML private Button navHome;
-    @FXML private Button navSearch;
-    @FXML private Button navFavorites;
-    @FXML private Button navLibrary;
-    @FXML private Button navReleases;
     @FXML private Button hamburgerButton;
-    @FXML private Button navReviews;
-    @FXML private Button navAchievements;
+    /** Barra lateral fija (se pliega con el ☰). */
+    private final com.rujiman.mediatracker.ui.NavRail navRail = new com.rujiman.mediatracker.ui.NavRail();
     private com.rujiman.mediatracker.ui.AchievementToasts achievementToasts;
-    // Aviso de estrenos nuevos: número junto a "Estrenos" y puntito en el ☰
-    private final Label releasesBadge = new Label();
-    private final javafx.scene.shape.Circle menuDot = new javafx.scene.shape.Circle(4.5);
     @FXML private Button updateButton;
     @FXML private Label versionLabel;
 
     /** Versión nueva detectada en GitHub (null si no hay). */
     private com.rujiman.mediatracker.services.UpdateService.Release pendingUpdate;
 
-    // sideMenu = panel grande de navegación (☰); profileMenu = popup
-    // pequeño de "quién soy" (foto/nombre/cambiar usuario-contraseña),
-    // anclado bajo la foto de perfil. Son independientes: abrir uno no
-    // cierra el otro automáticamente salvo que el usuario navegue.
-    private boolean navMenuOpen = false;
+    // profileMenu = popup pequeño de "quién soy", anclado bajo la foto de perfil
     private boolean profileMenuOpen = false;
 
-    // Ancho del panel lateral de navegación (debe coincidir con
-    // prefWidth/maxWidth del sideMenu en SearchView.fxml), usado para la
-    // animación de deslizamiento
-    private static final double SIDE_MENU_WIDTH = 270;
 
     /** Animación de apertura/cierre del overlay en curso (para poder cancelarla). */
     private javafx.animation.Animation overlayFade;
@@ -155,13 +136,10 @@ public class SearchController {
         // Recorte circular: la imagen rellena el círculo sin deformarse (estilo "cover")
         clipCircular(profileIcon, 16);   // radio = mitad de 32 (icono del header)
         clipCircular(profilePicture, 32); // radio = mitad de 64 (popup de perfil, antes 80px)
-        clipCircular(navProfilePicture, 20); // radio = mitad de 40 (cabecera del menú de navegación)
 
         loadProfileData();
 
         // Ocultar ambos menús al inicio
-        sideMenu.setTranslateX(-SIDE_MENU_WIDTH);
-        sideMenu.setVisible(false);
         profileMenu.setVisible(false);
         profileMenu.setManaged(false);
 
@@ -205,23 +183,17 @@ public class SearchController {
         // Permitir buscar pulsando Enter en el campo de texto
         searchField.setOnAction(e -> onSearch());
 
-        // Iconos vectoriales del menú lateral
-        navHome.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.HOME, 18, Palette.TEXT_SOFT));
-        navSearch.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.SEARCH, 18, Palette.TEXT_SOFT));
-        navFavorites.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.STAR, 18, Palette.TEXT_SOFT));
-        navLibrary.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.LIBRARY, 18, Palette.TEXT_SOFT));
-        navReleases.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.CALENDAR, 18, Palette.TEXT_SOFT));
-        navReviews.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.REVIEW, 18, Palette.TEXT_SOFT));
-        navAchievements.setGraphic(com.rujiman.mediatracker.ui.Icons.of(com.rujiman.mediatracker.ui.Icons.TROPHY, 18, Palette.TEXT_SOFT));
+        // Barra lateral fija con las secciones
+        setupNavRail();
 
         // Aviso de logros (abajo a la derecha, encima de todo el contenido)
         achievementToasts = new com.rujiman.mediatracker.ui.AchievementToasts(centerContent, this::openAchievements);
         AchievementService.setListener((fresh, summary) -> {
             achievementToasts.show(fresh, summary);
+            refreshNavRail();
             // El banner muestra el número de logros y las medallas
             if (homeController != null && homeContainer.isVisible()) homeController.refreshBanner();
         });
-        setupReleasesBadge();
 
         // Versión instalada y comprobación de actualizaciones en segundo plano
         versionLabel.setText("MediaVerse " + com.rujiman.mediatracker.util.AppInfo.VERSION);
@@ -268,7 +240,7 @@ public class SearchController {
      */
     @FXML
     private void goHome() {
-        if (navMenuOpen) closeNavMenu();
+        navRail.setActive("home");
         if (profileMenuOpen) closeProfileMenu();
         closeOverlayNow();
 
@@ -281,6 +253,7 @@ public class SearchController {
         backToHomeButton.setVisible(false);
         backToHomeButton.setManaged(false);
 
+        refreshNavRail();
         if (homeController != null) {
             homeController.refreshAll();
             // Logros que no dependen de una acción (vitrina, perfil) y, la
@@ -298,7 +271,7 @@ public class SearchController {
      */
     @FXML
     private void goSearch() {
-        if (navMenuOpen) closeNavMenu();
+        navRail.setActive("search");
         if (profileMenuOpen) closeProfileMenu();
         closeOverlayNow();
 
@@ -444,7 +417,6 @@ public class SearchController {
         String displayName = profile.displayName != null ? profile.displayName : loginUser;
 
         usernameLabel.setText(displayName);
-        welcomeLabel.setText("Bienvenido a tu galaxia, " + displayName);
         updateProfileInitial(displayName);
 
         if (profile.photoPath != null && !profile.photoPath.isBlank()) {
@@ -453,13 +425,10 @@ public class SearchController {
                 Image img = new Image(photoFile.toURI().toString());
                 profileIcon.setImage(img);
                 profilePicture.setImage(img);
-                navProfilePicture.setImage(img);
                 profileIcon.setVisible(true);
                 profilePicture.setVisible(true);
-                navProfilePicture.setVisible(true);
                 profileInitialLabel.setVisible(false);
                 profileInitialLabelBig.setVisible(false);
-                navProfileInitialLabel.setVisible(false);
             }
         }
     }
@@ -475,7 +444,6 @@ public class SearchController {
                 : "U";
         profileInitialLabel.setText(initial);
         profileInitialLabelBig.setText(initial);
-        navProfileInitialLabel.setText(initial);
     }
 
     // -------------------------
@@ -873,8 +841,7 @@ public class SearchController {
      */
     @FXML
     private void openFavorites() {
-        // Si el menú lateral está abierto, lo cerramos para no solapar visualmente
-        if (navMenuOpen) closeNavMenu();
+        navRail.setActive("favorites");
 
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -935,7 +902,6 @@ public class SearchController {
      * detrás del overlay.
      */
     private void openOverlay(javafx.scene.Parent content) {
-        if (navMenuOpen) closeNavMenu();
         if (profileMenuOpen) closeProfileMenu();
 
         // Si había un cierre a medias, se cancela: si no, su onFinished
@@ -1013,9 +979,12 @@ public class SearchController {
             // abierto (por ejemplo, el nombre de un item de detalle).
             if (homeContainer.isVisible()) {
                 setWindowTitle("Mediaverse - Inicio");
+                navRail.setActive("home");
             } else if (searchContentBox.isVisible()) {
                 setWindowTitle("Mediaverse - Buscar");
+                navRail.setActive("search");
             }
+            refreshNavRail();
         });
         fade.play();
     }
@@ -1023,34 +992,44 @@ public class SearchController {
     // -------------------------
     // MENÚ DE NAVEGACIÓN (☰, junto al logo)
     // -------------------------
+    /** Crea la barra lateral y la pone a la izquierda, bajo la cabecera. */
+    private void setupNavRail() {
+        navRail.addItem("home", com.rujiman.mediatracker.ui.Icons.HOME, "Inicio", this::goHome);
+        navRail.addItem("search", com.rujiman.mediatracker.ui.Icons.SEARCH, "Buscar", this::goSearch);
+        navRail.addItem("favorites", com.rujiman.mediatracker.ui.Icons.STAR, "Favoritos", () -> {
+            FavoritesViewController.setTypeFilter(null);
+            openFavorites();
+        });
+        navRail.addItem("library", com.rujiman.mediatracker.ui.Icons.LIBRARY, "Mi biblioteca", this::openLibrary);
+        navRail.addItem("releases", com.rujiman.mediatracker.ui.Icons.CALENDAR, "Estrenos", this::openReleases);
+        navRail.addItem("reviews", com.rujiman.mediatracker.ui.Icons.REVIEW, "Mis reseñas", this::openReviews);
+        mainLayout.setLeft(navRail);
+        hamburgerButton.setTooltip(new Tooltip("Plegar o desplegar el menú"));
+        refreshNavRail();
+    }
+
+    /** Números de la barra: favoritos por tipo (mismo orden que los filtros) y logros. */
+    private void refreshNavRail() {
+        List<com.rujiman.mediatracker.ui.NavRail.TypeEntry> types = new ArrayList<>();
+        List<MediaType> order = List.of(MediaType.GAME, MediaType.ANIME, MediaType.SERIES, MediaType.MOVIE,
+                MediaType.MUSIC, MediaType.BOOK, MediaType.MANGA);
+        for (MediaType t : order) {
+            types.add(new com.rujiman.mediatracker.ui.NavRail.TypeEntry(t.name(), MediaTypeTheme.plural(t),
+                    MediaTypeTheme.accentHex(t), FavoritesService.getFavoritesByType(t).size()));
+        }
+        navRail.setTypes(types, id -> {
+            FavoritesViewController.setTypeFilter(MediaType.valueOf(id));
+            openFavorites();
+        });
+        navRail.setAchievements(AchievementService.unlockedCount(), AchievementService.catalog().size(),
+                this::openAchievements);
+    }
+
+    /** ☰: pliega o despliega la barra lateral (solo iconos / iconos y nombres). */
     @FXML
     private void toggleNavMenu() {
-        if (profileMenuOpen) closeProfileMenu(); // no tener ambos abiertos a la vez
-        if (navMenuOpen) closeNavMenu();
-        else openNavMenu();
-    }
-
-    private void openNavMenu() {
-        sideMenu.setVisible(true);
-
-        TranslateTransition slide = new TranslateTransition(com.rujiman.mediatracker.ui.Motion.SLOW, sideMenu);
-        slide.setInterpolator(com.rujiman.mediatracker.ui.Motion.EASE_OUT);
-        slide.setFromX(-SIDE_MENU_WIDTH);
-        slide.setToX(0);
-        slide.play();
-
-        navMenuOpen = true;
-    }
-
-    private void closeNavMenu() {
-        TranslateTransition slide = new TranslateTransition(com.rujiman.mediatracker.ui.Motion.BASE, sideMenu);
-        slide.setInterpolator(com.rujiman.mediatracker.ui.Motion.EASE_IN_OUT);
-        slide.setFromX(0);
-        slide.setToX(-SIDE_MENU_WIDTH);
-        slide.setOnFinished(e -> sideMenu.setVisible(false));
-        slide.play();
-
-        navMenuOpen = false;
+        if (profileMenuOpen) closeProfileMenu();
+        navRail.toggleExpanded();
     }
 
     // -------------------------
@@ -1058,7 +1037,6 @@ public class SearchController {
     // -------------------------
     @FXML
     private void toggleProfileMenu() {
-        if (navMenuOpen) closeNavMenu(); // no tener ambos abiertos a la vez
         if (profileMenuOpen) closeProfileMenu();
         else openProfileMenu();
     }
@@ -1117,13 +1095,10 @@ public class SearchController {
             Image img = new Image(dest.toURI().toString());
             profileIcon.setImage(img);
             profilePicture.setImage(img);
-            navProfilePicture.setImage(img);
             profileIcon.setVisible(true);
             profilePicture.setVisible(true);
-            navProfilePicture.setVisible(true);
             profileInitialLabel.setVisible(false);
             profileInitialLabelBig.setVisible(false);
-            navProfileInitialLabel.setVisible(false);
 
             // Persistir la ruta en profile.json
             ProfileService.updatePhotoPath(loginUser, dest.getPath());
@@ -1166,7 +1141,6 @@ public class SearchController {
             ProfileService.updateDisplayName(trimmed, trimmed);
 
             usernameLabel.setText(trimmed);
-            welcomeLabel.setText("Bienvenido a tu galaxia, " + trimmed);
             updateProfileInitial(trimmed);
             showAlert("Nombre de usuario actualizado. Úsalo la próxima vez que inicies sesión.");
         });
@@ -1232,7 +1206,7 @@ public class SearchController {
      */
     @FXML
     private void openLibrary() {
-        if (navMenuOpen) closeNavMenu();
+        navRail.setActive("library");
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/rujiman/mediatracker/views/LibraryView.fxml")
@@ -1251,7 +1225,7 @@ public class SearchController {
     /** Abre "Logros" (menú lateral, botón y medallas del banner, o el aviso). */
     @FXML
     private void openAchievements() {
-        if (navMenuOpen) closeNavMenu();
+        navRail.setActive("achievements");
         AchievementsView view = new AchievementsView();
         openOverlay(view.getRoot());
         setWindowTitle("Mediaverse - Logros");
@@ -1263,7 +1237,7 @@ public class SearchController {
      */
     @FXML
     private void openReviews() {
-        if (navMenuOpen) closeNavMenu();
+        navRail.setActive("reviews");
         ReviewsView view = new ReviewsView(this::openDetailFromReviews);
         openOverlay(view.getRoot());
         setWindowTitle("Mediaverse - Mis reseñas");
@@ -1288,47 +1262,13 @@ public class SearchController {
         }
     }
 
-    /**
-     * Pone el número de estrenos nuevos encima del botón "Estrenos" y un
-     * puntito en el ☰ (el menú está escondido, así se ve que hay algo).
-     * Ambos se envuelven en un StackPane en el mismo sitio que ocupaban.
-     */
-    private void setupReleasesBadge() {
-        releasesBadge.setStyle("-fx-background-color: " + Palette.BRAND + "; -fx-background-radius: 999;"
-                + "-fx-text-fill: white; -fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 11px;"
-                + "-fx-padding: 1 7; -fx-min-width: 20; -fx-alignment: center;");
-        releasesBadge.setMouseTransparent(true);
-        menuDot.setFill(javafx.scene.paint.Color.web(Palette.BRAND));
-        menuDot.setStroke(javafx.scene.paint.Color.web("#1c1730"));
-        menuDot.setStrokeWidth(2);
-        menuDot.setMouseTransparent(true);
-
-        wrapWithOverlay(navReleases, releasesBadge, Pos.CENTER_RIGHT, new Insets(0, 14, 0, 0));
-        wrapWithOverlay(hamburgerButton, menuDot, Pos.TOP_RIGHT, new Insets(4, 2, 0, 0));
-        updateReleasesBadge(0);
-    }
-
-    private void wrapWithOverlay(Button button, Node overlay, Pos pos, Insets margin) {
-        if (!(button.getParent() instanceof Pane parent)) return;
-        int idx = parent.getChildren().indexOf(button);
-        StackPane wrap = new StackPane();
-        wrap.setMaxWidth(button.getMaxWidth());
-        parent.getChildren().set(idx, wrap);
-        StackPane.setAlignment(overlay, pos);
-        StackPane.setMargin(overlay, margin);
-        wrap.getChildren().addAll(button, overlay);
-    }
-
     /** Lo llama el Inicio con los estrenos de esta semana: cuenta los no vistos. */
     private void updateReleasesBadge(List<ReleaseService.Release> week) {
         updateReleasesBadge(ReleaseService.unseenCount(week));
     }
 
     private void updateReleasesBadge(int unseen) {
-        boolean show = unseen > 0;
-        releasesBadge.setText(unseen > 9 ? "9+" : String.valueOf(unseen));
-        releasesBadge.setVisible(show);
-        menuDot.setVisible(show);
+        navRail.setBadge("releases", unseen);
     }
 
     /**
@@ -1337,7 +1277,7 @@ public class SearchController {
      */
     @FXML
     private void openReleases() {
-        if (navMenuOpen) closeNavMenu();
+        navRail.setActive("releases");
         // Al abrir Estrenos, lo de esta semana pasa a visto y se apaga el aviso
         ReleasesView view = new ReleasesView(this::openDetailFromReleases, () -> updateReleasesBadge(0));
         openOverlay(view.getRoot());
