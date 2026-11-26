@@ -2,6 +2,19 @@
 
 ---
 
+## [1.4.3] — 2026-11-26
+
+### ✨ Novedades
+- **Barra lateral nueva**: el menú ya no aparece por encima, ahora está siempre a la izquierda. Con el ☰ la pliegas (solo iconos) o la despliegas, y se acuerda de cómo la dejaste. La sección en la que estás lleva una pestaña que se desliza al cambiar
+- **Tus secciones**: en la barra ves tus 7 tipos con cuántos favoritos tienes en cada uno. Al pulsar uno, se abre Favoritos ya filtrado
+- **Logros, abajo a la izquierda**, con un anillo que muestra tu progreso
+- El aviso de estrenos nuevos sale ahora en la barra (un puntito si está plegada)
+
+### 🐛 Correcciones
+- Los logros de "uno" ya están en singular: "Ve 1 película", "Termina 1 juego", "Escribe 1 reseña"…
+
+---
+
 ## [1.4.2] — 2026-11-23
 
 ### ✨ Novedades
