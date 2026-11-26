@@ -45,20 +45,21 @@
   <meta name="theme-color" content="#100c1c">
   <link rel="icon" href="assets/favicon.png">
   <link rel="preload" href="fonts/Inter-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20261123130000">
+  <link rel="stylesheet" href="styles.css?v=20261126193500">
 </head>
 <body>
 
 <header class="top">
   <a class="brand" href="#">
     <img src="assets/logo.png" alt="" width="32" height="32">
-    <span>Mediaverse</span>
+    <span>MediaVerse</span>
   </a>
   <nav class="top-nav" aria-label="Secciones">
     <a href="#trailer">Tráiler</a>
     <a href="#tipos">Qué guarda</a>
     <a href="#logros">Logros</a>
     <a href="#instalar">Instalar</a>
+    <a href="https://discord.gg/aqHcCdMXZj" target="_blank" rel="noopener">Discord</a>
     <a class="top-cta" href="#descargar">Descargar</a>
   </nav>
 </header>
@@ -68,7 +69,7 @@
   <!-- ============ HERO ============ -->
   <section class="hero" id="descargar" data-hero>
     <div class="hero-text">
-      <a class="news-pill" href="#logros"><span>Nuevo en la 1.4</span>Logros, rachas, estrenos y reseñas</a>
+      <a class="news-pill" href="#a-tu-gusto"><span>Nuevo</span>Tu vitrina a tu gusto y una barra lateral nueva</a>
       <h1>Tu vitrina de todo lo que ves, juegas, escuchas y lees.</h1>
       <p class="lead">
         Guarda series, películas, anime, manga, juegos, música y libros en un solo sitio.
@@ -84,7 +85,7 @@
           ¿Usas Linux? <a data-alt-link href="https://github.com/rujiman/MediaVerse/releases/latest/download/MediaVerse-linux.tar.gz">Descarga la versión para Linux</a>.
         </p>
         <p class="download-meta">
-          <span data-version>Última versión</span>, gratis y sin anuncios. Java ya va incluido: descomprimir y abrir.
+          <span data-version>Última versión</span>, gratis y sin anuncios. Java ya va incluido: descomprime y abre.
         </p>
       </div>
 
@@ -113,7 +114,7 @@
       <div class="halo"></div>
       <div class="app">
         <div class="app-bar"><i></i><i></i><i></i><span>MediaVerse</span></div>
-        <img src="assets/shots/hero-app.webp" alt="" width="2000" height="1240" fetchpriority="high">
+        <img src="assets/shots/hero-app.webp?v=1426" alt="" width="1900" height="1122" fetchpriority="high">
       </div>
       <div class="float f1" data-depth="18"><div class="tile t-game"><b>Juegos</b><i>IGDB</i></div></div>
       <div class="float f2" data-depth="12"><div class="tile t-anime"><b>Anime</b><i>AniList</i></div></div>
@@ -134,7 +135,7 @@
       </video>
       <div class="video-soon">
         <img src="assets/logo.png" alt="" width="72" height="72">
-        <p>El tráiler llega muy pronto.</p>
+        <p>No se ha podido cargar el tráiler.</p>
       </div>
     </div>
   </section>
@@ -143,10 +144,10 @@
   <section class="types" id="tipos" aria-labelledby="types-title">
     <div class="section-head">
       <h2 id="types-title">Siete tipos de contenido, cada uno con su color</h2>
-      <p>Buscas en la app y los datos llegan de las mejores bases de datos de cada cosa.</p>
+      <p>Buscas desde la app y la información llega de la mejor fuente para cada cosa.</p>
     </div>
     <ul class="type-list">
-      <li style="--c:#b69cfa"><span class="type-name">Series</span><span class="type-what">Capítulo a capítulo, por temporadas, con dónde verlas</span><span class="type-src">TMDB</span></li>
+      <li style="--c:#b69cfa"><span class="type-name">Series</span><span class="type-what">Episodio a episodio, por temporadas, con dónde verlas</span><span class="type-src">TMDB</span></li>
       <li style="--c:#ecb14d"><span class="type-name">Películas</span><span class="type-what">Vistas, pendientes, tráiler y plataformas</span><span class="type-src">TMDB</span></li>
       <li style="--c:#ec4dc0"><span class="type-name">Anime</span><span class="type-what">Episodios, temporadas y recomendaciones</span><span class="type-src">AniList</span></li>
       <li style="--c:#f87171"><span class="type-name">Manga</span><span class="type-what">Por dónde vas leyendo, capítulo a capítulo</span><span class="type-src">AniList</span></li>
@@ -162,22 +163,30 @@
     <article class="feature feature--showcase">
       <div class="feature-text">
         <h2>Un perfil para presumir</h2>
-        <p>Tu pantalla de inicio es tu vitrina: tu favorito absoluto de cada cosa en grande y tu top 5 al lado. Elige portada, ordénalo arrastrando y expórtalo como imagen para subirlo a donde quieras. La de al lado es una exportación real: haz clic para verla a tamaño completo.</p>
+        <p>Tu pantalla de inicio es tu vitrina: en cada sección, tu favorito absoluto en grande y el resto de tu top al lado. Elige portada, ordénalo arrastrando y expórtalo como imagen para subirlo a donde quieras. La de al lado es una exportación real: haz clic para verla a tamaño completo.</p>
       </div>
       <figure class="shot shot--tall" style="--c:#ec4dc0">
-        <a href="assets/shots/vitrina-grande.webp?v=14" target="_blank" rel="noopener" aria-label="Ver la vitrina a tamaño completo">
-        <img src="assets/shots/vitrina.webp?v=14" alt="Vitrina de perfil exportada desde MediaVerse 1.4: banda con medallas y estadísticas, Continúa donde lo dejaste, favorito absoluto y top 5 de juegos, anime, series y películas, y portadas de música, libros y manga" loading="lazy" width="2000" height="2241">
+        <a href="assets/shots/vitrina-grande.webp?v=1426" target="_blank" rel="noopener" aria-label="Ver la vitrina a tamaño completo">
+        <img src="assets/shots/vitrina.webp?v=1426" alt="Vitrina de perfil exportada desde MediaVerse: banda con medallas y estadísticas, Continúa donde lo dejaste, favorito absoluto y top 5 de juegos, anime, series y manga, y portadas de música, películas y libros" loading="lazy" width="2000" height="2572">
         </a>
               </figure>
+    </article>
+
+    <article class="feature" id="a-tu-gusto">
+      <div class="feature-text">
+        <h2>Tu vitrina, a tu gusto</h2>
+        <p>¿Más de manga que de películas? Elige qué cuatro secciones van en grande, con favorito absoluto y cinco huecos, y en qué orden. Las demás pasan a la fila compacta, y si una vuelve a ser principal, recupera su quinto favorito.</p>
+      </div>
+      <div class="layout" data-layout aria-label="Ejemplo interactivo de las secciones principales" data-shot="assets/shots/principales.webp" data-c="#ef4444" data-alt="Ventana Secciones principales de MediaVerse con cuatro secciones marcadas y flechas para ordenarlas"></div>
     </article>
 
     <article class="feature feature--wide">
       <div class="feature-text">
         <h2>Tus números, a la vista</h2>
-        <p>Encima de tu vitrina ves cuántos episodios llevas, los capítulos que has leído, lo que has terminado, lo que tienes en curso y tu nota media. Junto a tu nombre van tus medallas: los logros que tú elijas enseñar.</p>
+        <p>Encima de tu vitrina ves cuántos episodios llevas, los capítulos que has leído, lo que has terminado, lo que tienes en curso y tu nota media. Junto a tu foto van tus medallas: los logros que tú elijas enseñar.</p>
       </div>
       <figure class="shot shot--auto" style="--c:#8b5cf6">
-        <img src="assets/shots/banner.webp?v=14" alt="Banda de perfil de MediaVerse: medallas Cerrando historias, Al día y Vitrina llena junto al nombre, y 1.781 episodios vistos, 500 capítulos leídos, 24 terminados, 9 en curso y 4,8 de nota media" loading="lazy" width="1600" height="503">
+        <img src="assets/shots/banner.webp?v=1426" alt="Banda de perfil de MediaVerse: medallas Al día, Vitrina llena y Enganchado junto a la foto, y 1.722 episodios vistos, 500 capítulos leídos, 24 terminados, 9 en curso y 4,8 de nota media" loading="lazy" width="1600" height="515">
       </figure>
     </article>
 
@@ -192,7 +201,7 @@
     <article class="feature">
       <div class="feature-text">
         <h2>No te pierdas ni un estreno</h2>
-        <p>MediaVerse mira cuándo sale el próximo episodio de lo que sigues y cuándo se estrena lo que tienes pendiente. Lo ves todo ordenado por fecha y con cuenta atrás, y un aviso en el menú te dice cuándo hay algo nuevo esa semana.</p>
+        <p>MediaVerse mira cuándo sale el próximo episodio de lo que sigues y cuándo se estrena lo que tienes pendiente. Lo ves todo ordenado por fecha y con cuenta atrás, y un aviso en la barra lateral te dice cuándo hay algo nuevo esa semana.</p>
       </div>
       <div class="releases" aria-label="Ejemplo de la pantalla Estrenos" data-shot="assets/shots/estrenos.webp" data-c="#ec4dc0" data-alt="Pantalla Estrenos de MediaVerse con los próximos episodios agrupados por fecha">
         <p class="rel-head">Estrenos <span>2 nuevos</span></p>
@@ -229,7 +238,7 @@
     <article class="feature">
       <div class="feature-text">
         <h2>Di lo que piensas</h2>
-        <p>Escribe una reseña de cualquier cosa, debajo de tus estrellas, y marca si tiene spoilers. Las tienes todas juntas en Mis reseñas, ordenadas por fecha o por tu nota.</p>
+        <p>Escribe una reseña de lo que quieras, junto a tu nota en estrellas, y marca si tiene spoilers. Las tienes todas juntas en Mis reseñas, ordenadas por fecha o por tu nota.</p>
       </div>
       <div class="review" aria-label="Ejemplo de reseña en la app" data-shot="assets/shots/resena.webp" data-c="#ec4d80" data-alt="Ficha de MediaVerse con la reseña personal debajo de las estrellas">
         <div class="review-top">
@@ -245,7 +254,7 @@
     <article class="feature feature--wide" id="logros">
       <div class="feature-text">
         <h2>Logros que cuestan de verdad</h2>
-        <p>67 logros en cinco dificultades, de Fácil a Legendario, y siete secretos por descubrir. Cada día que marcas algo sumas a tu racha, y no tiene final: con la Racha infinita subes de nivel cada año. Y cuando consigues uno, te enteras.</p>
+        <p>67 logros en cinco dificultades, de Fácil a Legendario, y siete secretos por descubrir. Cada día que marcas algo sumas a tu racha, y no tiene final: con la Racha infinita subes de nivel cada año. Y cuando consigues uno, te avisa con un sonido.</p>
         <p class="guide-link"><a href="https://github.com/rujiman/MediaVerse/blob/main/LOGROS.md" target="_blank" rel="noopener">Ver la guía de logros →</a></p>
       </div>
       <div class="ach" data-ach data-shot="assets/shots/logros.webp" data-c="#ec4d80" data-alt="Pantalla Logros de MediaVerse: racha, mapa de actividad, filtros de dificultad y logros por categoría">
@@ -281,6 +290,14 @@
       </div>
     </article>
 
+    <article class="feature" id="barra">
+      <div class="feature-text">
+        <h2>Todo a un clic</h2>
+        <p>La barra lateral te lleva a cada sección y marca dónde estás con una pestaña que se desliza. Pliégala con el ☰ si quieres más espacio. Debajo tienes tus tipos con cuántos favoritos llevas en cada uno, y abajo del todo, tu progreso en logros. Pruébalo: pulsa las secciones.</p>
+      </div>
+      <div class="rail-demo" data-rail aria-label="Ejemplo interactivo de la barra lateral"></div>
+    </article>
+
     <ul class="facts">
       <li><h3>Se actualiza sola</h3><p>Cuando sale una versión nueva aparece un botón. Lo pulsas y listo.</p></li>
       <li><h3>Tus datos, en tu PC</h3><p>Todo se guarda en tu carpeta de Documentos. Nada se sube a ningún servidor.</p></li>
@@ -309,8 +326,8 @@
         <p>Clic derecho, «Extraer todo», en la carpeta que quieras: Escritorio, Documentos o un USB.</p>
       </li>
       <li>
-        <h3>Abre MediaVerse.exe</h3>
-        <p>La primera vez te guía para conectar tus claves gratuitas de TMDB y Twitch. Se hace una sola vez.</p>
+        <h3>Abre MediaVerse</h3>
+        <p>Doble clic en <code>MediaVerse.exe</code>. La primera vez te guía para conectar tus claves gratuitas de TMDB y Twitch. Se hace una sola vez.</p>
       </li>
     </ol>
 
@@ -324,7 +341,7 @@
         <p><code>tar xzf MediaVerse-linux.tar.gz</code></p>
       </li>
       <li>
-        <h3>Ábrela</h3>
+        <h3>Abre MediaVerse</h3>
         <p><code>./MediaVerse/bin/MediaVerse</code>. La primera vez te guía con las claves. Necesita un escritorio con GTK 3, que traen Ubuntu, Mint o Fedora.</p>
       </li>
     </ol>
@@ -347,11 +364,15 @@
     </details>
     <details>
       <summary>¿Hay versión para Mac o para el móvil?</summary>
-      <p>Por ahora, Windows y Linux. El móvil está en los planes.</p>
+      <p>Por ahora, Windows y Linux. La versión para Android está en camino.</p>
     </details>
     <details>
       <summary>Windows me avisa al abrirla</summary>
       <p>Pasa con las apps que no están firmadas por una empresa. Pulsa «Más información» y luego «Ejecutar de todas formas».</p>
+    </details>
+    <details>
+      <summary>¿Dónde pido ayuda o propongo ideas?</summary>
+      <p>En el <a href="https://discord.gg/aqHcCdMXZj" target="_blank" rel="noopener">servidor de Discord de MediaVerse</a>. Hay canales de ayuda, de fallos y de sugerencias, y ahí se anuncia cada versión nueva. La vitrina a tu gusto, por ejemplo, salió de una idea de la comunidad.</p>
     </details>
   </section>
 
@@ -360,12 +381,12 @@
 <footer class="foot">
   <div class="brand">
     <img src="assets/logo.png" alt="" width="28" height="28">
-    <span>Mediaverse</span>
+    <span>MediaVerse</span>
   </div>
-  <p>Hecha por <a href="https://github.com/rujiman">Rujiman</a> como Trabajo de Fin de Grado de DAM. El código está en <a href="https://github.com/rujiman/MediaVerse">GitHub</a>.</p>
+  <p>Hecha por <a href="https://github.com/rujiman">Rujiman</a> como Trabajo de Fin de Grado de DAM. El código está en <a href="https://github.com/rujiman/MediaVerse">GitHub</a> y la comunidad, en <a href="https://discord.gg/aqHcCdMXZj" target="_blank" rel="noopener">Discord</a>.</p>
   <p class="credits">Datos de TMDB, AniList, IGDB, Deezer, Google Books y Open Library. Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.</p>
 </footer>
 
-<script src="app.js?v=20261123120000"></script>
+<script src="app.js?v=20261126193500"></script>
 </body>
 </html>

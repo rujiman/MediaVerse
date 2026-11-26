@@ -415,7 +415,7 @@ addEventListener("scroll", () => header.classList.toggle("scrolled", scrollY > 8
     { n: "???", d: "Nadie llega antes que tú", lv: 3, c: "#ec4d80", i: "lock", secret: true },
     { n: "Medio año", d: "Ten actividad 180 días seguidos", lv: 4, c: "#ec4d80", i: "flame", p: [12, 180] },
     { n: "Final boss", d: "Termina 500 juegos", lv: 5, c: "#4dd9ec", i: "game", p: [41, 500] },
-    { n: "Racha infinita", d: "Un año seguido; cada año más, sube de nivel", lv: 5, c: "#ec4d80", i: "flame", p: [12, 365] },
+    { n: "Racha infinita", d: "Ten actividad un año entero seguido. Cada año más, sube de nivel", lv: 5, c: "#ec4d80", i: "flame", p: [12, 365] },
     { n: "???", d: "Las dos caras de una historia", lv: 3, c: "#ec4d80", i: "lock", secret: true },
   ];
   const svg = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[k]}"/></svg>`;
@@ -469,6 +469,124 @@ addEventListener("scroll", () => header.classList.toggle("scrolled", scrollY > 8
   } else {
     show();
   }
+})();
+
+// --- Secciones principales: eliges 4 de 7 para verlas en grande y las ordenas
+(function setupLayout() {
+  const box = document.querySelector("[data-layout]");
+  if (!box) return;
+  const T = {
+    game: ["Juegos", "#4dd9ec"], anime: ["Anime", "#ec4dc0"], series: ["Series", "#8b5cf6"], movie: ["Películas", "#ecb14d"],
+    music: ["Música", "#4dec9e"], book: ["Libros", "#f97316"], manga: ["Manga", "#ef4444"],
+  };
+  // Empieza con Manga como principal, para que se vea la gracia
+  const order = ["manga", "anime", "series", "game", "movie", "music", "book"];
+  const main = new Set(["manga", "anime", "series", "game"]);
+  let fresh = new Set();
+  const check = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  function render() {
+    let pos = 0;
+    const rows = order.map((t, i) => {
+      const on = main.has(t);
+      if (on) pos++;
+      return `<li class="ly-row ${on ? "is-on" : ""}" style="--c:${T[t][1]}" data-t="${t}" role="checkbox" aria-checked="${on}" tabindex="0">
+        <span class="ly-check">${on ? check : ""}</span><span class="ly-dot"></span>
+        <span class="ly-name">${T[t][0]}</span><span class="ly-tag">${on ? "Principal " + pos : "Compacta"}</span>
+        <button type="button" data-up="${i}" ${i === 0 ? "disabled" : ""} aria-label="Subir ${T[t][0]}">▲</button>
+        <button type="button" data-down="${i}" ${i === order.length - 1 ? "disabled" : ""} aria-label="Bajar ${T[t][0]}">▼</button></li>`;
+    }).join("");
+    const tile = (t) => `<div class="ly-tile ${fresh.has(t) ? "is-new" : ""}" style="--c:${T[t][1]}"><i></i>${T[t][0]}</div>`;
+    const big = order.filter((t) => main.has(t)), small = order.filter((t) => !main.has(t));
+    const ok = main.size === 4;
+    box.innerHTML = `
+      <div class="ly-head"><b>Secciones principales</b><small class="${ok ? "ok" : ""}">${ok ? "✓ 4 principales elegidas" : "Elegidas " + main.size + " de 4"}</small></div>
+      <ul class="ly-rows">${rows}</ul>
+      <div class="ly-prev" aria-hidden="true">
+        <div class="ly-prev-big">${ok ? big.map(tile).join("") : ""}</div>
+        <div class="ly-prev-small">${ok ? small.map(tile).join("") : ""}</div>
+      </div>`;
+    fresh = new Set();
+  }
+
+  function toggle(t) {
+    if (main.has(t)) main.delete(t);
+    else if (main.size < 4) { main.add(t); fresh.add(t); }
+    render();
+  }
+  box.addEventListener("click", (ev) => {
+    const up = ev.target.closest("[data-up]"), down = ev.target.closest("[data-down]");
+    if (up || down) {
+      const i = +(up ? up.dataset.up : down.dataset.down), j = up ? i - 1 : i + 1;
+      [order[i], order[j]] = [order[j], order[i]];
+      fresh = new Set([order[i], order[j]]);
+      render();
+      return;
+    }
+    const row = ev.target.closest("[data-t]");
+    if (row) toggle(row.dataset.t);
+  });
+  box.addEventListener("keydown", (ev) => {
+    const row = ev.target.closest("[data-t]");
+    if (row && (ev.key === " " || ev.key === "Enter")) { ev.preventDefault(); toggle(row.dataset.t); box.querySelector(`[data-t="${row.dataset.t}"]`)?.focus(); }
+  });
+  render();
+})();
+
+// --- Barra lateral: pestaña activa que se desliza y se pliega con el ☰
+(function setupRail() {
+  const box = document.querySelector("[data-rail]");
+  if (!box) return;
+  const P = {
+    menu: "M4 7h16M4 12h16M4 17h16",
+    home: "M3 11l9-7 9 7 M5 10v10h14V10",
+    search: "M18 11a7 7 0 1 1-14 0a7 7 0 1 1 14 0z M20 20l-4-4",
+    star: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",
+    library: "M5 4v16 M10 4v16 M15 4.5l4.5 15",
+    calendar: "M4 6h16v14H4z M4 10h16 M8 3v5 M16 3v5",
+    review: "M4 5h16v11H10l-5 4v-4H4z M8 9h8 M8 12h5",
+    trophy: "M8 4h8v5a4 4 0 0 1-8 0z M8 6H5c0 2.5 1.3 4 3 4.2 M16 6h3c0 2.5-1.3 4-3 4.2 M12 13v4 M8.5 20h7 M10 17h4",
+  };
+  const ico = (k) => `<svg class="rd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[k]}"/></svg>`;
+  const ITEMS = [
+    ["home", "Inicio", "Tu vitrina y lo que tienes a medias", "#ec4d80"],
+    ["search", "Buscar", "Series, pelis, anime, manga, juegos, música y libros", "#8b5cf6"],
+    ["star", "Favoritos", "Todo lo que te gusta, con tus carpetas", "#ecb14d"],
+    ["library", "Mi biblioteca", "Pendiente, en curso y terminado", "#4dd9ec"],
+    ["calendar", "Estrenos", "Lo que sale esta semana de lo que sigues", "#ec4dc0"],
+    ["review", "Mis reseñas", "Todas tus reseñas, por fecha o por nota", "#4dec9e"],
+  ];
+  const TYPES = [["Juegos", "#4dd9ec", 8], ["Anime", "#ec4dc0", 5], ["Series", "#8b5cf6", 8], ["Películas", "#ecb14d", 6],
+    ["Música", "#4dec9e", 5], ["Libros", "#f97316", 4], ["Manga", "#ef4444", 6]];
+
+  box.innerHTML = `
+    <div class="rd-side">
+      <div class="rd-top"><button type="button" data-toggle aria-label="Plegar o desplegar la barra" aria-expanded="true">${ico("menu")}</button><b>MediaVerse</b></div>
+      <div class="rd-items"><span class="rd-tab"></span>
+        ${ITEMS.map(([k, n], i) => `<button type="button" class="rd-item" data-i="${i}" title="${n}">${ico(k)}<span class="rd-lbl">${n}</span>${k === "calendar" ? '<span class="rd-badge">2</span>' : ""}</button>`).join("")}
+      </div>
+      <p class="rd-sec-title">TUS SECCIONES</p>
+      ${TYPES.map(([n, c, k]) => `<div class="rd-type" style="--c:${c}"><i></i><span>${n}</span><span>${k}</span></div>`).join("")}
+      <div class="rd-ach"><span class="rd-ring"><span>${ico("trophy")}</span></span><div><b>Logros</b><small>15 de 67</small></div></div>
+    </div>
+    <div class="rd-main"></div>`;
+
+  const tab = box.querySelector(".rd-tab"), main = box.querySelector(".rd-main");
+  const items = [...box.querySelectorAll(".rd-item")];
+  function select(i) {
+    items.forEach((b, j) => b.classList.toggle("is-on", j === i));
+    tab.style.top = items[i].offsetTop + "px";
+    const [, n, d, c] = ITEMS[i];
+    main.style.setProperty("--c", c);
+    main.innerHTML = `<h3>${n}</h3><p>${d}</p><div class="rd-cards"><i></i><i></i><i></i><i></i></div>`;
+  }
+  box.addEventListener("click", (ev) => {
+    const item = ev.target.closest("[data-i]");
+    if (item) return select(+item.dataset.i);
+    const t = ev.target.closest("[data-toggle]");
+    if (t) t.setAttribute("aria-expanded", String(!box.classList.toggle("is-col")));
+  });
+  select(0);
 })();
 
 // --- Capturas reales: si existe la imagen de un hueco [data-shot], sustituye a la réplica.
